@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- CAVERNA: pedra 1. Lista de bicho (RF001) e caçada (RF002).
+     Agora o HTML e so a casca vazia: quem enche e o JavaScript com dado da PokeAPI. -->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <!-- CAVERNA: tela pequena nao quebra (RNF002). -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PokéLista</title>
+</head>
+<body>
+
+  <!-- ================= TOPO ================= -->
+  <header>
+    <h1>PokéLista</h1>
+    <nav>
+      <a href="favoritos.html">&#9733; Meus Favoritos</a>
+    </nav>
+  </header>
+
+  <hr>
+
+  <!-- ================= BUSCA (RF002) ================= -->
+  <!-- CAVERNA: form nao recarrega a pagina; o JS segura o submit e busca na API. -->
+  <section>
+    <form id="form-busca" role="search">
+      <label for="busca">Nome ou número da Pokédex:</label>
+      <input type="search" id="busca" name="q" placeholder="Ex.: pikachu ou 25">
+      <button type="submit">&#128269; Buscar</button>
+    </form>
+  </section>
+
+  <hr>
+
+  <main>
+
+    <!-- CAVERNA: mensageiro ainda esta na estrada. -->
+    <p id="estado-carregando">Carregando Pokémons…</p>
+
+    <!-- CAVERNA: deu ruim na PokeAPI (RF007). Grito + botao de tentar de novo. -->
+    <section id="estado-erro" hidden>
+      <h2>Deu ruim</h2>
+      <p id="mensagem-erro">Não foi possível carregar os Pokémons.</p>
+      <button type="button" id="btn-tentar">Tentar novamente</button>
+    </section>
+
+    <!-- CAVERNA: caçou e nao achou nada. -->
+    <p id="sem-resultado" hidden>Nenhum Pokémon encontrado com esse nome ou número.</p>
+
+    <!-- CAVERNA: aqui o JS cospe os cards (numero, nome, imagem, tipo). -->
+    <ul id="lista-pokemons" hidden></ul>
+
+    <!-- ================= PAGINACAO (RF001) ================= -->
+    <!-- CAVERNA: bicho e mil. Mostra 20 por vez. -->
+    <nav id="paginacao" aria-label="Paginação" hidden>
+      <button type="button" id="btn-anterior">&#9664; Anterior</button>
+      <span id="info-pagina"></span>
+      <button type="button" id="btn-proxima">Próxima &#9654;</button>
+    </nav>
+
+  </main>
+
+  <hr>
+  <footer>
+    <p>PokéLista &mdash; Projeto 01 &mdash; dados da <a href="https://pokeapi.co/" target="_blank" rel="noopener">PokéAPI</a></p>
+  </footer>
+
+  <!-- ================= CEREBROS =================
+       CAVERNA: ordem importa. Tradutor e mensageiro primeiro, cerebro da tela por ultimo. -->
+  <script src="js/traducoes.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/favoritos.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pagina-lista.js"></script>
+</body>
+</html>

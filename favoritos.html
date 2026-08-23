@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- CAVERNA: pedra 3. Caverna dos bicho guardado (RF006).
+     Aqui NAO chama PokeAPI: tudo ja esta salvo no localStorage (RF005/RNF001). -->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meus Favoritos</title>
+</head>
+<body>
+
+  <header>
+    <a href="index.html">&#9664; Voltar</a>
+    <h1>Meus Favoritos</h1>
+    <p id="contador"></p>
+  </header>
+
+  <hr>
+
+  <!-- CAVERNA: filtra dentro da propria caverna, sem sair pra rede. -->
+  <section>
+    <form id="form-busca-fav" role="search">
+      <label for="buscaFav">Buscar favoritos:</label>
+      <input type="search" id="buscaFav" name="q" placeholder="Nome ou número">
+      <button type="submit">&#128269; Buscar</button>
+    </form>
+  </section>
+
+  <hr>
+
+  <main>
+
+    <!-- CAVERNA: cards nascem no JS, cada um com botao de remover (RF004). -->
+    <ul id="lista-favoritos" hidden></ul>
+
+    <!-- CAVERNA: caverna vazia (RF006). -->
+    <section id="estado-vazio" hidden>
+      <h2>Caverna vazia</h2>
+      <p>Você ainda não favoritou nenhum Pokémon.</p>
+      <a href="index.html">Ir para a lista</a>
+    </section>
+
+    <!-- CAVERNA: tem favorito, mas a busca nao achou nenhum. -->
+    <p id="sem-resultado" hidden>Nenhum favorito com esse nome ou número.</p>
+
+  </main>
+
+  <hr>
+  <footer>
+    <p>PokéLista &mdash; Projeto 01</p>
+  </footer>
+
+  <!-- CAVERNA: aqui nao precisa do api.js, mas precisa do tradutor (normalizarTexto). -->
+  <script src="js/traducoes.js"></script>
+  <script src="js/favoritos.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pagina-favoritos.js"></script>
+</body>
+</html>
