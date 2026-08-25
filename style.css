@@ -1,0 +1,678 @@
+/* ==========================================================================
+   1. IMPORTAÇÃO DE TIPOGRAFIA EXTERNA (Google Fonts)
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+
+/* ==========================================================================
+   2. RESET & INITIAL SETUP
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Regra crítica JS: Força visibilidade absoluta baseada no atributo hidden */
+[hidden] {
+  display: none !important;
+}
+
+/* Oculta as linhas divisorias puras do HTML sem alterar a marcação original */
+hr {
+  display: none;
+}
+
+/* ==========================================================================
+   3. VARIÁVEIS GLOBAIS (POKÉDEX DESIGN SYSTEM)
+   ========================================================================== */
+:root {
+  /* Tipografia */
+  --fonte-pixel: 'Press Start 2P', monospace, cursive;
+  --fonte-tech: 'Chakra Petch', -apple-system, sans-serif;
+
+  /* Cores Principais - Chassi de Pokédex */
+  --cor-primaria: #dc0a2d;
+  --cor-primaria-hover: #b80824;
+  --cor-primaria-escura: #8b0000;
+  
+  /* Tons Tecnológicos & Telas */
+  --cor-fundo: #0d1117;
+  --cor-superficie: #161b22;
+  --cor-superficie-elevada: #21262d;
+  --cor-chassi-metal: #212529;
+  --cor-tela-led: #001219;
+  
+  /* Acentos de Interface & HUD */
+  --cor-ciano-hud: #00f0ff;
+  --cor-ciano-glow: rgba(0, 240, 255, 0.4);
+  --cor-amarelo-hud: #ffcc00;
+  --cor-secundaria: #00e676;
+  --cor-secundaria-hover: #00c853;
+  --cor-perigo: #ff2a2a;
+  --cor-perigo-hover: #d50000;
+  
+  /* Textos & Indicadores */
+  --cor-texto: #e6edf3;
+  --cor-texto-mutado: #8b949e;
+  --cor-texto-inverso: #ffffff;
+  --cor-texto-verde-hud: #39ff14;
+
+  /* Mensagens e Feedback */
+  --cor-erro-fundo: #2d0000;
+  --cor-erro-texto: #ff8080;
+  --cor-erro-borda: #ff2a2a;
+
+  /* Bordas e Efeitos Industriais */
+  --cor-borda: #30363d;
+  --cor-borda-tech: #00f0ff;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  
+  /* Sombras & Neon Glow */
+  --sombra-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.7);
+  --sombra-lg: 0 8px 24px rgba(0, 0, 0, 0.85);
+  --glow-hud: 0 0 10px var(--cor-ciano-glow);
+  --glow-vermelho: 0 0 12px rgba(220, 10, 45, 0.6);
+
+  /* Espaçamento */
+  --espaco-xs: 0.5rem;
+  --espaco-sm: 0.75rem;
+  --espaco-md: 1.25rem;
+  --espaco-lg: 2rem;
+  --espaco-xl: 3rem;
+
+  /* Transições */
+  --transicao-suave: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ==========================================================================
+   4. TIPOGRAFIA & BASE COM TEXTURA SCANLINE DISCRETA
+   ========================================================================== */
+body {
+  font-family: var(--fonte-tech);
+  background-color: var(--cor-fundo);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(220, 10, 45, 0.15) 0%, transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 4px;
+  color: var(--cor-texto);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--espaco-md) var(--espaco-xl);
+}
+
+h1, h2, h3 {
+  color: var(--cor-texto);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+h1 { 
+  font-family: var(--fonte-pixel); 
+  font-size: 1.1rem; 
+  text-transform: uppercase;
+  color: var(--cor-texto-inverso);
+  text-shadow: 2px 2px 0px #000;
+}
+
+h2 { 
+  font-family: var(--fonte-pixel);
+  font-size: 0.9rem; 
+  margin-bottom: var(--espaco-sm); 
+  color: var(--cor-ciano-hud);
+}
+
+h3 { 
+  font-family: var(--fonte-tech);
+  font-size: 1.1rem; 
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Foco Acessível POKÉDEX Neon */
+:focus-visible {
+  outline: 2px solid var(--cor-ciano-hud);
+  outline-offset: 3px;
+  box-shadow: var(--glow-hud);
+}
+
+/* ==========================================================================
+   5. HEADER & NAVBAR (PAINEL POKÉDEX HARDWARE)
+   ========================================================================== */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
+  color: var(--cor-texto-inverso);
+  padding: var(--espaco-md);
+  box-shadow: var(--sombra-md), var(--glow-vermelho);
+  margin-bottom: var(--espaco-lg);
+  border-bottom: 4px solid #5a0000;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-md);
+  padding-left: max(var(--espaco-md), calc((100vw - 1200px) / 2));
+  padding-right: max(var(--espaco-md), calc((100vw - 1200px) / 2));
+}
+
+/* Simulação da lente de câmera/sensor azul da Pokédex */
+header::before {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle at 30% 30%, #80f3ff, #0077ff);
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00f0ff, inset 0 0 4px rgba(255, 255, 255, 0.8);
+  margin-right: -0.5rem;
+}
+
+header nav a,
+header > a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-xs);
+  background-color: var(--cor-chassi-metal);
+  color: var(--cor-ciano-hud);
+  border: 1px solid var(--cor-ciano-hud);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--fonte-pixel);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  transition: var(--transicao-suave);
+  box-shadow: inset 0 0 5px rgba(0, 240, 255, 0.2);
+}
+
+header nav a:hover,
+header > a:hover {
+  background-color: var(--cor-ciano-hud);
+  color: #000;
+  box-shadow: var(--glow-hud);
+}
+
+#contador {
+  background-color: #000;
+  color: var(--cor-texto-verde-hud);
+  border: 1px solid #1a3a1a;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--fonte-pixel);
+  font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   6. FORMULÁRIOS & BUSCA
+   ========================================================================== */
+section form {
+  max-width: 1200px;
+  margin: 0 auto var(--espaco-lg);
+  padding: 0 var(--espaco-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+  align-items: center;
+}
+
+section form label {
+  width: 100%;
+  font-family: var(--fonte-pixel);
+  font-size: 0.65rem;
+  color: var(--cor-ciano-hud);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+section form input[type="search"] {
+  flex: 1;
+  min-width: 260px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--radius-sm);
+  font-family: var(--fonte-tech);
+  font-size: 1rem;
+  background-color: var(--cor-tela-led);
+  color: var(--cor-texto-verde-hud);
+  transition: var(--transicao-suave);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+}
+
+section form input[type="search"]:focus {
+  border-color: var(--cor-ciano-hud);
+  box-shadow: var(--glow-hud), inset 0 2px 4px rgba(0,0,0,0.8);
+}
+
+/* ==========================================================================
+   7. BOTÕES COM ESTÉTICA HUD
+   ========================================================================== */
+button,
+section form button[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-xs);
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--cor-primaria);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(180deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
+  color: var(--cor-texto-inverso);
+  font-family: var(--fonte-pixel);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transicao-suave);
+  box-shadow: var(--sombra-sm);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+button:hover,
+section form button[type="submit"]:hover {
+  filter: brightness(1.2);
+  box-shadow: var(--glow-vermelho);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  background: var(--cor-superficie-elevada);
+  border-color: var(--cor-borda);
+  color: var(--cor-texto-mutado);
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: none;
+}
+
+/* Botão de Favoritar dinâmico */
+#btn-favorito {
+  background: linear-gradient(180deg, var(--cor-secundaria) 0%, #00913b 100%);
+  border-color: var(--cor-secundaria);
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 0.7rem;
+}
+
+#btn-favorito:hover {
+  box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+}
+
+#btn-favorito[aria-pressed="true"] {
+  background: linear-gradient(180deg, var(--cor-perigo) 0%, #a00000 100%);
+  border-color: var(--cor-perigo);
+}
+
+#btn-favorito[aria-pressed="true"]:hover {
+  box-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
+}
+
+/* ==========================================================================
+   8. CARDS POKÉDEX DE HARDWARE
+   ========================================================================== */
+#lista-pokemons,
+#lista-favoritos {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-xl);
+}
+
+#lista-pokemons li article,
+#lista-favoritos li article {
+  background: linear-gradient(145deg, var(--cor-superficie) 0%, var(--cor-chassi-metal) 100%);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--radius-md);
+  padding: var(--espaco-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  transition: var(--transicao-suave);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Detalhe visual de circuito no canto do card */
+#lista-pokemons li article::before,
+#lista-favoritos li article::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 20px 20px 0;
+  border-color: transparent var(--cor-borda) transparent transparent;
+}
+
+#lista-pokemons li article:hover,
+#lista-favoritos li article:hover {
+  transform: translateY(-4px);
+  border-color: var(--cor-ciano-hud);
+  box-shadow: var(--glow-hud), var(--sombra-lg);
+}
+
+#lista-pokemons article a,
+#lista-favoritos article a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#lista-pokemons img,
+#lista-favoritos img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: var(--espaco-xs);
+  background-color: var(--cor-tela-led);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  border: 1px solid var(--cor-borda);
+  transition: var(--transicao-suave);
+}
+
+#lista-pokemons article:hover img,
+#lista-favoritos article:hover img {
+  transform: scale(1.05);
+  border-color: var(--cor-ciano-hud);
+}
+
+#lista-pokemons h3,
+#lista-favoritos h3 {
+  font-family: var(--fonte-pixel);
+  font-size: 0.7rem;
+  color: var(--cor-texto);
+  margin-bottom: var(--espaco-xs);
+  text-transform: capitalize;
+  line-height: 1.3;
+}
+
+#lista-pokemons p,
+#lista-favoritos p {
+  font-family: var(--fonte-tech);
+  font-size: 0.85rem;
+  color: var(--cor-ciano-hud);
+  margin-bottom: var(--espaco-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#lista-favoritos button {
+  background: linear-gradient(180deg, var(--cor-perigo) 0%, #900000 100%);
+  border-color: var(--cor-perigo);
+  font-size: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: var(--espaco-xs);
+  width: 100%;
+}
+
+/* ==========================================================================
+   9. TELA DE DETALHES TIPO MONITOR POKÉDEX
+   ========================================================================== */
+#conteudo {
+  background-color: var(--cor-superficie);
+  border-radius: var(--radius-lg);
+  padding: var(--espaco-lg);
+  box-shadow: var(--sombra-md), 0 0 15px rgba(0,0,0,0.5);
+  border: 2px solid var(--cor-borda);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-lg);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  #conteudo {
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+  }
+}
+
+#conteudo figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: var(--cor-tela-led);
+  padding: var(--espaco-md);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--cor-borda);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+#poke-imagem {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.2));
+}
+
+#conteudo figcaption {
+  margin-top: var(--espaco-sm);
+  font-family: var(--fonte-pixel);
+  font-size: 0.9rem;
+  text-transform: capitalize;
+  color: var(--cor-texto-verde-hud);
+}
+
+#poke-numero {
+  color: var(--cor-amarelo-hud);
+  margin-right: 0.3rem;
+}
+
+/* Pills de Tipos e Habilidades em formato LED/Display */
+#poke-tipos,
+#poke-habilidades {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-xs);
+  margin-top: var(--espaco-xs);
+}
+
+#poke-tipos li,
+#poke-habilidades li {
+  background-color: var(--cor-chassi-metal);
+  border: 1px solid var(--cor-ciano-hud);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--fonte-tech);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-ciano-hud);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   10. TABELA DE ATRIBUTOS (ANALISADOR HUD)
+   ========================================================================== */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 4px;
+  margin-top: var(--espaco-sm);
+}
+
+th, td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  background-color: var(--cor-superficie-elevada);
+  font-size: 0.9rem;
+}
+
+th {
+  font-family: var(--fonte-pixel);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: var(--cor-amarelo-hud);
+  border-left: 2px solid var(--cor-amarelo-hud);
+}
+
+td {
+  font-family: var(--fonte-tech);
+  font-weight: 600;
+}
+
+/* Barras de Atributo <progress> Estilo Medidor Cyberpunk */
+progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 0;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--cor-borda);
+  background-color: var(--cor-tela-led);
+}
+
+progress::-webkit-progress-bar {
+  background-color: var(--cor-tela-led);
+}
+
+progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #00f0ff 0%, #39ff14 100%);
+}
+
+progress::-moz-progress-bar {
+  background: linear-gradient(90deg, #00f0ff 0%, #39ff14 100%);
+}
+
+/* ==========================================================================
+   11. ESTADOS DE CARREGAMENTO / ERRO / VAZIO & PAGINAÇÃO
+   ========================================================================== */
+#estado-carregando,
+#sem-resultado,
+#estado-vazio,
+#estado-erro {
+  text-align: center;
+  padding: var(--espaco-xl) var(--espaco-md);
+  background-color: var(--cor-superficie);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--cor-borda);
+  margin: var(--espaco-lg) 0;
+  box-shadow: var(--sombra-sm);
+  font-family: var(--fonte-tech);
+}
+
+#estado-carregando h2,
+#sem-resultado h2,
+#estado-vazio h2 {
+  font-family: var(--fonte-pixel);
+  font-size: 0.8rem;
+  color: var(--cor-amarelo-hud);
+}
+
+#estado-erro {
+  border-color: var(--cor-erro-borda);
+  background-color: var(--cor-erro-fundo);
+  color: var(--cor-erro-texto);
+  box-shadow: 0 0 10px rgba(255, 42, 42, 0.3);
+}
+
+#estado-erro h2 {
+  font-family: var(--fonte-pixel);
+  font-size: 0.8rem;
+  color: var(--cor-erro-texto);
+}
+
+#estado-erro button {
+  margin-top: var(--espaco-md);
+}
+
+#paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-md);
+  margin-top: var(--espaco-lg);
+}
+
+#info-pagina {
+  font-family: var(--fonte-pixel);
+  font-size: 0.65rem;
+  color: var(--cor-ciano-hud);
+}
+
+/* ==========================================================================
+   12. FOOTER
+   ========================================================================== */
+footer {
+  text-align: center;
+  padding: var(--espaco-md);
+  background-color: var(--cor-superficie);
+  border-top: 2px solid var(--cor-borda);
+  color: var(--cor-texto-mutado);
+  font-size: 0.85rem;
+  margin-top: auto;
+}
+
+footer a {
+  color: var(--cor-ciano-hud);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   13. RESPONSIVIDADE & ACCESSIBILIDADE
+   ========================================================================== */
+@media (max-width: 640px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--espaco-xs);
+  }
+
+  section form {
+    flex-direction: column;
+  }
+
+  section form button[type="submit"] {
+    width: 100%;
+  }
+
+  #paginacao {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  #paginacao button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
