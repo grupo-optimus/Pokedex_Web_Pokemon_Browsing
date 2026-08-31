@@ -1,6 +1,6 @@
 /* ==========================================================================
-   CAVERNA: cerebro da tela 3 (favoritos.html). RF006 + RF004.
-   Esta tela NAO fala com a PokeAPI: tudo ja esta salvo na pedra local.
+   Controlador da tela 3 (favoritos.html). RF006 + RF004.
+   Esta tela NAO fala com a PokeAPI: tudo ja esta salvo no localStorage.
    Por isso funciona ate sem internet.
    ========================================================================== */
 
@@ -15,7 +15,7 @@ function desenhar() {
   const termo = normalizarTexto(campoBusca.value);
   const todos = listarFavoritos();
 
-  // CAVERNA: filtra por nome ou por numero, ignorando maiuscula e acento.
+  // Filtra por nome ou por numero, ignorando maiuscula e acento.
   const visiveis = termo === ''
     ? todos
     : todos.filter(p =>
@@ -28,7 +28,7 @@ function desenhar() {
   visiveis.forEach(function (pokemon) {
     listaEl.appendChild(criarCardPokemon(pokemon, {
       comBotaoRemover: true,
-      aoRemover: desenhar // CAVERNA: tirou um? redesenha tudo na hora
+      aoRemover: desenhar // Tirou um? redesenha tudo na hora
     }));
   });
 
@@ -38,6 +38,6 @@ function desenhar() {
 }
 
 formBusca.addEventListener('submit', e => { e.preventDefault(); desenhar(); });
-campoBusca.addEventListener('input', desenhar); // CAVERNA: filtra enquanto digita
+campoBusca.addEventListener('input', desenhar); // Filtra enquanto digita
 
 desenhar();
