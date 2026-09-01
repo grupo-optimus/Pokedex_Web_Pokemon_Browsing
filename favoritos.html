@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- CAVERNA: pedra 3. Caverna dos bicho guardado (RF006).
+<!-- Tela 3. Pokemon guardados (RF006).
      Aqui NAO chama PokeAPI: tudo ja esta salvo no localStorage (RF005/RNF001). -->
 <html lang="pt-BR">
 <head>
@@ -13,19 +13,27 @@
 <body>
 
   <header>
-    <a href="index.html">&#9664; Voltar</a>
+    <!-- Mesma marca do rodape, so que aqui em cima. -->
+    <!-- A marca leva pro comeco da lista. -->
+    <a class="marca" href="index.html" title="Voltar ao início">
+      <img src="img/pokeicon.png" alt="" class="marca-icone">
+      <span>Optimus<span>Dex</span></span>
+    </a>
+
+    <a href="index.html" id="btn-voltar">&#9664; Voltar</a>
+    <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     <h1>Meus Favoritos</h1>
     <p id="contador"></p>
   </header>
 
   <hr>
 
-  <!-- CAVERNA: filtra dentro da propria caverna, sem sair pra rede. -->
+  <!-- Filtra na lista que ja esta salva, sem sair pra rede. -->
   <section>
     <form id="form-busca-fav" role="search">
       <label for="buscaFav">Buscar favoritos:</label>
       <input type="search" id="buscaFav" name="q" placeholder="Nome ou número">
-      <button type="submit">&#128269; Buscar</button>
+      <button type="submit"> Buscar</button>
     </form>
   </section>
 
@@ -33,17 +41,17 @@
 
   <main>
 
-    <!-- CAVERNA: cards nascem no JS, cada um com botao de remover (RF004). -->
+    <!-- Cards nascem no JS, cada um com botao de remover (RF004). -->
     <ul id="lista-favoritos" hidden></ul>
 
-    <!-- CAVERNA: caverna vazia (RF006). -->
+    <!-- Nenhum favorito guardado (RF006). -->
     <section id="estado-vazio" hidden>
-      <h2>Caverna vazia</h2>
+      <h2>Nenhum favorito ainda</h2>
       <p>Você ainda não favoritou nenhum Pokémon.</p>
       <a href="index.html">Ir para a lista</a>
     </section>
 
-    <!-- CAVERNA: tem favorito, mas a busca nao achou nenhum. -->
+    <!-- Tem favorito, mas a busca nao achou nenhum. -->
     <p id="sem-resultado" hidden>Nenhum favorito com esse nome ou número.</p>
 
   </main>
@@ -55,7 +63,7 @@
 
         <div class="footer-brand">
             <div class="footer-logo">
-                <span class="pokeball-icon">◉</span>
+                <img src="img/pokeicon.png" alt="" class="marca-icone">
                 <span>Optimus<span>Dex</span></span>
             </div>
 
@@ -70,6 +78,7 @@
             <a href="#">Pokédex</a>
             <a href="#">Favoritos</a>
             <a href="#">Sobre o projeto</a>
+        <a href="comparar.html">Comparar</a>
         </div>
 
         <div class="footer-section">
@@ -101,9 +110,10 @@
     </div>
   </footer>
 
-  <!-- CAVERNA: aqui nao precisa do api.js, mas precisa do tradutor (normalizarTexto). -->
+  <!-- Aqui nao precisa do api.js, mas precisa do tradutor (normalizarTexto). -->
   <script src="js/traducoes.js"></script>
   <script src="js/favoritos.js"></script>
+  <script src="js/comparacao.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/pagina-favoritos.js"></script>
 </body>

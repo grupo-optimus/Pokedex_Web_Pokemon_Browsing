@@ -33,8 +33,11 @@ Requer internet (RNF006), exceto a tela de favoritos, que funciona offline.
 ├── index.html              Tela 1 — lista + busca
 ├── detalhes.html           Tela 2 — detalhes de um Pokémon
 ├── favoritos.html          Tela 3 — favoritos salvos
+├── css/
+│   └── style.css           Tema visual (FireRed/LeafGreen em modo escuro)
 └── js/
     ├── traducoes.js        Dicionários PT-BR + normalização de texto
+    ├── dados-filtro.js     Tabelas fixas do filtro (regiões, categorias, lendários)
     ├── api.js              ÚNICA camada que fala com a PokéAPI
     ├── favoritos.js        Persistência local (localStorage)
     ├── ui.js               Pedaços de tela reutilizados (card, formatação)
@@ -174,6 +177,10 @@ Base: `https://pokeapi.co/api/v2`
 | 1 | `GET /pokemon?limit=20&offset=N` | Uma página da lista | RF001 |
 | 2 | `GET /pokemon/{id-ou-nome}` | Dados completos de um Pokémon | RF001, RF002, RF003 |
 | 3 | `GET /pokemon?limit=100000&offset=0` | Índice com todos os nomes, para busca parcial | RF002 |
+| 4 | `GET /pokemon-species/{id-ou-nome}` | Em qual cadeia de evolução o Pokémon está | Linha evolutiva |
+| 5 | `GET /evolution-chain/{id}` | A cadeia inteira (o endereço vem do endpoint 4) | Linha evolutiva |
+| 6 | `GET /type/{nome}` | Todo mundo de um tipo | Filtro |
+| 7 | `GET /generation/{n}` | Todo mundo de uma região | Filtro |
 
 ### O detalhe importante: a lista vem "magra"
 
@@ -303,7 +310,21 @@ Consequência prática: a tela de favoritos **não faz nenhuma chamada de rede**
 
 Toda leitura está dentro de `try/catch`, porque o `localStorage` pode falhar (modo privado,
 navegador bloqueando armazenamento, JSON corrompido). Na dúvida, devolve lista vazia — melhor
-uma caverna vazia do que uma tela quebrada.
+uma lista vazia do que uma tela quebrada.
+
+### O outro armazenamento: `sessionStorage` e o botão Voltar
+
+O estado da lista (busca, filtros, página) vive na **URL** — `index.html?q=charizard`,
+`index.html?categoria=mitico&pagina=2`. A cada mudança, `sincronizarURL()` reescreve o endereço
+com `history.replaceState` e anota esse endereço no **`sessionStorage`**.
+
+O botão **Voltar** da tela de detalhes lê essa anotação e vai direto para lá. Não usamos apenas
+`history.back()` porque `back()` depende de quem está atrás no histórico: se a pessoa pulou de um
+Pokémon para outro pela linha evolutiva, o "atrás" é outro Pokémon, e não a lista. Quando a lista
+*é* mesmo a tela anterior, aí sim usamos `back()`, que devolve a posição da rolagem de graça.
+
+Diferença dos favoritos: `sessionStorage` morre ao fechar a aba, que é exatamente o tempo de vida
+que essa informação precisa ter.
 
 ---
 
@@ -341,7 +362,7 @@ falha da API — então cai no estado `vazio`, não no `erro`.
 | RF001 | `listarPagina()` em [js/api.js](js/api.js) + paginação em [js/pagina-lista.js](js/pagina-lista.js) |
 | RF002 | `buscarPokemons()` + `normalizarTexto()` |
 | RF003 | `paraModelo()` + tabela de atributos em [js/pagina-detalhes.js](js/pagina-detalhes.js) |
-| RF004 | `alternarFavorito()` — botão em detalhes e botão remover nos cards |
+| RF004 | `alternarFavorito()` — botão em detalhes, estrelinha no canto do card e botão remover nos favoritos |
 | RF005 | `localStorage` em [js/favoritos.js](js/favoritos.js) |
 | RF006 | `#estado-vazio` em [favoritos.html](favoritos.html) |
 | RF007 | `pedirJSON()` + estado `erro` + botão "Tentar novamente" |
@@ -356,8 +377,24 @@ falha da API — então cai no estado `vazio`, não no `erro`.
 
 ## 11. Limitações conhecidas
 
-- **Sem CSS.** O projeto foi pedido em HTML puro; o visual é o padrão do navegador. A estrutura
-  semântica (`header`, `main`, `section`, `figure`, `table`) já está pronta para receber estilo.
+- **Sprite de geração nova destoa.** O tema usa o sprite dos próprios jogos FireRed/LeafGreen,
+  que só existe até o #386. Do #387 em diante cai no sprite padrão da PokéAPI (a ordem de escolha
+  está em `escolherImagem()`, em [js/api.js](js/api.js)).
+- **As duas fontes vêm do Google Fonts.** Sem internet, o navegador troca pelas fontes de sistema
+  e o layout continua funcionando, só perde o desenho pixelado.
+- **A lista de lendários e míticos está fixa no código.** A PokéAPI só informa
+  `is_legendary` dentro de `/pokemon-species/{id}`, um pedido POR Pokémon — montar a lista
+  inteira custaria mais de mil requisições a cada clique no filtro. Então os **números** ficam
+  em [js/dados-filtro.js](js/dados-filtro.js) e o dado de cada Pokémon (nome, sprite, tipo)
+  continua vindo todo da API. Se sair uma geração nova, é lá que se acrescenta.
+- **Mega e Gigantamax não combinam com região.** São formas alternativas, cadastradas com
+  número acima de 10000, e nenhuma delas aparece na lista de uma geração. A tela desmarca a
+  região sozinha quando você escolhe uma dessas categorias, e avisa o porquê.
+- **A linha evolutiva custa pedidos extras.** São duas requisições (espécie + cadeia) mais uma
+  por Pokémon da cadeia. Tudo cacheado em `cacheEvolucao`, mas a seção aparece alguns instantes
+  depois do resto da ficha.
+- **Nem todo Pokémon tem sprite shiny cadastrado.** Quando falta, o botão "Ver shiny" mantém o
+  desenho normal em vez de deixar o visor vazio.
 - **Tradução de habilidades é parcial** — a PokéAPI não fornece PT-BR, então o dicionário cobre as
   mais comuns e o resto cai no *fallback*.
 - **Busca depende de baixar o índice completo** na primeira vez (uma resposta grande, cacheada

@@ -1,24 +1,26 @@
 /* ==========================================================================
-   CAVERNA: esta pedra fala com a PokeAPI. Ninguem mais fala.
-   Tela nao sabe o que e HTTP; tela so pede bicho e recebe bicho pronto.
+   Este arquivo fala com a PokeAPI. Nenhum outro fala.
+   Tela nao sabe o que e HTTP; tela so pede Pokemon e recebe Pokemon pronto.
    RNF004: PokeAPI e a unica fonte de dado.
    ========================================================================== */
 
-/* CAVERNA: endereco da tribo vizinha. Tudo comeca aqui. */
+/* Endereco base da PokeAPI. Tudo comeca aqui. */
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
-/* CAVERNA: quantos bicho por pagina (RF001 pede lista em blocos). */
+/* Quantos Pokemon por pagina (RF001 pede lista em blocos). */
 const TAMANHO_PAGINA = 20;
 
-/* CAVERNA: memoria curta. Bicho ja pedido nao pede de novo.
-   Isso ajuda o RNF003 (resposta rapida) e nao enche a API de pedido. */
+/* Memoria curta. Pokemon ja pedido nao pede de novo.
+   Isso ajuda o RNF003 (resposta rapida) e nao sobrecarrega a API de pedidos. */
 const cacheDetalhes = new Map();
-let cacheIndice = null; // lista com o nome de TODOS os bichos
+const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por Pokemon
+const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
+let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
 
 /* --------------------------------------------------------------------------
-   CAVERNA: o mensageiro. Sai da caverna, busca JSON, volta.
-   fetch = pedido HTTP. await = espera o mensageiro voltar.
-   Se der ruim, grita erro em portugues (RF007 usa esse grito).
+   A requisicao. Sai daqui, busca o JSON, volta.
+   fetch = pedido HTTP. await = espera a resposta chegar.
+   Se der ruim, lanca um erro em portugues (o RF007 mostra essa mensagem).
    -------------------------------------------------------------------------- */
 async function pedirJSON(url) {
   let resposta;
@@ -26,11 +28,11 @@ async function pedirJSON(url) {
   try {
     resposta = await fetch(url);
   } catch (erro) {
-    // CAVERNA: nem chegou a sair. Sem internet ou servidor mudo (RNF006).
+    // Nem chegou a sair. Sem internet ou servidor mudo (RNF006).
     throw new Error('Não foi possível falar com a PokéAPI. Verifique sua conexão com a internet.');
   }
 
-  // CAVERNA: chegou resposta, mas pode ser resposta ruim. Olha o numero.
+  // Chegou resposta, mas pode ser resposta ruim. Olha o numero.
   if (resposta.status === 404) {
     throw new Error('Pokémon não encontrado.');
   }
@@ -38,47 +40,132 @@ async function pedirJSON(url) {
     throw new Error('A PokéAPI respondeu com erro ' + resposta.status + '. Tente novamente.');
   }
 
-  // CAVERNA: texto JSON vira objeto JavaScript aqui.
+  // Texto JSON vira objeto JavaScript aqui.
   return resposta.json();
 }
 
 /* --------------------------------------------------------------------------
-   CAVERNA: a API manda MUITA coisa. Tela so precisa de um pouco.
-   Aqui o monte de dado bruto vira um bicho simples e ja traduzido.
+   Qual desenho do Pokemon a tela mostra.
+   O tema do site e FireRed/LeafGreen, entao o sprite DAQUELES jogos vem primeiro.
+   Pokemon de geracao nova nao existia la: cai no sprite comum e, no pior caso,
+   no desenho grande moderno. Quer o desenho grande de volta em todo mundo?
+   Inverta a ordem do return: desenhoGrande primeiro.
+   -------------------------------------------------------------------------- */
+function escolherImagem(sprites, shiny) {
+  const versoes  = sprites.versions || {};
+  const geracao3 = versoes['generation-iii'] || {};
+  const frlg     = geracao3['firered-leafgreen'] || {};
+  const arte     = (sprites.other && sprites.other['official-artwork']) || {};
+
+  // Shiny e o Pokemon de cor trocada. Mesma ordem, outra prateleira.
+  if (shiny) {
+    return frlg.front_shiny || sprites.front_shiny || arte.front_shiny || '';
+  }
+
+  return frlg.front_default || sprites.front_default || arte.front_default || '';
+}
+
+/* --------------------------------------------------------------------------
+   A API manda MUITA coisa. Tela so precisa de um pouco.
+   Aqui o dado bruto vira um Pokemon simples e ja traduzido.
    -------------------------------------------------------------------------- */
 function paraModelo(dadosBrutos) {
   return {
     id: dadosBrutos.id,
     nome: arrumarTexto(dadosBrutos.name),
 
-    // CAVERNA: desenho bonito primeiro; se nao tiver, usa o sprite pequeno.
-    imagem:
-      (dadosBrutos.sprites.other &&
-       dadosBrutos.sprites.other['official-artwork'] &&
-       dadosBrutos.sprites.other['official-artwork'].front_default) ||
-      dadosBrutos.sprites.front_default ||
-      '',
+    imagem: escolherImagem(dadosBrutos.sprites, false),
+    imagemShiny: escolherImagem(dadosBrutos.sprites, true),
 
+    // Guarda os nomes da API em ingles para calculos de efetividade; a tela
+    // recebe a versao em portugues no campo tipos.
+    tiposIngles: dadosBrutos.types.map(t => t.type.name),
     tipos: dadosBrutos.types.map(t => traduzirTipo(t.type.name)),
 
     habilidades: dadosBrutos.abilities.map(h => traduzirHabilidade(h.ability.name)),
 
-    // CAVERNA: os seis atributos-base do RF003, ja com nome em portugues.
+    // Os seis atributos-base do RF003, ja com nome em portugues.
     atributos: dadosBrutos.stats.map(a => ({
       nome: traduzirAtributo(a.stat.name),
       valor: a.base_stat
-    }))
+    })),
+
+    // Calculados somente na tela de detalhes, para nao adicionar
+    // requisicoes extras a cada card da listagem.
+    vantagens: [],
+    fraquezas: [],
+    imunidades: []
   };
 }
 
 /* --------------------------------------------------------------------------
-   CAVERNA: pega UM bicho pelo numero ou pelo nome.
+   EFETIVIDADE DE TIPOS
+   Para cada tipo que poderia atacar o Pokemon, multiplica a relacao contra
+   todos os tipos defensivos dele. Ex.: Agua/Fogo leva 2x de Eletrico?
+   A conta final vem da multiplicacao das duas tabelas.
+   2x = fraqueza, 0.5x = vantagem/resistencia, 0x = imunidade.
+   -------------------------------------------------------------------------- */
+async function obterRelacoesTipo(tipoIngles) {
+  if (cacheRelacoesTipo.has(tipoIngles)) {
+    return cacheRelacoesTipo.get(tipoIngles);
+  }
+
+  const dados = await pedirJSON(BASE_URL + '/type/' + tipoIngles);
+  const relacoes = {
+    fraco: new Set(dados.damage_relations.double_damage_from.map(item => item.name)),
+    resistente: new Set(dados.damage_relations.half_damage_from.map(item => item.name)),
+    imune: new Set(dados.damage_relations.no_damage_from.map(item => item.name))
+  };
+
+  cacheRelacoesTipo.set(tipoIngles, relacoes);
+  return relacoes;
+}
+
+async function calcularVantagensEFraquezas(tiposIngles) {
+  const todosOsTipos = Object.keys(TIPOS_PT)
+    .filter(tipo => tipo !== 'unknown' && tipo !== 'stellar');
+
+  const relacoesDefensivas = await Promise.all(
+    tiposIngles.map(tipo => obterRelacoesTipo(tipo))
+  );
+
+  const multiplicadores = todosOsTipos.map(tipoAtacante => {
+    let multiplicador = 1;
+
+    relacoesDefensivas.forEach(relacao => {
+      if (relacao.imune.has(tipoAtacante)) multiplicador *= 0;
+      else if (relacao.fraco.has(tipoAtacante)) multiplicador *= 2;
+      else if (relacao.resistente.has(tipoAtacante)) multiplicador *= 0.5;
+    });
+
+    return { tipo: tipoAtacante, multiplicador };
+  });
+
+  return {
+    vantagens: multiplicadores
+      .filter(item => item.multiplicador > 0 && item.multiplicador < 1)
+      .map(item => traduzirTipo(item.tipo)),
+    fraquezas: multiplicadores
+      .filter(item => item.multiplicador > 1)
+      .map(item => traduzirTipo(item.tipo)),
+    imunidades: multiplicadores
+      .filter(item => item.multiplicador === 0)
+      .map(item => traduzirTipo(item.tipo))
+  };
+}
+
+async function obterVantagensEFraquezas(pokemon) {
+  return calcularVantagensEFraquezas(pokemon.tiposIngles);
+}
+
+/* --------------------------------------------------------------------------
+   Pega UM Pokemon pelo numero ou pelo nome.
    Endpoint: GET /pokemon/{id-ou-nome}
    -------------------------------------------------------------------------- */
 async function obterPokemon(idOuNome) {
   const chave = normalizarTexto(idOuNome);
 
-  // CAVERNA: ja tem na memoria? entrega na hora, sem sair da caverna.
+  // Ja esta em memoria? entrega na hora, sem ir na rede.
   if (cacheDetalhes.has(chave)) {
     return cacheDetalhes.get(chave);
   }
@@ -87,12 +174,12 @@ async function obterPokemon(idOuNome) {
   const pokemon = paraModelo(dados);
 
   cacheDetalhes.set(chave, pokemon);
-  cacheDetalhes.set(String(pokemon.id), pokemon); // guarda tambem pelo numero
+  cacheDetalhes.set(String(pokemon.id), pokemon); // Guarda tambem pelo numero
   return pokemon;
 }
 
 /* --------------------------------------------------------------------------
-   CAVERNA: pega uma PAGINA de bicho (RF001).
+   Pega uma PAGINA de Pokemon (RF001).
    Endpoint: GET /pokemon?limit=20&offset=0
    Essa lista so traz nome + link. Tipo e imagem nao vem junto.
    Entao precisa pedir o detalhe de cada um: 1 pedido da lista + 20 detalhes.
@@ -117,7 +204,7 @@ async function listarPagina(pagina) {
 }
 
 /* --------------------------------------------------------------------------
-   CAVERNA: lista com o nome de todo mundo, de uma vez so.
+   Lista com o nome de todo mundo, de uma vez so.
    Serve para buscar por pedaco do nome ("char" acha Charmander).
    Pede UMA vez e guarda; e lista grande, nao pede toda hora.
    -------------------------------------------------------------------------- */
@@ -130,14 +217,15 @@ async function obterIndice() {
 
   cacheIndice = lista.results.map(entrada => ({
     nome: entrada.name,
-    nomeNormalizado: normalizarTexto(entrada.name)
+    nomeNormalizado: normalizarTexto(entrada.name),
+    id: numeroDaURL(entrada.url)   // O filtro trabalha com numero
   }));
 
   return cacheIndice;
 }
 
 /* --------------------------------------------------------------------------
-   CAVERNA: a caçada do RF002. Aceita numero ou nome, ignora maiuscula e acento.
+   A busca do RF002. Aceita numero ou nome, ignora maiuscula e acento.
    -------------------------------------------------------------------------- */
 async function buscarPokemons(termo) {
   const alvo = normalizarTexto(termo);
@@ -146,21 +234,161 @@ async function buscarPokemons(termo) {
     return [];
   }
 
-  // CAVERNA: so numero? entao e busca pelo numero da Pokedex. Um resultado.
+  // So numero? entao e busca pelo numero da Pokedex. Um resultado.
   if (/^\d+$/.test(alvo)) {
     const pokemon = await obterPokemon(alvo);
     return [pokemon];
   }
 
-  // CAVERNA: nome (ou pedaco de nome). Filtra no indice, aqui mesmo, sem rede.
+  // Nome (ou pedaco de nome). Filtra no indice, aqui mesmo, sem rede.
   const indice = await obterIndice();
   const achados = indice
     .filter(item => item.nomeNormalizado.includes(alvo))
-    .slice(0, TAMANHO_PAGINA); // CAVERNA: no maximo 20, senao vira 500 pedidos
+    .slice(0, TAMANHO_PAGINA); // No maximo 20, senao vira 500 pedidos
 
   if (achados.length === 0) {
     return [];
   }
 
   return Promise.all(achados.map(item => obterPokemon(item.nome)));
+}
+
+/* --------------------------------------------------------------------------
+   O nome da especie quase sempre serve de nome do Pokemon.
+   Quando nao serve (a especie "wormadam" so existe como "wormadam-plant"),
+   pergunta a propria especie qual e a forma padrao dela.
+   Se nem assim achar, devolve null e o andar da evolucao segue sem esse.
+   -------------------------------------------------------------------------- */
+async function pokemonDaEspecie(nomeEspecie) {
+  try {
+    return await obterPokemon(nomeEspecie);
+  } catch (erro) {
+    // Nome de especie que nao vira Pokemon. Vai pro plano B.
+  }
+
+  try {
+    const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + nomeEspecie);
+    const padrao = especie.varieties.find(forma => forma.is_default);
+    return padrao ? await obterPokemon(padrao.pokemon.name) : null;
+  } catch (erro) {
+    return null;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   A linha evolutiva. Duas viagens ate a PokeAPI:
+     1) GET /pokemon-species/{id}  -> diz em qual cadeia o Pokemon esta
+     2) GET {evolution_chain.url}  -> a cadeia inteira
+
+   A cadeia vem como ARVORE, nao como fila: Eevee tem 8 galhos no mesmo ponto.
+   Entao achata em ANDARES. Bulbasaur vira  [[Bulbasaur], [Ivysaur], [Venusaur]]
+   e Eevee vira  [[Eevee], [Vaporeon, Jolteon, ... 8 Pokemon]].
+   -------------------------------------------------------------------------- */
+async function obterLinhaEvolutiva(idOuNome) {
+  const chave = normalizarTexto(idOuNome);
+
+  if (cacheEvolucao.has(chave)) {
+    return cacheEvolucao.get(chave);
+  }
+
+  const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + chave);
+
+  if (!especie.evolution_chain || !especie.evolution_chain.url) {
+    return [];
+  }
+
+  const cadeia = await pedirJSON(especie.evolution_chain.url);
+
+  // Desce a arvore um andar por vez, guardando os nomes de cada andar.
+  const andares = [];
+  let atual = [cadeia.chain];
+
+  while (atual.length > 0) {
+    andares.push(atual.map(no => no.species.name));
+    atual = atual.flatMap(no => no.evolves_to);
+  }
+
+  // Nome vira Pokemon de verdade (com sprite e numero).
+  const linha = [];
+  for (const nomes of andares) {
+    const resultados = await Promise.all(nomes.map(pokemonDaEspecie));
+    const achados = resultados.filter(item => item !== null);
+    if (achados.length > 0) linha.push(achados);
+  }
+
+  cacheEvolucao.set(chave, linha);
+  return linha;
+}
+
+/* ==========================================================================
+   FILTROS
+   cada filtro devolve um CONJUNTO DE NUMEROS (Set de id). Numero e a
+   moeda comum: dai da pra cruzar filtro com filtro so vendo quem esta nos dois.
+   ========================================================================== */
+
+/* A API devolve link, nao numero. ".../pokemon/25/" vira 25. */
+function numeroDaURL(url) {
+  const pedacos = String(url).split('/').filter(Boolean);
+  return Number(pedacos[pedacos.length - 1]);
+}
+
+/* Todo mundo de um tipo. Endpoint: GET /type/{nome-em-ingles} */
+async function idsPorTipo(tipoIngles) {
+  const dados = await pedirJSON(BASE_URL + '/type/' + tipoIngles);
+  return new Set(dados.pokemon.map(item => numeroDaURL(item.pokemon.url)));
+}
+
+/* Todo mundo de uma regiao. Endpoint: GET /generation/{numero} */
+async function idsPorRegiao(geracao) {
+  const dados = await pedirJSON(BASE_URL + '/generation/' + geracao);
+  return new Set(dados.pokemon_species.map(item => numeroDaURL(item.url)));
+}
+
+/* Mega e gmax sao Pokemon separado no cadastro, com sufixo no nome.
+   Nao precisa de pedido novo: o indice ja esta na memoria. */
+async function idsPorForma(sufixo) {
+  const indice = await obterIndice();
+  return new Set(
+    indice.filter(item => item.nome.includes(sufixo)).map(item => item.id)
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Junta tudo. Filtro escolhido vira conjunto; conjuntos se cruzam.
+   Escolher "Fogo" + "Voador" devolve so quem e as duas coisas (Charizard).
+   Devolve a lista de numero JA ORDENADA — a tela pagina em cima dela.
+   Sem nenhum filtro marcado, devolve null (= mostra a Pokedex normal).
+   -------------------------------------------------------------------------- */
+async function filtrarPokemons(filtros) {
+  const pedidos = [];
+
+  (filtros.tipos || []).forEach(tipo => pedidos.push(idsPorTipo(tipo)));
+
+  if (filtros.regiao) {
+    pedidos.push(idsPorRegiao(filtros.regiao));
+  }
+
+  if (filtros.categoria === 'lendario') pedidos.push(Promise.resolve(new Set(IDS_LENDARIOS)));
+  if (filtros.categoria === 'mitico')   pedidos.push(Promise.resolve(new Set(IDS_MITICOS)));
+  if (filtros.categoria === 'mega')     pedidos.push(idsPorForma('-mega'));
+  if (filtros.categoria === 'gmax')     pedidos.push(idsPorForma('-gmax'));
+
+  if (pedidos.length === 0) {
+    return null;
+  }
+
+  // Todos os pedidos saem juntos, nao um esperando o outro.
+  const conjuntos = await Promise.all(pedidos);
+
+  let numeros = Array.from(conjuntos[0]);
+  for (let i = 1; i < conjuntos.length; i++) {
+    numeros = numeros.filter(id => conjuntos[i].has(id));
+  }
+
+  return numeros.sort((a, b) => a - b);
+}
+
+/* Pega um pedaco da lista filtrada e traz o Pokemon inteiro de cada um. */
+async function obterVariosPokemons(numeros) {
+  return Promise.all(numeros.map(id => obterPokemon(id)));
 }

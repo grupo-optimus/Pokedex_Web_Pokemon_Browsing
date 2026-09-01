@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- CAVERNA: pedra 2. Detalhe do bicho (RF003) e botao de favoritar (RF004).
-     Qual bicho aparece? O numero que vier no endereco: detalhes.html?id=4 -->
+<!-- Tela 2. Detalhes (RF003) e botao de favoritar (RF004).
+     Qual Pokemon aparece? O numero que vier no endereco: detalhes.html?id=4 -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +13,15 @@
 <body>
 
   <header>
-    <a href="index.html">&#9664; Voltar</a>
+    <!-- Mesma marca do rodape, so que aqui em cima. -->
+    <!-- A marca leva pro comeco da lista. -->
+    <a class="marca" href="index.html" title="Voltar ao início">
+      <img src="img/pokeicon.png" alt="" class="marca-icone">
+      <span>Optimus<span>Dex</span></span>
+    </a>
+
+    <a href="index.html" id="btn-voltar">&#9664; Voltar</a>
+    <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     <h1>Detalhes do Pokémon</h1>
   </header>
 
@@ -21,61 +29,105 @@
 
   <main>
 
-    <!-- CAVERNA: esperando o mensageiro. -->
+    <!-- Esperando a resposta. -->
     <p id="estado-carregando">Carregando…</p>
 
-    <!-- CAVERNA: RF007 de novo. Numero errado tambem cai aqui. -->
+    <!-- RF007 de novo. Numero errado tambem cai aqui. -->
     <section id="estado-erro" hidden>
       <h2>Deu ruim</h2>
       <p id="mensagem-erro">Não foi possível carregar este Pokémon.</p>
       <button type="button" id="btn-tentar">Tentar novamente</button>
     </section>
 
-    <!-- ================= O BICHO ================= -->
-    <!-- CAVERNA: casca vazia. JS enche com dado da PokeAPI. -->
+    <!-- ================= O POKEMON ================= -->
+    <!-- Casca vazia. JS enche com dado da PokeAPI. -->
     <div id="conteudo" hidden>
 
-      <figure>
-        <img id="poke-imagem" src="" alt="" width="200" height="200">
-        <figcaption>
-          <strong id="poke-numero"></strong>
-          <span id="poke-nome"></span>
-        </figcaption>
-      </figure>
+      <!-- O visor e os dois botoes dele. Coluna da esquerda. -->
+      <div class="visor">
 
-      <!-- CAVERNA: mesmo botao poe e tira (RF004). Texto muda sozinho. -->
-      <button type="button" id="btn-favorito" aria-pressed="false">☆ Adicionar aos favoritos</button>
+        <figure>
+          <img id="poke-imagem" src="" alt="" width="200" height="200">
+          <figcaption>
+            <strong id="poke-numero"></strong>
+            <span id="poke-nome"></span>
+          </figcaption>
+        </figure>
 
-      <hr>
+        <!-- Troca o desenho normal pelo shiny (a cor rara do Pokemon). -->
+        <button type="button" id="btn-shiny" aria-pressed="false">Ver shiny</button>
 
-      <!-- CAVERNA: tipo em portugues (RNF005). -->
-      <section>
-        <h2>Tipos</h2>
-        <ul id="poke-tipos"></ul>
-      </section>
+        <!-- Mesmo botao poe e tira (RF004). Texto muda sozinho. -->
+        <button type="button" id="btn-favorito" aria-pressed="false">☆ Adicionar aos favoritos</button>
+        <button type="button" id="btn-comparar" aria-pressed="false">+ Comparar Pokémon</button>
 
-      <section>
-        <h2>Habilidades</h2>
-        <ul id="poke-habilidades"></ul>
-      </section>
+      </div>
 
       <hr>
 
-      <!-- ================= SEIS ATRIBUTOS (RF003) ================= -->
-      <section>
-        <h2>Atributos</h2>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Atributo</th>
-              <th scope="col">Valor</th>
-              <th scope="col">Barra</th>
-            </tr>
-          </thead>
-          <!-- CAVERNA: as seis linhas nascem no JS. -->
-          <tbody id="poke-atributos"></tbody>
-        </table>
-      </section>
+      <!-- A ficha do Pokemon. Vive na coluna da direita, ao lado do visor. -->
+      <div class="ficha">
+
+        <!-- Tipo em portugues (RNF005). -->
+        <section>
+          <h2>Tipos</h2>
+          <ul id="poke-tipos"></ul>
+        </section>
+
+        <section>
+          <h2>Habilidades</h2>
+          <ul id="poke-habilidades"></ul>
+        </section>
+
+        <section id="secao-vantagens" hidden>
+          <h2>Vantagens</h2>
+          <p class="descricao-eficacia">Tipos de ataques que causam menos dano a este Pokémon.</p>
+          <ul id="poke-vantagens" class="tipos"></ul>
+        </section>
+
+        <section id="secao-fraquezas" hidden>
+          <h2>Fraquezas</h2>
+          <p class="descricao-eficacia">Tipos de ataques que causam mais dano a este Pokémon.</p>
+          <ul id="poke-fraquezas" class="tipos"></ul>
+        </section>
+
+        <section id="secao-imunidades" hidden>
+          <h2>Imunidades</h2>
+          <p class="descricao-eficacia">Tipos de ataques que não causam dano.</p>
+          <ul id="poke-imunidades" class="tipos"></ul>
+        </section>
+
+        <hr>
+
+        <!-- ================= LINHA EVOLUTIVA ================= -->
+        <!-- Quem vira quem. Os cards nascem no JS. -->
+        <section id="secao-evolucao">
+          <h2>Linha evolutiva</h2>
+          <p id="evolucao-carregando">Procurando a linha…</p>
+          <p id="evolucao-vazia" hidden>Este Pokémon não evolui.</p>
+          <p id="evolucao-erro" hidden>Não foi possível carregar a linha evolutiva.</p>
+          <ol id="linha-evolucao" hidden></ol>
+        </section>
+
+        <hr>
+
+        <!-- ================= SEIS ATRIBUTOS (RF003) ================= -->
+        <section>
+          <h2>Atributos</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Atributo</th>
+                <th scope="col">Valor</th>
+                <th scope="col">Barra</th>
+              </tr>
+            </thead>
+            <!-- As seis linhas nascem no JS. -->
+            <tbody id="poke-atributos"></tbody>
+          </table>
+        </section>
+
+      </div>
 
     </div>
 
@@ -88,7 +140,7 @@
 
         <div class="footer-brand">
             <div class="footer-logo">
-                <span class="pokeball-icon">◉</span>
+                <img src="img/pokeicon.png" alt="" class="marca-icone">
                 <span>Optimus<span>Dex</span></span>
             </div>
 
@@ -103,6 +155,7 @@
             <a href="#">Pokédex</a>
             <a href="#">Favoritos</a>
             <a href="#">Sobre o projeto</a>
+        <a href="comparar.html">Comparar</a>
         </div>
 
         <div class="footer-section">
@@ -137,6 +190,7 @@
   <script src="js/traducoes.js"></script>
   <script src="js/api.js"></script>
   <script src="js/favoritos.js"></script>
+  <script src="js/comparacao.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/pagina-detalhes.js"></script>
 </body>

@@ -1,10 +1,24 @@
 /* ==========================================================================
-   1. IMPORTAÇÃO DE TIPOGRAFIA EXTERNA (Google Fonts)
+   OPTIMUSDEX — TEMA "FIRERED / LEAFGREEN: MODO NOTURNO"
+   --------------------------------------------------------------------------
+   A ideia: pegar a linguagem visual dos jogos de GBA (caixa de texto com
+   moldura dupla, fonte pixelada, cursor "▶" na selecao, barra de HP) e
+   trocar o interior branco das janelas por azul-noite. Ou seja: como se o
+   FireRed/LeafGreen tivesse modo escuro.
+
+   REGRA DA CASA: cor CHAPADA. Nada de degrade, brilho, halo, sombra flutuante
+   nem card que sobe no hover. O GBA desenha em tile de 8px com paleta fixa —
+   quem aponta um item ve o cursor e a moldura clarear, so isso. Gradiente aqui
+   so existe pra DESENHAR coisa (a pokebola, o brilho de cima da barra de HP).
    ========================================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&display=swap');
 
 /* ==========================================================================
-   2. RESET & INITIAL SETUP
+   1. TIPOGRAFIA
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400..700&display=swap');
+
+/* ==========================================================================
+   2. RESET
    ========================================================================== */
 *,
 *::before,
@@ -14,132 +28,138 @@
   padding: 0;
 }
 
-/* Regra crítica JS: Força visibilidade absoluta baseada no atributo hidden */
+/* Regra critica do JS: o atributo hidden manda em tudo. */
 [hidden] {
   display: none !important;
 }
 
-/* Oculta as linhas divisorias puras do HTML sem alterar a marcação original */
+/* As linhas do HTML viram separadores desenhados pelo proprio tema. */
 hr {
   display: none;
 }
 
 /* ==========================================================================
-   3. VARIÁVEIS GLOBAIS (POKÉDEX DESIGN SYSTEM)
+   3. PALETA & MEDIDAS (DESIGN SYSTEM DA POKEDEX NOTURNA)
    ========================================================================== */
 :root {
-  /* Tipografia */
-  --fonte-pixel: 'Press Start 2P', monospace, cursive;
-  --fonte-tech: 'Chakra Petch', -apple-system, sans-serif;
+  /* Fontes: uma pixelada de titulo, outra pixelada legivel para texto corrido. */
+  --fonte-pixel: 'Press Start 2P', 'Courier New', monospace;
+  --fonte-texto: 'Pixelify Sans', 'Trebuchet MS', Verdana, sans-serif;
 
-  /* Cores Principais - Chassi de Pokédex */
-  --cor-primaria: #dc0a2d;
-  --cor-primaria-hover: #b80824;
-  --cor-primaria-escura: #8b0000;
-  
-  /* Tons Tecnológicos & Telas */
-  --cor-fundo: #0d1117;
-  --cor-superficie: #161b22;
-  --cor-superficie-elevada: #21262d;
-  --cor-chassi-metal: #212529;
-  --cor-tela-led: #001219;
-  
-  /* Acentos de Interface & HUD */
-  --cor-ciano-hud: #00f0ff;
-  --cor-ciano-glow: rgba(0, 240, 255, 0.4);
-  --cor-amarelo-hud: #ffcc00;
-  --cor-secundaria: #00e676;
-  --cor-secundaria-hover: #00c853;
-  --cor-perigo: #ff2a2a;
-  --cor-perigo-hover: #d50000;
-  
-  /* Textos & Indicadores */
-  --cor-texto: #e6edf3;
-  --cor-texto-mutado: #8b949e;
-  --cor-texto-inverso: #ffffff;
-  --cor-texto-verde-hud: #39ff14;
+  /* A escala saiu do azul que ja morava no rodape (#6d78a8, #94a3b8,
+     #cbd5e1). E o mesmo azul-ardosia em degraus de claridade, do visor ate a
+     moldura. Cor de verdade so o VERMELHO do aparelho e as PLAQUINHAS DE TIPO
+     — que e justamente o que a gente quer que salte aos olhos. */
+  --fundo: #16203a;
+  --painel: #2a3a5c;          /* Interior das janelas (o "branco" do GBA) */
+  --painel-alto: #38496e;
+  --tela: #0e1526;            /* Visor onde o sprite aparece */
 
-  /* Mensagens e Feedback */
-  --cor-erro-fundo: #2d0000;
-  --cor-erro-texto: #ff8080;
-  --cor-erro-borda: #ff2a2a;
+  /* Moldura da caixa de texto: tinta escura por fora, faixa clara no meio */
+  --moldura-luz: #b6c3dc;
+  --moldura-luz-2: #6d78a8;
+  --moldura-tinta: #060a14;
 
-  /* Bordas e Efeitos Industriais */
-  --cor-borda: #30363d;
-  --cor-borda-tech: #00f0ff;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-full: 9999px;
-  
-  /* Sombras & Neon Glow */
-  --sombra-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
-  --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.7);
-  --sombra-lg: 0 8px 24px rgba(0, 0, 0, 0.85);
-  --glow-hud: 0 0 10px var(--cor-ciano-glow);
-  --glow-vermelho: 0 0 12px rgba(220, 10, 45, 0.6);
+  /* A unica cor de acento: o vermelho do aparelho. */
+  --fire: #d8442c;
+  --fire-claro: #ec5c42;
 
-  /* Espaçamento */
-  --espaco-xs: 0.5rem;
-  --espaco-sm: 0.75rem;
+  /* Amarelo de estrela. Aparece so pra dizer "isto ESTA favoritado" —
+     em nenhum outro lugar da interface. */
+  --favorito: #f5c542;
+  --favorito-claro: #ffd869;
+
+  /* Vermelho puro: botao de buscar e o hover de remover. */
+  --vermelho: #ff0000;
+  --vermelho-claro: #ff3b3b;
+  --chassi: #d40000;        /* O corpo vermelho da Pokedex */
+
+  /* Realce de item apontado. No jogo o menu clareia, nao acende. */
+  --realce: #ffffff;
+
+  /* Texto */
+  --texto: #eef2f9;
+  --texto-suave: #94a3b8;
+  --texto-tinta: #0b1020;
+
+  /* Cinza de etiqueta: numero da Pokedex, contador, pagina. */
+  --cinza: #cbd5e1;
+
+  /* Barrinhas de atributo (verde / amarelo / vermelho, igual barra de HP) */
+  --barra-alta: #40d14b;
+  --barra-media: #f7d23b;
+  --barra-baixa: #ee4b34;
+
+  /* Erro */
+  --erro: #ff8a72;
+  --erro-fundo: #3a1a20;
+  --erro-moldura: #d8442c;
+
+  /* Canto curto: moldura de GBA e desenhada em tile de 8px, nao e pilula. */
+  --r: 6px;
+  --r-sm: 4px;
+
+  /* Espacamento */
+  --espaco-xs: .5rem;
+  --espaco-sm: .75rem;
   --espaco-md: 1.25rem;
   --espaco-lg: 2rem;
   --espaco-xl: 3rem;
 
-  /* Transições */
-  --transicao-suave: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Transicao em degraus: movimento de sprite, nao de site. */
+  --transicao: all .12s steps(3, end);
 }
 
 /* ==========================================================================
-   4. TIPOGRAFIA & BASE COM TEXTURA SCANLINE DISCRETA
+   4. BASE: fundo de rota noturna + malha de tiles
    ========================================================================== */
 body {
-  font-family: var(--fonte-tech);
-  background-color: var(--cor-fundo);
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(220, 10, 45, 0.15) 0%, transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 100% 4px;
-  color: var(--cor-texto);
-  line-height: 1.5;
+  font-family: var(--fonte-texto);
+  background-color: var(--fundo);
+  color: var(--texto);
+  font-size: 17px;
+  line-height: 1.55;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  -webkit-font-smoothing: antialiased;
 }
+
+/* O fundo e chapado de proposito. Tela de GBA nao tem brilho
+   de ambiente nem degrade: tem cor solida e pronto. */
 
 main {
   flex: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 var(--espaco-md) var(--espaco-xl);
 }
 
 h1, h2, h3 {
-  color: var(--cor-texto);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-h1 { 
-  font-family: var(--fonte-pixel); 
-  font-size: 1.1rem; 
-  text-transform: uppercase;
-  color: var(--cor-texto-inverso);
-  text-shadow: 2px 2px 0px #000;
-}
-
-h2 { 
   font-family: var(--fonte-pixel);
-  font-size: 0.9rem; 
-  margin-bottom: var(--espaco-sm); 
-  color: var(--cor-ciano-hud);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .5px;
 }
 
-h3 { 
-  font-family: var(--fonte-tech);
-  font-size: 1.1rem; 
+/* Mesmo corpo e mesma sombra da marca do rodape. Sem caixa alta:
+   a marca e "OptimusDex", nao "OPTIMUSDEX". */
+h1 {
+  font-size: .8rem;
+  color: var(--texto);
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+h2 {
+  font-size: .78rem;
+  color: var(--texto);
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+  margin-bottom: var(--espaco-sm);
+}
+
+h3 {
+  font-size: .68rem;
+  color: var(--texto);
 }
 
 a {
@@ -147,234 +167,581 @@ a {
   text-decoration: none;
 }
 
-/* Foco Acessível POKÉDEX Neon */
+/* Foco visivel: moldura dourada, como o item selecionado no menu. */
 :focus-visible {
-  outline: 2px solid var(--cor-ciano-hud);
+  outline: 3px solid var(--realce);
   outline-offset: 3px;
-  box-shadow: var(--glow-hud);
+}
+
+::selection {
+  background: var(--realce);
+  color: var(--texto-tinta);
+}
+
+/* Sprite renderiza com pixel quadrado, sem borrar na ampliacao. */
+img {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 /* ==========================================================================
-   5. HEADER & NAVBAR (PAINEL POKÉDEX HARDWARE)
+   5. MOLDURA PADRAO — a caixa de dialogo do jogo
+   --------------------------------------------------------------------------
+   De fora pra dentro: tinta preta, faixa azul clara, risco escuro, interior.
+   Uma regra so atende todos os blocos da interface.
+   ========================================================================== */
+#lista-pokemons > li > article,
+#lista-favoritos > li > article,
+#conteudo,
+#estado-carregando,
+#estado-erro,
+#estado-vazio,
+#sem-resultado,
+#form-busca,
+#form-busca-fav {
+  background: var(--painel);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r);
+
+  /* Risco escuro por dentro e contorno preto por fora. So isso.
+     Sem sombra: janela de menu fica APOIADA na tela, nao flutuando. */
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta);
+}
+
+/* ==========================================================================
+   6. TOPO — chassi da Pokedex
    ========================================================================== */
 header {
   position: sticky;
   top: 0;
   z-index: 1000;
 
-  background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
-  color: var(--cor-texto-inverso);
-  padding: var(--espaco-md);
-  box-shadow: var(--sombra-md), var(--glow-vermelho);
-  margin-bottom: var(--espaco-lg);
-  border-bottom: 4px solid #5a0000;
-  max-width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
   gap: var(--espaco-md);
-  padding-left: max(var(--espaco-md), calc((100vw - 1200px) / 2));
-  padding-right: max(var(--espaco-md), calc((100vw - 1200px) / 2));
+
+  /* Mesmo tratamento do rodape, espelhado — barra escura com o risco
+     vermelho do aparelho na borda virada pro conteudo. Topo e rodape viram as
+     duas pontas da mesma moldura.
+     (Antes o topo era vermelho chapado, mas ai o "Dex" vermelho da marca
+     sumia dentro do fundo vermelho.) */
+  background: var(--tela);
+  color: var(--texto);
+  padding: var(--espaco-md) max(var(--espaco-md), calc((100vw - 1180px) / 2));
+  margin-bottom: var(--espaco-lg);
+  border-bottom: 4px solid var(--moldura-tinta);
+  box-shadow: inset 0 -6px 0 -2px var(--chassi);
 }
 
-/* Simulação da lente de câmera/sensor azul da Pokédex */
-header::before {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  background: radial-gradient(circle at 30% 30%, #80f3ff, #0077ff);
-  border: 3px solid #ffffff;
+/* --------------------------------------------------------------------------
+   A MARCA. Uma regra so serve o topo E o rodape — mexeu aqui, mexeu
+   nos dois, e eles nao tem como ficar diferentes de novo.
+   -------------------------------------------------------------------------- */
+.marca,
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--fonte-pixel);
+  font-size: .8rem;
+  font-weight: 400;
+  letter-spacing: .5px;
+  text-transform: none;
+  color: var(--texto);
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+/* O "Dex" em vermelho, igual no rodape. */
+.marca span span,
+.footer-logo span:last-child span {
+  color: var(--fire);
+}
+
+/* O icone e o pokeicon.png do projeto — o mesmo arquivo do favicon.
+   Antes o topo desenhava uma pokebola em CSS e o rodape usava o PNG:
+   eram dois desenhos diferentes da mesma coisa.
+
+   esse PNG e de paleta e NAO tem transparencia — o fundo dele e
+   branco de verdade. O recorte em circulo joga fora o quadrado branco e deixa
+   so a bola. Se um dia o arquivo ganhar canal alfa, da pra tirar o clip-path. */
+.marca-icone {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  object-fit: contain;
   border-radius: 50%;
-  box-shadow: 0 0 10px #00f0ff, inset 0 0 4px rgba(255, 255, 255, 0.8);
-  margin-right: -0.5rem;
+  clip-path: circle(48%);
 }
 
+/* A marca e clicavel: leva pro comeco da lista. Clareia igual item de menu. */
+a.marca {
+  transition: var(--transicao);
+}
+
+a.marca:hover {
+  color: var(--realce);
+}
+
+header h1 {
+  margin-right: auto;
+}
+
+/* Link do topo = item de menu do jogo. */
 header nav a,
 header > a {
   display: inline-flex;
   align-items: center;
   gap: var(--espaco-xs);
-  background-color: var(--cor-chassi-metal);
-  color: var(--cor-ciano-hud);
-  border: 1px solid var(--cor-ciano-hud);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
+  padding: .6rem 1rem;
+  background: var(--painel);
+  color: var(--texto);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 2px var(--moldura-tinta);
   font-family: var(--fonte-pixel);
-  font-size: 0.65rem;
+  font-size: .58rem;
   text-transform: uppercase;
-  transition: var(--transicao-suave);
-  box-shadow: inset 0 0 5px rgba(0, 240, 255, 0.2);
+  transition: var(--transicao);
 }
 
 header nav a:hover,
 header > a:hover {
-  background-color: var(--cor-ciano-hud);
-  color: #000;
-  box-shadow: var(--glow-hud);
+  background: var(--painel-alto);
+  border-color: var(--realce);
 }
 
+/* Contador de favoritos: visor de LED no canto da tela. */
 #contador {
-  background-color: #000;
-  color: var(--cor-texto-verde-hud);
-  border: 1px solid #1a3a1a;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-sm);
   font-family: var(--fonte-pixel);
-  font-size: 0.7rem;
+  font-size: .6rem;
+  color: var(--cinza);
+  background: var(--tela);
+  padding: .5rem .9rem;
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
 /* ==========================================================================
-   6. FORMULÁRIOS & BUSCA
+   7. BUSCA — janela de texto com o campo dentro
    ========================================================================== */
-section form {
-  max-width: 1200px;
-  margin: 0 auto var(--espaco-lg);
+body > section {
   padding: 0 var(--espaco-md);
+}
+
+#form-busca,
+#form-busca-fav {
+  max-width: 1180px;
+  margin: 0 auto var(--espaco-lg);
+  padding: var(--espaco-md);
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco-sm);
   align-items: center;
 }
 
-section form label {
+#form-busca label,
+#form-busca-fav label {
   width: 100%;
   font-family: var(--fonte-pixel);
-  font-size: 0.65rem;
-  color: var(--cor-ciano-hud);
+  font-size: .6rem;
+  color: var(--texto-suave);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
 }
 
-section form input[type="search"] {
+input[type="search"] {
   flex: 1;
-  min-width: 260px;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--cor-borda);
-  border-radius: var(--radius-sm);
-  font-family: var(--fonte-tech);
-  font-size: 1rem;
-  background-color: var(--cor-tela-led);
-  color: var(--cor-texto);
-  transition: var(--transicao-suave);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+  min-width: 240px;
+  padding: .7rem .9rem;
+  font-family: var(--fonte-texto);
+  font-size: 1.05rem;
+  color: var(--texto);
+  background: var(--tela);
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  transition: var(--transicao);
 }
 
-section form input[type="search"]:focus {
-  border-color: var(--cor-ciano-hud);
-  box-shadow: var(--glow-hud), inset 0 2px 4px rgba(0,0,0,0.8);
+input[type="search"]::placeholder {
+  color: var(--moldura-luz-2);
+}
+
+input[type="search"]:focus {
+  outline: none;
+  border-color: var(--realce);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
 /* ==========================================================================
-   7. BOTÕES COM ESTÉTICA HUD
+   8. BOTOES — item de menu com o cursor "▶" da selecao
    ========================================================================== */
-button,
-section form button[type="submit"] {
+button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--espaco-xs);
-  padding: 0.75rem 1.25rem;
-  border: 1px solid var(--cor-primaria);
-  border-radius: var(--radius-sm);
-  background: linear-gradient(180deg, var(--cor-primaria) 0%, var(--cor-primaria-escura) 100%);
-  color: var(--cor-texto-inverso);
+  gap: .4rem;
+  padding: .7rem 1.1rem;
+
   font-family: var(--fonte-pixel);
-  font-size: 0.65rem;
+  font-size: .6rem;
   text-transform: uppercase;
+  color: var(--texto);
+
+  background: var(--painel-alto);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 2px var(--moldura-tinta);
+
   cursor: pointer;
-  transition: var(--transicao-suave);
-  box-shadow: var(--sombra-sm);
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  position: relative;
+  transition: var(--transicao);
 }
 
-button:hover,
-section form button[type="submit"]:hover {
-  filter: brightness(1.2);
-  box-shadow: var(--glow-vermelho);
+/* O cursorzinho triangular que aparece no item apontado.
+   Desenhado com borda, nao com caractere: a fonte pixelada nao tem esse glifo.
+   Fica FORA do fluxo (absolute): assim ele aparece sem empurrar o texto do
+   botao pro lado. Nada se move no hover, so acende. */
+button::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  margin-top: -4px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 0 4px 7px;
+  border-color: transparent transparent transparent var(--realce);
+  opacity: 0;
+  transition: var(--transicao);
 }
 
-button:active {
-  transform: translateY(1px);
+button:hover:not(:disabled)::before,
+button:focus-visible:not(:disabled)::before {
+  opacity: 1;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--realce);
+}
+
+/* Apertado: o botao inverte, do jeito que o menu do jogo marca a escolha. */
+/* Apertado: o botao inverte, igual item de menu escolhido no jogo. */
+button:active:not(:disabled) {
+  background: var(--realce);
+  color: var(--texto-tinta);
 }
 
 button:disabled {
-  background: var(--cor-superficie-elevada);
-  border-color: var(--cor-borda);
-  color: var(--cor-texto-mutado);
+  background: var(--tela);
+  border-color: var(--moldura-luz-2);
+  color: var(--texto-suave);
   cursor: not-allowed;
-  box-shadow: none;
-  filter: none;
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta), 0 0 0 2px var(--moldura-tinta);
 }
 
-/* Botão de Favoritar dinâmico */
+/* Botao de busca puxa o vermelho da versao FireRed. */
+#form-busca button[type="submit"],
+#form-busca-fav button[type="submit"] {
+  background: var(--vermelho);
+  border-color: var(--vermelho);
+  color: #fff;
+}
+
+#form-busca button[type="submit"]:hover:not(:disabled),
+#form-busca-fav button[type="submit"]:hover:not(:disabled) {
+  background: var(--vermelho-claro);
+  border-color: var(--vermelho-claro);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   BOTAO DE FAVORITAR DA TELA DE DETALHES
+   Quatro situacoes. A cor do hover sempre mostra no que o clique vai dar:
+
+     parado, nao favoritado  -> neutro
+     mouse em cima           -> AMARELO   (vai favoritar)
+     parado, favoritado      -> AMARELO   (esta favoritado)
+     mouse em cima           -> VERMELHO  (vai remover)
+
+   As tres regras tem especificidade crescente de proposito: a de favoritado
+   com mouse (1,3,0) ganha da de mouse (1,2,0), que ganha da de favoritado
+   parado (1,1,0). E o que faz as quatro situacoes nao se atropelarem.
+   -------------------------------------------------------------------------- */
 #btn-favorito {
-  background: linear-gradient(180deg, var(--cor-secundaria) 0%, #00913b 100%);
-  border-color: var(--cor-secundaria);
   width: 100%;
-  padding: 0.85rem;
-  font-size: 0.7rem;
+  padding: .9rem;
+  font-size: .65rem;
 }
 
-#btn-favorito:hover {
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+/* Ainda nao favoritado, mouse em cima: amarelo do que vai virar. */
+#btn-favorito:hover:not(:disabled) {
+  background: var(--favorito);
+  border-color: var(--favorito);
+  color: var(--texto-tinta);
 }
 
+/* Ja favoritado, parado: amarelo. */
 #btn-favorito[aria-pressed="true"] {
-  background: linear-gradient(180deg, var(--cor-perigo) 0%, #a00000 100%);
-  border-color: var(--cor-perigo);
+  background: var(--favorito);
+  border-color: var(--favorito);
+  color: var(--texto-tinta);
 }
 
-#btn-favorito[aria-pressed="true"]:hover {
-  box-shadow: 0 0 10px rgba(255, 42, 42, 0.5);
+/* Ja favoritado, mouse em cima: vermelho, avisando que o clique remove. */
+#btn-favorito[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--vermelho);
+  border-color: var(--vermelho);
+  color: #fff;
+}
+
+/* Ver shiny: botao neutro; ligado, ele inverte (ver regra mais abaixo). */
+#btn-shiny {
+  width: 100%;
+  padding: .75rem;
+  font-size: .58rem;
+}
+
+/* Shiny ligado: botao invertido (claro com texto escuro). Sem cor nova. */
+#btn-shiny[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+#btn-shiny[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--realce);
+  color: var(--texto-tinta);
+}
+
+/* --------------------------------------------------------------------------
+   A ESTRELINHA de favoritar: mora no canto de cima do card, sem ocupar linha.
+   -------------------------------------------------------------------------- */
+.estrela-favorito {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-width: 2px;
+  border-radius: var(--r-sm);
+
+  font-family: var(--fonte-texto);
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--texto-suave);
+}
+
+/* Aqui o cursor "▶" nao cabe e nao faz sentido: o alvo e a propria estrela. */
+.estrela-favorito::before {
+  content: none;
+}
+
+.estrela-favorito:hover:not(:disabled) {
+  color: var(--realce);
+}
+
+/* Ja favoritado: estrela cheia e amarela, igual ao botao da tela de detalhes.
+   O vermelho fica reservado pro botao de REMOVER da tela de favoritos, que e
+   acao destrutiva — aqui e so estado. */
+.estrela-favorito[aria-pressed="true"] {
+  background: var(--favorito);
+  border-color: var(--favorito);
+  color: var(--texto-tinta);
+}
+
+.estrela-favorito[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--favorito-claro);
+  border-color: var(--favorito-claro);
+  color: var(--texto-tinta);
 }
 
 /* ==========================================================================
-   8. CARDS POKÉDEX DE HARDWARE
+   9. FILTROS — janela de opcoes que abre embaixo da busca
+   ========================================================================== */
+#painel-filtros {
+  max-width: 1180px;
+  margin: calc(var(--espaco-lg) * -1 + var(--espaco-xs)) auto var(--espaco-lg);
+  padding: var(--espaco-md);
+  background: var(--painel);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+#painel-filtros fieldset {
+  border: 0;
+}
+
+#painel-filtros legend {
+  font-family: var(--fonte-pixel);
+  font-size: .6rem;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  margin-bottom: var(--espaco-xs);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+/* Chip = opcao de filtro. Menor que botao normal e sem o cursor "▶". */
+.chip {
+  padding: .45rem .7rem;
+  font-size: .52rem;
+  border-width: 2px;
+}
+
+.chip::before {
+  content: none;
+}
+
+/* Regiao nao tem cor propria: marcada, ela inverte, do jeito que o menu do
+   jogo marca a opcao escolhida. */
+#filtro-regioes .chip[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+#filtro-regioes .chip[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--realce);
+  color: var(--texto-tinta);
+}
+
+/* --------------------------------------------------------------------------
+   TIPO e CATEGORIA vem coloridos.
+   O chip de tipo NAO repete as 18 cores: ele leva o mesmo data-tipo das
+   plaquinhas do card, entao herda a cor da secao 11. Uma fonte de cor so.
+   Desmarcado o chip fica mais escuro; marcado, acende e ganha o anel branco.
+   -------------------------------------------------------------------------- */
+#filtro-tipos .chip,
+#filtro-categorias .chip {
+  color: var(--texto-tinta);
+  filter: brightness(.72) saturate(.85);
+}
+
+#filtro-tipos .chip:hover:not(:disabled),
+#filtro-categorias .chip:hover:not(:disabled) {
+  color: var(--texto-tinta);
+  filter: brightness(.9);
+}
+
+#filtro-tipos .chip[aria-pressed="true"],
+#filtro-categorias .chip[aria-pressed="true"] {
+  filter: none;
+  box-shadow:
+    0 0 0 2px var(--moldura-tinta),
+    0 0 0 5px var(--realce);
+}
+
+/* As quatro categorias, cada uma na cor que a serie usa pra ela. */
+#filtro-categorias .chip[data-valor="lendario"] { background: #d9a441; }
+#filtro-categorias .chip[data-valor="mitico"]   { background: #b98ad6; }
+#filtro-categorias .chip[data-valor="mega"]     { background: #5fc9b8; }
+#filtro-categorias .chip[data-valor="gmax"]     { background: #e5666b; }
+
+#aviso-filtro {
+  font-family: var(--fonte-texto);
+  font-size: .95rem;
+  color: var(--texto-suave);
+  border-left: 4px solid var(--fire);
+  padding-left: var(--espaco-xs);
+}
+
+.filtros-acoes {
+  display: flex;
+  gap: var(--espaco-sm);
+  justify-content: flex-end;
+  border-top: 2px solid var(--moldura-luz-2);
+  padding-top: var(--espaco-md);
+}
+
+#btn-aplicar-filtros {
+  background: var(--fire);
+  border-color: var(--fire);
+  color: #fff;
+}
+
+#btn-aplicar-filtros:hover:not(:disabled) {
+  background: var(--fire-claro);
+  color: #fff;
+}
+
+/* ==========================================================================
+   10. CARDS — cada Pokemon e uma entrada da lista da Pokedex
    ========================================================================== */
 #lista-pokemons,
 #lista-favoritos {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--espaco-md);
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: var(--espaco-lg) var(--espaco-md);
   margin-bottom: var(--espaco-xl);
 }
 
-#lista-pokemons li article,
-#lista-favoritos li article {
-  background: linear-gradient(145deg, var(--cor-superficie) 0%, var(--cor-chassi-metal) 100%);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--radius-md);
-  padding: var(--espaco-md);
-  text-align: center;
+#lista-pokemons > li > article,
+#lista-favoritos > li > article {
+  padding: var(--espaco-md) var(--espaco-sm) var(--espaco-sm);
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  transition: var(--transicao-suave);
+  align-items: center;
+  gap: var(--espaco-xs);
+  text-align: center;
   position: relative;
-  overflow: hidden;
+  transition: var(--transicao);
 }
 
-/* Detalhe visual de circuito no canto do card */
-#lista-pokemons li article::before,
-#lista-favoritos li article::before {
+/* Pokebolinha no canto, como a marca de "ja registrado" da Pokedex. */
+#lista-pokemons > li > article::after,
+#lista-favoritos > li > article::after {
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 20px 20px 0;
-  border-color: transparent var(--cor-borda) transparent transparent;
+  top: 9px;
+  left: 9px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%,
+      var(--painel) 0 2px, var(--moldura-tinta) 2px 4px, transparent 4px),
+    linear-gradient(180deg,
+      var(--fire) 0 calc(50% - 1px),
+      var(--moldura-tinta) calc(50% - 1px) calc(50% + 1px),
+      #e9edff calc(50% + 1px) 100%);
+  box-shadow: 0 0 0 2px var(--moldura-tinta);
+  opacity: .5;
+  transition: var(--transicao);
 }
 
-#lista-pokemons li article:hover,
-#lista-favoritos li article:hover {
-  transform: translateY(-4px);
-  border-color: var(--cor-ciano-hud);
-  box-shadow: var(--glow-hud), var(--sombra-lg);
+#lista-pokemons > li > article:hover,
+#lista-favoritos > li > article:hover {
+  border-color: var(--realce);
+}
+
+#lista-pokemons > li > article:hover::after,
+#lista-favoritos > li > article:hover::after {
+  opacity: 1;
 }
 
 #lista-pokemons article a,
@@ -382,230 +749,569 @@ button:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--espaco-xs);
+  width: 100%;
 }
 
-#lista-pokemons img,
-#lista-favoritos img {
-  width: 120px;
-  height: 120px;
+/* O sprite fica dentro de uma telinha afundada, com risco de varredura. */
+#lista-pokemons article img,
+#lista-favoritos article img {
+  width: 146px;
+  height: 146px;
   object-fit: contain;
-  margin-bottom: var(--espaco-xs);
-  background-color: var(--cor-tela-led);
-  border-radius: var(--radius-sm);
-  padding: 8px;
-  border: 1px solid var(--cor-borda);
-  transition: var(--transicao-suave);
+  padding: 6px;
+  background: var(--tela);
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  transition: var(--transicao);
 }
 
 #lista-pokemons article:hover img,
 #lista-favoritos article:hover img {
-  transform: scale(1.05);
-  border-color: var(--cor-ciano-hud);
+  border-color: var(--realce);
 }
 
 #lista-pokemons h3,
 #lista-favoritos h3 {
-  font-family: var(--fonte-pixel);
-  font-size: 0.7rem;
-  color: var(--cor-texto);
-  margin-bottom: var(--espaco-xs);
-  text-transform: capitalize;
-  line-height: 1.3;
-}
-
-#lista-pokemons p,
-#lista-favoritos p {
-  font-family: var(--fonte-tech);
-  font-size: 0.85rem;
-  color: var(--cor-ciano-hud);
-  margin-bottom: var(--espaco-sm);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-#lista-favoritos button {
-  background: linear-gradient(180deg, var(--cor-perigo) 0%, #900000 100%);
-  border-color: var(--cor-perigo);
-  font-size: 0.6rem;
-  padding: 0.5rem 0.75rem;
-  margin-top: var(--espaco-xs);
-  width: 100%;
-}
-
-/* ==========================================================================
-   9. TELA DE DETALHES TIPO MONITOR POKÉDEX
-   ========================================================================== */
-#conteudo {
-  background-color: var(--cor-superficie);
-  border-radius: var(--radius-lg);
-  padding: var(--espaco-lg);
-  box-shadow: var(--sombra-md), 0 0 15px rgba(0,0,0,0.5);
-  border: 2px solid var(--cor-borda);
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--espaco-lg);
-  position: relative;
-}
-
-@media (min-width: 768px) {
-  #conteudo {
-    grid-template-columns: 320px 1fr;
-    align-items: start;
-  }
-}
-
-#conteudo figure {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  background-color: var(--cor-tela-led);
+  gap: .3rem;
+  font-size: .68rem;
+  line-height: 1.5;
+  text-transform: capitalize;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+/* Numero da Pokedex em dourado, do jeito que o jogo mostra. */
+/* O numero e etiqueta, nao destaque. Fica em cinza. */
+.dex-numero {
+  font-size: .58rem;
+  color: var(--cinza);
+}
+
+.dex-nome {
+  color: #fff;
+}
+
+/* ==========================================================================
+   11. TIPOS — placas coloridas com contorno preto
+   ========================================================================== */
+.tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: var(--espaco-xs);
+}
+
+.tipo {
+  font-family: var(--fonte-pixel);
+  font-size: .52rem;
+  text-transform: uppercase;
+  color: var(--texto-tinta);
+  background: #8a90a8;
+  padding: .4rem .55rem;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--moldura-tinta);
+  white-space: nowrap;
+}
+
+/* As cores dos 18 tipos, na chave em portugues que o tradutor devolve. */
+[data-tipo="Normal"]     { background: #b9b98e; }
+[data-tipo="Lutador"]    { background: #e0483f; }
+[data-tipo="Voador"]     { background: #b7a3f7; }
+[data-tipo="Venenoso"]   { background: #bf5cbd; }
+[data-tipo="Terrestre"]  { background: #e6c777; }
+[data-tipo="Pedra"]      { background: #c5b04a; }
+[data-tipo="Inseto"]     { background: #b9cc2c; }
+[data-tipo="Fantasma"]   { background: #8b6bb0; }
+[data-tipo="Aço"]        { background: #c3c3dc; }
+[data-tipo="Fogo"]       { background: #f79241; }
+[data-tipo="Água"]       { background: #74a0f5; }
+[data-tipo="Grama"]      { background: #86d156; }
+[data-tipo="Elétrico"]   { background: #ffdc3c; }
+[data-tipo="Psíquico"]   { background: #fd6a92; }
+[data-tipo="Gelo"]       { background: #a7e6e3; }
+[data-tipo="Dragão"]     { background: #8b5efd; }
+[data-tipo="Sombrio"]    { background: #9b7f66; }
+[data-tipo="Fada"]       { background: #eb9cc0; }
+[data-tipo="Estelar"]    { background: #5fc9b8; }
+
+/* ==========================================================================
+   12. FAVORITOS — botao de remover dentro do card
+   ========================================================================== */
+/* Parado o botao e neutro: ele nao precisa gritar sozinho no meio do card.
+   O vermelho aparece quando o mouse chega, avisando que aquilo remove. */
+#lista-favoritos article > button {
+  width: 100%;
+  margin-top: var(--espaco-xs);
+  font-size: .52rem;
+  padding: .55rem .6rem;
+}
+
+#lista-favoritos article > button:hover:not(:disabled) {
+  background: var(--vermelho);
+  border-color: var(--vermelho);
+  color: #fff;
+}
+
+/* ==========================================================================
+   13. DETALHES — a tela grande da Pokedex aberta
+   ========================================================================== */
+#conteudo {
+  padding: var(--espaco-lg);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-md) var(--espaco-lg);
+  align-content: start;
+}
+
+@media (min-width: 860px) {
+  #conteudo {
+    grid-template-columns: 300px 1fr;
+    align-items: start;
+  }
+
+  #conteudo > .visor { grid-column: 1; }
+  #conteudo > .ficha { grid-column: 2; }
+}
+
+/* Coluna da esquerda: visor + botoes, empilhados e colados. */
+.visor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+/* Coluna da direita: as secoes fluem uma embaixo da outra. */
+.ficha {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-lg);
+}
+
+/* Visor principal. O position e a referencia das faiscas do shiny, e o
+   overflow impede que alguma escape pra fora da moldura. */
+#conteudo figure {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--espaco-md);
-  border-radius: var(--radius-md);
-  border: 2px solid var(--cor-borda);
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+  background: var(--tela);
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
 #poke-imagem {
-  width: 200px;
-  height: 200px;
+  width: 192px;
+  height: 192px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.2));
 }
 
 #conteudo figcaption {
-  margin-top: var(--espaco-sm);
+  margin-top: var(--espaco-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
   font-family: var(--fonte-pixel);
-  font-size: 0.9rem;
+  font-size: .8rem;
   text-transform: capitalize;
-  color: var(--cor-texto-verde-hud);
+  text-align: center;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
 }
 
 #poke-numero {
-  color: var(--cor-amarelo-hud);
-  margin-right: 0.3rem;
+  font-size: .62rem;
+  font-weight: 400;
+  color: var(--cinza);
 }
 
-/* Pills de Tipos e Habilidades em formato LED/Display */
+#poke-nome {
+  color: #fff;
+}
+
+/* Listas de tipo e habilidade */
 #poke-tipos,
 #poke-habilidades {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--espaco-xs);
-  margin-top: var(--espaco-xs);
+  gap: .45rem;
 }
 
-#poke-tipos li,
 #poke-habilidades li {
-  background-color: var(--cor-chassi-metal);
-  border: 1px solid var(--cor-ciano-hud);
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-sm);
-  font-family: var(--fonte-tech);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--cor-ciano-hud);
-  text-transform: uppercase;
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  color: var(--texto);
+  background: var(--painel-alto);
+  padding: .35rem .8rem;
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: 4px;
+}
+
+/* Titulo de secao com o tracinho de menu na frente. */
+#conteudo section h2::before {
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: .5rem;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--fire);
 }
 
 /* ==========================================================================
-   10. TABELA DE ATRIBUTOS (ANALISADOR HUD)
+   14. LINHA EVOLUTIVA — quem vira quem
+   ========================================================================== */
+#secao-evolucao p {
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  color: var(--texto-suave);
+}
+
+#evolucao-erro {
+  color: var(--erro);
+}
+
+#linha-evolucao {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-xs);
+}
+
+.estagio {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+/* Seta dourada apontando pro proximo estagio da cadeia. */
+.estagio + .estagio::before {
+  content: '';
+  flex: none;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 8px 0 8px 12px;
+  border-color: transparent transparent transparent var(--realce);
+}
+
+/* Um estagio pode ter varios Pokemon (Eevee tem 8). Eles quebram em linha. */
+.formas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--espaco-xs);
+  max-width: 460px;
+}
+
+.evo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  padding: var(--espaco-xs);
+  border: 2px solid transparent;
+  border-radius: var(--r-sm);
+  transition: var(--transicao);
+}
+
+.evo img {
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  padding: 4px;
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  transition: var(--transicao);
+}
+
+.evo .dex-numero,
+.evo .dex-nome {
+  font-family: var(--fonte-pixel);
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+.evo .dex-nome {
+  font-size: .58rem;
+  text-transform: capitalize;
+}
+
+.evo:hover img {
+  border-color: var(--realce);
+}
+
+/* O Pokemon que esta aberto agora aparece marcado na linha. */
+.evo-atual {
+  border-color: var(--realce);
+  background: rgba(255, 255, 255, .07);
+}
+
+.evo-atual img {
+  border-color: var(--realce);
+}
+
+/* --------------------------------------------------------------------------
+   O BRILHO DO SHINY
+   Duas partes, na ordem em que a pessoa ve:
+     1. o sprite leva um CLARAO e da um pulinho     (.cintilando)
+     2. FAISCAS estouram em volta e somem           (.faisca)
+
+   Tudo em steps(): cada quadro entra de uma vez, sem transicao suave. E o
+   jeito que sprite de GBA se anima — poucos quadros, cada um inteiro.
+   O --atraso-brilho vem do JS e faz o clarao correr pela linha evolutiva.
+   -------------------------------------------------------------------------- */
+@keyframes clarao {
+  0%   { filter: brightness(4) contrast(1.4); transform: scale(1.07); }
+  18%  { filter: none;                        transform: scale(.97);  }
+  36%  { filter: brightness(2.6);             transform: scale(1.03); }
+  54%  { filter: none;                        transform: scale(1);    }
+  100% { filter: none;                        transform: scale(1);    }
+}
+
+.cintilando {
+  animation: clarao .5s steps(1, end) var(--atraso-brilho, 0ms) 1 both;
+}
+
+/* Faisca de quatro pontas, recortada com clip-path. */
+@keyframes faiscar {
+  0%   { opacity: 0; transform: scale(0)   rotate(0deg);  }
+  30%  { opacity: 1; transform: scale(1.2) rotate(30deg); }
+  65%  { opacity: 1; transform: scale(.75) rotate(60deg); }
+  100% { opacity: 0; transform: scale(0)   rotate(90deg); }
+}
+
+.faisca {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  background: #fff;
+  clip-path: polygon(
+    50% 0%, 59% 41%, 100% 50%, 59% 59%,
+    50% 100%, 41% 59%, 0% 50%, 41% 41%
+  );
+  animation: faiscar .55s steps(4, end) var(--atraso-faisca, 0ms) 1 both;
+}
+
+/* ==========================================================================
+   15. ATRIBUTOS — quadro de status com barra de HP
    ========================================================================== */
 table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 4px;
-  margin-top: var(--espaco-sm);
+  border-spacing: 0 6px;
 }
 
 th, td {
-  padding: 0.6rem 0.75rem;
+  padding: .55rem .7rem;
   text-align: left;
-  background-color: var(--cor-superficie-elevada);
-  font-size: 0.9rem;
+  background: var(--painel-alto);
+  vertical-align: middle;
 }
 
-th {
+tr > *:first-child {
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+}
+
+tr > *:last-child {
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+thead th {
+  background: transparent;
   font-family: var(--fonte-pixel);
-  font-size: 0.6rem;
+  font-size: .52rem;
+  color: var(--texto-suave);
   text-transform: uppercase;
-  color: var(--cor-amarelo-hud);
-  border-left: 2px solid var(--cor-amarelo-hud);
+  padding-bottom: 0;
 }
 
-td {
-  font-family: var(--fonte-tech);
-  font-weight: 600;
+tbody th {
+  font-family: var(--fonte-pixel);
+  font-size: .55rem;
+  color: var(--texto-suave);
+  border-left: 4px solid var(--fire);
+  white-space: nowrap;
 }
 
-/* Barras de Atributo <progress> Estilo Medidor Cyberpunk */
+tbody td {
+  font-family: var(--fonte-pixel);
+  font-size: .6rem;
+  color: #fff;
+}
+
+tbody td:last-child {
+  width: 55%;
+}
+
+/* Barra de atributo: casco preto, miolo colorido, brilho no topo. */
 progress {
+  display: block;
   width: 100%;
-  height: 10px;
-  border-radius: 0;
-  overflow: hidden;
+  height: 16px;
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid var(--cor-borda);
-  background-color: var(--cor-tela-led);
+  border: 2px solid var(--moldura-tinta);
+  border-radius: 3px;
+  background: #0a0f22;
+  overflow: hidden;
 }
 
 progress::-webkit-progress-bar {
-  background-color: var(--cor-tela-led);
+  background: #0a0f22;
 }
 
 progress::-webkit-progress-value {
-  background: linear-gradient(90deg, #00f0ff 0%, #39ff14 100%);
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px,
+    var(--barra-media) 3px 100%);
 }
 
 progress::-moz-progress-bar {
-  background: linear-gradient(90deg, #00f0ff 0%, #39ff14 100%);
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px,
+    var(--barra-media) 3px 100%);
+}
+
+/* Verde / amarelo / vermelho conforme o valor, igual barra de HP em batalha. */
+progress[data-nivel="alto"]::-webkit-progress-value {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px, var(--barra-alta) 3px 100%);
+}
+
+progress[data-nivel="alto"]::-moz-progress-bar {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px, var(--barra-alta) 3px 100%);
+}
+
+progress[data-nivel="baixo"]::-webkit-progress-value {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px, var(--barra-baixa) 3px 100%);
+}
+
+progress[data-nivel="baixo"]::-moz-progress-bar {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .45) 0 3px, var(--barra-baixa) 3px 100%);
 }
 
 /* ==========================================================================
-   11. ESTADOS DE CARREGAMENTO / ERRO / VAZIO & PAGINAÇÃO
+   16. ESTADOS: carregando / erro / vazio
    ========================================================================== */
 #estado-carregando,
-#sem-resultado,
+#estado-erro,
 #estado-vazio,
-#estado-erro {
+#sem-resultado {
   text-align: center;
   padding: var(--espaco-xl) var(--espaco-md);
-  background-color: var(--cor-superficie);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--cor-borda);
   margin: var(--espaco-lg) 0;
-  box-shadow: var(--sombra-sm);
-  font-family: var(--fonte-tech);
+  font-family: var(--fonte-pixel);
+  font-size: .68rem;
+  line-height: 2;
 }
 
-#estado-carregando h2,
-#sem-resultado h2,
-#estado-vazio h2 {
-  font-family: var(--fonte-pixel);
-  font-size: 0.8rem;
-  color: var(--cor-amarelo-hud);
+/* Pokebola chacoalhando enquanto a resposta nao chega. */
+#estado-carregando::before {
+  content: '';
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin: 0 auto var(--espaco-md);
+  background: url('../img/pokeicon.png') center / contain no-repeat;
+  border-radius: 50%;
+  clip-path: circle(48%);
+  animation: chacoalhar 1.1s steps(8, end) infinite;
+}
+
+/* A setinha piscando de "aperte A para continuar". */
+#estado-carregando::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  margin: var(--espaco-sm) auto 0;
+  border-style: solid;
+  border-width: 9px 7px 0 7px;
+  border-color: var(--realce) transparent transparent transparent;
+  animation: piscar 1s steps(2, end) infinite;
+}
+
+@keyframes chacoalhar {
+  0%, 100% { transform: rotate(-14deg); }
+  50%      { transform: rotate(14deg); }
+}
+
+@keyframes piscar {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 #estado-erro {
-  border-color: var(--cor-erro-borda);
-  background-color: var(--cor-erro-fundo);
-  color: var(--cor-erro-texto);
-  box-shadow: 0 0 10px rgba(255, 42, 42, 0.3);
+  background: var(--erro-fundo);
+  border-color: var(--erro-moldura);
+  color: var(--erro);
 }
 
 #estado-erro h2 {
+  font-size: .82rem;
+  color: var(--erro);
+}
+
+#estado-vazio h2 {
+  font-size: .82rem;
+  color: var(--texto);
+}
+
+#estado-erro #mensagem-erro,
+#estado-vazio p {
+  font-family: var(--fonte-texto);
+  font-size: 1.05rem;
+  color: var(--texto-suave);
+  max-width: 46ch;
+  margin: 0 auto var(--espaco-md);
+}
+
+#estado-erro #mensagem-erro {
+  color: var(--erro);
+}
+
+/* O link "ir para a lista" do estado vazio tambem vira item de menu. */
+#estado-vazio a {
+  display: inline-block;
+  padding: .7rem 1.1rem;
   font-family: var(--fonte-pixel);
-  font-size: 0.8rem;
-  color: var(--cor-erro-texto);
+  font-size: .6rem;
+  text-transform: uppercase;
+  background: var(--painel-alto);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 2px var(--moldura-tinta);
+  transition: var(--transicao);
 }
 
-#estado-erro button {
-  margin-top: var(--espaco-md);
+#estado-vazio a:hover {
+  border-color: var(--realce);
 }
 
+/* ==========================================================================
+   17. PAGINACAO — botoes do D-pad + visor da pagina
+   ========================================================================== */
 #paginacao {
   display: flex;
   align-items: center;
@@ -616,175 +1322,186 @@ progress::-moz-progress-bar {
 
 #info-pagina {
   font-family: var(--fonte-pixel);
-  font-size: 0.65rem;
-  color: var(--cor-ciano-hud);
+  font-size: .6rem;
+  color: var(--cinza);
+  background: var(--tela);
+  padding: .7rem 1rem;
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  white-space: nowrap;
+}
+
+/* Aqui a seta ja esta no texto do botao; nao precisa do cursor extra. */
+#paginacao button::before {
+  content: none;
 }
 
 /* ==========================================================================
-   12. FOOTER
+   18. RODAPE — placa de creditos
    ========================================================================== */
 .site-footer {
-    margin-top: 80px;
-    background: #0b0f19;
-    color: #cbd5e1;
-    border-top: 1px solid #1e293b;
+  margin-top: var(--espaco-xl);
+  background: var(--tela);
+  color: var(--texto-suave);
+  border-top: 4px solid var(--moldura-tinta);
+  box-shadow: inset 0 6px 0 -2px var(--chassi);
+  font-family: var(--fonte-texto);
 }
 
 .footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 55px 30px 40px;
-
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
-    gap: 50px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 30px 34px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 44px;
 }
 
 .footer-brand {
-    max-width: 350px;
+  max-width: 350px;
 }
 
 .footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    font-size: 25px;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 15px;
-}
-
-.footer-logo span:last-child span {
-    color: #ef4444;
-}
-
-.footer-logo-icon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    border-radius: 50%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .footer-brand p {
-    color: #94a3b8;
-    line-height: 1.7;
-    font-size: 14px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--texto-suave);
 }
 
 .footer-section {
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .footer-section h3 {
-    color: #ffffff;
-    font-size: 15px;
-    margin: 0 0 8px;
+  font-size: .62rem;
+  color: var(--texto);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+.footer-section a,
+.footer-section p {
+  font-size: 1rem;
+  color: var(--texto-suave);
 }
 
 .footer-section a {
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 14px;
+  transition: var(--transicao);
+}
 
-    transition: color 0.2s ease, transform 0.2s ease;
+.footer-section a::before {
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: .4rem;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 0 4px 6px;
+  border-color: transparent transparent transparent var(--fire);
+  opacity: 0;
+  transition: var(--transicao);
 }
 
 .footer-section a:hover {
-    color: #ef4444;
-    transform: translateX(3px);
+  color: var(--realce);
 }
 
-.footer-section p {
-    color: #94a3b8;
-    font-size: 14px;
-    line-height: 1.6;
-    margin: 0;
+.footer-section a:hover::before {
+  opacity: 1;
 }
 
 .footer-bottom {
-    max-width: 1200px;
-    margin: 0 auto;
-
-    padding: 20px 30px;
-
-    border-top: 1px solid #1e293b;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px 30px;
+  border-top: 2px solid var(--moldura-luz-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
 }
 
 .footer-bottom p {
-    margin: 0;
-    color: #64748b;
-    font-size: 13px;
+  font-size: .95rem;
+  color: var(--texto-suave);
 }
 
 .footer-bottom a {
-    color: #94a3b8;
-    text-decoration: none;
+  color: var(--texto-suave);
 }
 
 .footer-bottom a:hover {
-    color: #ef4444;
-}
-
-
-/* RESPONSIVO */
-@media (max-width: 800px) {
-
-    .footer-container {
-        grid-template-columns: 1fr 1fr;
-        gap: 35px;
-    }
-
-    .footer-brand {
-        grid-column: 1 / -1;
-        max-width: 100%;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-    }
-}
-
-
-@media (max-width: 500px) {
-
-    .footer-container {
-        grid-template-columns: 1fr;
-        padding: 40px 25px 30px;
-    }
-
-    .footer-brand {
-        grid-column: auto;
-    }
-
-    .footer-bottom {
-        padding: 20px;
-    }
+  color: var(--realce);
 }
 
 /* ==========================================================================
-   13. RESPONSIVIDADE & ACCESSIBILIDADE
+   19. RESPONSIVO
    ========================================================================== */
+@media (max-width: 800px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
 @media (max-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: .8rem;
+  }
+
   header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--espaco-xs);
+    gap: var(--espaco-sm);
   }
 
-  section form {
-    flex-direction: column;
+  header h1 {
+    margin-right: 0;
+    width: calc(100% - 46px);
   }
 
-  section form button[type="submit"] {
+  header nav,
+  header nav a,
+  header > a {
+    width: 100%;
+  }
+
+  header nav a,
+  header > a {
+    justify-content: center;
+  }
+
+  #form-busca,
+  #form-busca-fav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #form-busca button[type="submit"],
+  #form-busca-fav button[type="submit"] {
     width: 100%;
   }
 
@@ -793,18 +1510,322 @@ progress::-moz-progress-bar {
     width: 100%;
   }
 
-  #paginacao button {
+  #paginacao button,
+  #info-pagina {
     width: 100%;
+  }
+
+  #conteudo {
+    padding: var(--espaco-md);
+  }
+
+  tbody td:last-child {
+    width: 40%;
+  }
+
+  .filtros-acoes {
+    flex-direction: column;
+  }
+
+  .chip {
+    padding: .55rem .7rem;
+  }
+
+  /* Sem largura pra fila: a cadeia desce, e a seta aponta pra baixo. */
+  #linha-evolucao,
+  .estagio {
+    flex-direction: column;
+  }
+
+  .estagio + .estagio::before {
+    align-self: center;
+    border-width: 12px 8px 0 8px;
+    border-color: var(--realce) transparent transparent transparent;
   }
 }
 
+@media (max-width: 500px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    padding: 36px 24px 28px;
+  }
+
+  .footer-brand {
+    grid-column: auto;
+  }
+
+  .footer-bottom {
+    padding: 18px 20px;
+  }
+}
+
+/* ==========================================================================
+   20. QUEM PEDE MENOS MOVIMENTO, RECEBE MENOS MOVIMENTO
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   16. VANTAGENS / FRAQUEZAS
+   ========================================================================== */
+#secao-vantagens .tipo,
+#secao-fraquezas .tipo,
+#secao-imunidades .tipo {
+  border: 2px solid var(--moldura-luz-2);
+  box-shadow: inset 0 0 0 1px var(--moldura-tinta);
+}
+
+.descricao-eficacia {
+  margin-bottom: .65rem;
+  color: var(--texto-suave);
+  font-size: .95rem;
+}
+
+#secao-vantagens h2::after,
+#secao-fraquezas h2::after,
+#secao-imunidades h2::after {
+  font-family: var(--fonte-texto);
+  font-size: .8rem;
+  font-weight: 400;
+  color: var(--texto-suave);
+  margin-left: .65rem;
+}
+
+/* ==========================================================================
+   17. COMPARACAO
+   ========================================================================== */
+.link-comparacao {
+  white-space: nowrap;
+}
+
+.botao-comparar {
+  width: 100%;
+  margin-top: .65rem;
+  padding: .55rem .75rem;
+  font-size: .58rem;
+}
+
+.botao-comparar[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+.botao-comparar[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+#btn-comparar {
+  width: 100%;
+  padding: .75rem;
+  font-size: .62rem;
+}
+
+#btn-comparar[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+.cabecalho-comparacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-lg);
+}
+
+.cabecalho-comparacao p {
+  color: var(--texto-suave);
+  margin-top: .4rem;
+}
+
+.estado-comparacao-vazio,
+.tabela-comparacao {
+  background: var(--painel);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta);
+  padding: var(--espaco-lg);
+}
+
+.estado-comparacao-vazio {
+  text-align: center;
+}
+
+.estado-comparacao-vazio p {
+  color: var(--texto-suave);
+  margin: var(--espaco-sm) 0 var(--espaco-md);
+}
+
+.botao-comparacao-link {
+  display: inline-block;
+  padding: .7rem 1rem;
+  border: 2px solid var(--moldura-luz);
+  background: var(--tela);
+  font-family: var(--fonte-pixel);
+  font-size: .55rem;
+}
+
+.botao-comparacao-link:hover {
+  border-color: var(--realce);
+}
+
+.tabela-comparacao {
+  overflow: hidden;
+}
+
+.tabela-comparacao-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabela-comparacao table {
+  min-width: 720px;
+}
+
+.tabela-comparacao thead th {
+  min-width: 130px;
+  text-align: center;
+  vertical-align: top;
+  position: relative;
+  padding: .75rem .5rem;
+}
+
+.tabela-comparacao thead th:first-child {
+  min-width: 150px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabela-comparacao thead th img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 0 auto .35rem;
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+}
+
+.tabela-comparacao thead th strong {
+  display: block;
+  color: var(--texto);
+  font-family: var(--fonte-pixel);
+  font-size: .52rem;
+  line-height: 1.5;
+}
+
+.tabela-comparacao thead th.comparacao-pokemon-melhor {
+  background: rgba(255, 204, 0, .12);
+  box-shadow: inset 0 -4px 0 var(--realce);
+}
+
+.tabela-comparacao thead th.comparacao-pokemon-melhor img {
+  border-color: var(--realce);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta), 0 0 0 2px var(--realce);
+}
+
+.comparacao-melhor-badge {
+  display: inline-block;
+  margin-top: .45rem;
+  padding: .25rem .4rem;
+  border: 2px solid var(--realce);
+  background: var(--realce);
+  color: var(--texto-tinta);
+  font-family: var(--fonte-pixel);
+  font-size: .42rem;
+  line-height: 1;
+}
+
+.comparacao-numero {
+  display: block;
+  margin-bottom: .25rem;
+  color: var(--texto-suave);
+  font-family: var(--fonte-pixel);
+  font-size: .45rem;
+}
+
+.comparacao-remover {
+  position: absolute;
+  top: .35rem;
+  right: .35rem;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-width: 2px;
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tabela-comparacao tbody th {
+  background: var(--painel-alto);
+}
+
+.tabela-comparacao tbody td {
+  text-align: center;
+  font-family: var(--fonte-pixel);
+  font-size: .65rem;
+  border-left: 2px solid var(--painel);
+}
+
+.tabela-comparacao tbody td.comparacao-maior {
+  color: #40d14b;
+}
+
+.tabela-comparacao tbody td.comparacao-menor {
+  color: #ee4b34;
+}
+
+.tabela-comparacao tbody td.comparacao-igual {
+  color: #fff;
+}
+
+.tabela-comparacao tbody td.comparacao-coluna-melhor {
+  background: rgba(255, 204, 0, .08);
+  box-shadow: inset 3px 0 0 var(--realce), inset -3px 0 0 var(--realce);
+}
+
+.tabela-comparacao tbody tr.comparacao-total th,
+.tabela-comparacao tbody tr.comparacao-total td {
+  border-top: 3px solid var(--moldura-luz);
+  font-weight: 700;
+}
+
+.tabela-comparacao tbody tr.comparacao-total td.comparacao-total-valor {
+  color: var(--texto);
+}
+
+.tabela-comparacao tbody tr.comparacao-total td.comparacao-coluna-melhor {
+  color: var(--realce);
+  font-size: .75rem;
+}
+
+@media (max-width: 640px) {
+  .cabecalho-comparacao {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-comparacao button {
+    width: 100%;
+  }
+
+  .estado-comparacao-vazio,
+  .tabela-comparacao {
+    padding: var(--espaco-md);
   }
 }

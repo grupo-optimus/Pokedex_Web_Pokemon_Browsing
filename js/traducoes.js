@@ -1,9 +1,9 @@
 /* ==========================================================================
-   CAVERNA: PokeAPI fala ingles. Homem da caverna fala portugues.
+   A PokeAPI responde em ingles. A tela fala portugues.
    Este arquivo e o tradutor. RNF005 manda traduzir tipo e habilidade.
    ========================================================================== */
 
-/* CAVERNA: os 18 tipos de bicho. chave = ingles da API, valor = nosso idioma. */
+/* Os 18 tipos de Pokemon. chave = ingles da API, valor = nosso idioma. */
 const TIPOS_PT = {
   normal: 'Normal',      fighting: 'Lutador',  flying: 'Voador',
   poison: 'Venenoso',    ground: 'Terrestre',  rock: 'Pedra',
@@ -14,7 +14,7 @@ const TIPOS_PT = {
   stellar: 'Estelar',    unknown: 'Desconhecido'
 };
 
-/* CAVERNA: os seis atributos-base pedidos no RF003. */
+/* Os seis atributos-base pedidos no RF003. */
 const ATRIBUTOS_PT = {
   'hp': 'HP',
   'attack': 'Ataque',
@@ -24,7 +24,7 @@ const ATRIBUTOS_PT = {
   'speed': 'Velocidade'
 };
 
-/* CAVERNA: habilidade e muita (mais de 300). traduz as comuns.
+/* Habilidade e muita (mais de 300). traduz as comuns.
    O que nao tiver aqui vira texto arrumado, sem traco e com maiuscula. */
 const HABILIDADES_PT = {
   'overgrow': 'Supercrescimento',   'blaze': 'Chama Viva',
@@ -45,7 +45,7 @@ const HABILIDADES_PT = {
   'technician': 'Técnico',          'adaptability': 'Adaptabilidade'
 };
 
-/* CAVERNA: tira traco, poe maiuscula. "solar-power" vira "Solar Power". */
+/* Tira traco, poe maiuscula. "solar-power" vira "Solar Power". */
 function arrumarTexto(texto) {
   return texto
     .split('-')
@@ -65,7 +65,7 @@ function traduzirHabilidade(nomeIngles) {
   return HABILIDADES_PT[nomeIngles] || arrumarTexto(nomeIngles);
 }
 
-/* CAVERNA: RF002 manda ignorar maiuscula e acento na busca.
+/* RF002 manda ignorar maiuscula e acento na busca.
    normalize('NFD') separa a letra do acento; o regex joga acento fora.
    "Pokémon" vira "pokemon". Assim busca acha do mesmo jeito. */
 function normalizarTexto(texto) {
