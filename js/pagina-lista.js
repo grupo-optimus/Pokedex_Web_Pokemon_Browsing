@@ -55,6 +55,7 @@ function desenharLista(pokemons) {
   listaEl.replaceChildren(); // Limpa antes de encher
   // Cada card ja vem com a estrela de favoritar (RF004).
   pokemons.forEach(p => listaEl.appendChild(criarCardPokemon(p, { comBotaoFavorito: true })));
+  atualizarLinksComparacao();
 }
 
 function temFiltro() {

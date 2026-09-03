@@ -14,6 +14,7 @@ const TAMANHO_PAGINA = 20;
    Isso ajuda o RNF003 (resposta rapida) e nao sobrecarrega a API de pedidos. */
 const cacheDetalhes = new Map();
 const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por Pokemon
+const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
 let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
 
 /* --------------------------------------------------------------------------
@@ -76,6 +77,9 @@ function paraModelo(dadosBrutos) {
     imagem: escolherImagem(dadosBrutos.sprites, false),
     imagemShiny: escolherImagem(dadosBrutos.sprites, true),
 
+    // Guarda os nomes da API em ingles para calculos de efetividade; a tela
+    // recebe a versao em portugues no campo tipos.
+    tiposIngles: dadosBrutos.types.map(t => t.type.name),
     tipos: dadosBrutos.types.map(t => traduzirTipo(t.type.name)),
 
     habilidades: dadosBrutos.abilities.map(h => traduzirHabilidade(h.ability.name)),
@@ -84,8 +88,74 @@ function paraModelo(dadosBrutos) {
     atributos: dadosBrutos.stats.map(a => ({
       nome: traduzirAtributo(a.stat.name),
       valor: a.base_stat
-    }))
+    })),
+
+    // Calculados somente na tela de detalhes, para nao adicionar
+    // requisicoes extras a cada card da listagem.
+    vantagens: [],
+    fraquezas: [],
+    imunidades: []
   };
+}
+
+/* --------------------------------------------------------------------------
+   EFETIVIDADE DE TIPOS
+   Para cada tipo que poderia atacar o Pokemon, multiplica a relacao contra
+   todos os tipos defensivos dele. Ex.: Agua/Fogo leva 2x de Eletrico?
+   A conta final vem da multiplicacao das duas tabelas.
+   2x = fraqueza, 0.5x = vantagem/resistencia, 0x = imunidade.
+   -------------------------------------------------------------------------- */
+async function obterRelacoesTipo(tipoIngles) {
+  if (cacheRelacoesTipo.has(tipoIngles)) {
+    return cacheRelacoesTipo.get(tipoIngles);
+  }
+
+  const dados = await pedirJSON(BASE_URL + '/type/' + tipoIngles);
+  const relacoes = {
+    fraco: new Set(dados.damage_relations.double_damage_from.map(item => item.name)),
+    resistente: new Set(dados.damage_relations.half_damage_from.map(item => item.name)),
+    imune: new Set(dados.damage_relations.no_damage_from.map(item => item.name))
+  };
+
+  cacheRelacoesTipo.set(tipoIngles, relacoes);
+  return relacoes;
+}
+
+async function calcularVantagensEFraquezas(tiposIngles) {
+  const todosOsTipos = Object.keys(TIPOS_PT)
+    .filter(tipo => tipo !== 'unknown' && tipo !== 'stellar');
+
+  const relacoesDefensivas = await Promise.all(
+    tiposIngles.map(tipo => obterRelacoesTipo(tipo))
+  );
+
+  const multiplicadores = todosOsTipos.map(tipoAtacante => {
+    let multiplicador = 1;
+
+    relacoesDefensivas.forEach(relacao => {
+      if (relacao.imune.has(tipoAtacante)) multiplicador *= 0;
+      else if (relacao.fraco.has(tipoAtacante)) multiplicador *= 2;
+      else if (relacao.resistente.has(tipoAtacante)) multiplicador *= 0.5;
+    });
+
+    return { tipo: tipoAtacante, multiplicador };
+  });
+
+  return {
+    vantagens: multiplicadores
+      .filter(item => item.multiplicador > 0 && item.multiplicador < 1)
+      .map(item => traduzirTipo(item.tipo)),
+    fraquezas: multiplicadores
+      .filter(item => item.multiplicador > 1)
+      .map(item => traduzirTipo(item.tipo)),
+    imunidades: multiplicadores
+      .filter(item => item.multiplicador === 0)
+      .map(item => traduzirTipo(item.tipo))
+  };
+}
+
+async function obterVantagensEFraquezas(pokemon) {
+  return calcularVantagensEFraquezas(pokemon.tiposIngles);
 }
 
 /* --------------------------------------------------------------------------

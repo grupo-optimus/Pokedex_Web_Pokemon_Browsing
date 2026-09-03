@@ -21,6 +21,7 @@
     </a>
 
     <a href="index.html" id="btn-voltar">&#9664; Voltar</a>
+    <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     <h1>Detalhes do Pokémon</h1>
   </header>
 
@@ -58,6 +59,7 @@
 
         <!-- Mesmo botao poe e tira (RF004). Texto muda sozinho. -->
         <button type="button" id="btn-favorito" aria-pressed="false">☆ Adicionar aos favoritos</button>
+        <button type="button" id="btn-comparar" aria-pressed="false">+ Comparar Pokémon</button>
 
       </div>
 
@@ -75,6 +77,24 @@
         <section>
           <h2>Habilidades</h2>
           <ul id="poke-habilidades"></ul>
+        </section>
+
+        <section id="secao-vantagens" hidden>
+          <h2>Vantagens</h2>
+          <p class="descricao-eficacia">Tipos de ataques que causam menos dano a este Pokémon.</p>
+          <ul id="poke-vantagens" class="tipos"></ul>
+        </section>
+
+        <section id="secao-fraquezas" hidden>
+          <h2>Fraquezas</h2>
+          <p class="descricao-eficacia">Tipos de ataques que causam mais dano a este Pokémon.</p>
+          <ul id="poke-fraquezas" class="tipos"></ul>
+        </section>
+
+        <section id="secao-imunidades" hidden>
+          <h2>Imunidades</h2>
+          <p class="descricao-eficacia">Tipos de ataques que não causam dano.</p>
+          <ul id="poke-imunidades" class="tipos"></ul>
         </section>
 
         <hr>
@@ -135,6 +155,7 @@
             <a href="#">Pokédex</a>
             <a href="#">Favoritos</a>
             <a href="#">Sobre o projeto</a>
+        <a href="comparar.html">Comparar</a>
         </div>
 
         <div class="footer-section">
@@ -169,6 +190,7 @@
   <script src="js/traducoes.js"></script>
   <script src="js/api.js"></script>
   <script src="js/favoritos.js"></script>
+  <script src="js/comparacao.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/pagina-detalhes.js"></script>
 </body>

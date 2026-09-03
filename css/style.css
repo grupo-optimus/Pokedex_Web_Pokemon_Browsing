@@ -1289,7 +1289,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--erro);
 }
 
-/* O link "ir para a lista" do estado vazio tambem vira item de menu. */
+/* O link "ir para a lista" do estado vazio tambem vira item de menu.*/
 #estado-vazio a {
   display: inline-block;
   padding: .7rem 1.1rem;
@@ -1570,5 +1570,262 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   16. VANTAGENS / FRAQUEZAS
+   ========================================================================== */
+#secao-vantagens .tipo,
+#secao-fraquezas .tipo,
+#secao-imunidades .tipo {
+  border: 2px solid var(--moldura-luz-2);
+  box-shadow: inset 0 0 0 1px var(--moldura-tinta);
+}
+
+.descricao-eficacia {
+  margin-bottom: .65rem;
+  color: var(--texto-suave);
+  font-size: .95rem;
+}
+
+#secao-vantagens h2::after,
+#secao-fraquezas h2::after,
+#secao-imunidades h2::after {
+  font-family: var(--fonte-texto);
+  font-size: .8rem;
+  font-weight: 400;
+  color: var(--texto-suave);
+  margin-left: .65rem;
+}
+
+/* ==========================================================================
+   17. COMPARACAO
+   ========================================================================== */
+.link-comparacao {
+  white-space: nowrap;
+}
+
+.botao-comparar {
+  width: 100%;
+  margin-top: .65rem;
+  padding: .55rem .75rem;
+  font-size: .58rem;
+}
+
+.botao-comparar[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+.botao-comparar[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+#btn-comparar {
+  width: 100%;
+  padding: .75rem;
+  font-size: .62rem;
+}
+
+#btn-comparar[aria-pressed="true"] {
+  background: var(--realce);
+  border-color: var(--realce);
+  color: var(--texto-tinta);
+}
+
+.cabecalho-comparacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-lg);
+}
+
+.cabecalho-comparacao p {
+  color: var(--texto-suave);
+  margin-top: .4rem;
+}
+
+.estado-comparacao-vazio,
+.tabela-comparacao {
+  background: var(--painel);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta);
+  padding: var(--espaco-lg);
+}
+
+.estado-comparacao-vazio {
+  text-align: center;
+}
+
+.estado-comparacao-vazio p {
+  color: var(--texto-suave);
+  margin: var(--espaco-sm) 0 var(--espaco-md);
+}
+
+.botao-comparacao-link {
+  display: inline-block;
+  padding: .7rem 1rem;
+  border: 2px solid var(--moldura-luz);
+  background: var(--tela);
+  font-family: var(--fonte-pixel);
+  font-size: .55rem;
+}
+
+.botao-comparacao-link:hover {
+  border-color: var(--realce);
+}
+
+.tabela-comparacao {
+  overflow: hidden;
+}
+
+.tabela-comparacao-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.tabela-comparacao table {
+  min-width: 720px;
+}
+
+.tabela-comparacao thead th {
+  min-width: 151px;
+  text-align: center;
+  vertical-align: top;
+  position: relative;
+  padding: .75rem .5rem;
+}
+
+.tabela-comparacao thead th:first-child {
+  min-width: 151px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabela-comparacao thead th img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin: 0 auto .35rem;
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+}
+
+.tabela-comparacao thead th strong {
+  display: block;
+  color: var(--texto);
+  font-family: var(--fonte-pixel);
+  font-size: .52rem;
+  line-height: 1.5;
+}
+
+.tabela-comparacao thead th.comparacao-pokemon-melhor {
+  background: rgba(255, 204, 0, .12);
+  box-shadow: inset 0 -4px 0 var(--realce);
+}
+
+.tabela-comparacao thead th.comparacao-pokemon-melhor img {
+  border-color: var(--realce);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta), 0 0 0 2px var(--realce);
+}
+
+.comparacao-melhor-badge {
+  display: inline-block;
+  margin-top: .45rem;
+  padding: .25rem .4rem;
+  border: 2px solid var(--realce);
+  background: var(--realce);
+  color: var(--texto-tinta);
+  font-family: var(--fonte-pixel);
+  font-size: .42rem;
+  line-height: 1;
+}
+
+.comparacao-numero {
+  display: block;
+  margin-bottom: .25rem;
+  color: var(--texto-suave);
+  font-family: var(--fonte-pixel);
+  font-size: .45rem;
+}
+
+.comparacao-remover {
+  position: absolute;
+  top: .35rem;
+  right: .35rem;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-width: 2px;
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tabela-comparacao tbody th {
+  background: var(--painel-alto);
+}
+
+.tabela-comparacao tbody td {
+  text-align: center;
+  font-family: var(--fonte-pixel);
+  font-size: .65rem;
+  border-left: 2px solid var(--painel);
+}
+
+.tabela-comparacao tbody td.comparacao-maior {
+  color: #40d14b;
+}
+
+.tabela-comparacao tbody td.comparacao-menor {
+  color: #ee4b34;
+}
+
+.tabela-comparacao tbody td.comparacao-igual {
+  color: #fff;
+}
+
+.tabela-comparacao tbody td.comparacao-coluna-melhor {
+  background: rgba(255, 204, 0, .08);
+  box-shadow: inset 3px 0 0 var(--realce), inset -3px 0 0 var(--realce);
+}
+
+.tabela-comparacao tbody tr.comparacao-total th,
+.tabela-comparacao tbody tr.comparacao-total td {
+  border-top: 3px solid var(--moldura-luz);
+  font-weight: 700;
+}
+
+.tabela-comparacao tbody tr.comparacao-total td.comparacao-total-valor {
+  color: var(--texto);
+}
+
+.tabela-comparacao tbody tr.comparacao-total td.comparacao-coluna-melhor {
+  color: var(--realce);
+  font-size: .75rem;
+}
+
+@media (max-width: 640px) {
+  .cabecalho-comparacao {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cabecalho-comparacao button {
+    width: 100%;
+  }
+
+  .estado-comparacao-vazio,
+  .tabela-comparacao {
+    padding: var(--espaco-md);
   }
 }

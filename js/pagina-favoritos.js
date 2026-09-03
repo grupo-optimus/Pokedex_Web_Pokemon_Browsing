@@ -35,6 +35,7 @@ function desenhar() {
   mostrar(vazioEl,    todos.length === 0);
   mostrar(semBuscaEl, todos.length > 0 && visiveis.length === 0);
   mostrar(listaEl,    visiveis.length > 0);
+  atualizarLinksComparacao();
 }
 
 formBusca.addEventListener('submit', e => { e.preventDefault(); desenhar(); });

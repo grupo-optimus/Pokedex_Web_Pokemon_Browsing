@@ -74,6 +74,49 @@ function criarBotaoFavorito(pokemon) {
   return botao;
 }
 
+
+/* --------------------------------------------------------------------------
+   Botao de comparacao. A selecao fica entre paginas e aceita no maximo seis.
+   -------------------------------------------------------------------------- */
+function atualizarLinksComparacao() {
+  const quantidade = lerComparacao().length;
+  document.querySelectorAll('.link-comparacao').forEach(function (link) {
+    link.textContent = 'Comparar (' + quantidade + '/6)';
+  });
+}
+
+function criarBotaoComparacao(pokemon) {
+  const botao = elemento('button');
+  botao.type = 'button';
+  botao.className = 'botao-comparar';
+
+  function pintar() {
+    const selecionado = estaNaComparacao(pokemon.id);
+    botao.textContent = selecionado ? '✓ Comparando' : 'Comparar';
+    botao.setAttribute('aria-pressed', String(selecionado));
+    botao.title = selecionado
+      ? 'Remover ' + pokemon.nome + ' da comparação'
+      : 'Adicionar ' + pokemon.nome + ' à comparação';
+  }
+
+  botao.addEventListener('click', function (evento) {
+    evento.preventDefault();
+    evento.stopPropagation();
+
+    const resultado = alternarComparacao(pokemon);
+    if (resultado.cheia) {
+      window.alert('A comparação já possui 6 Pokémon. Remova um para adicionar outro.');
+      return;
+    }
+
+    pintar();
+    atualizarLinksComparacao();
+  });
+
+  pintar();
+  return botao;
+}
+
 /* --------------------------------------------------------------------------
    O card de Pokemon. Usado na lista e nos favoritos.
    "comBotaoFavorito" poe a estrela de guardar (usado na lista).
@@ -124,6 +167,8 @@ function criarCardPokemon(pokemon, opcoes) {
     });
     card.appendChild(botao);
   }
+
+  card.appendChild(criarBotaoComparacao(pokemon));
 
   item.appendChild(card);
   return item;

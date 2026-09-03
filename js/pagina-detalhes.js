@@ -17,6 +17,10 @@ const habilidadesEl  = document.getElementById('poke-habilidades');
 const atributosEl    = document.getElementById('poke-atributos');
 const botaoFavorito  = document.getElementById('btn-favorito');
 const botaoShiny     = document.getElementById('btn-shiny');
+const botaoComparar  = document.getElementById('btn-comparar');
+const vantagensEl    = document.getElementById('poke-vantagens');
+const fraquezasEl    = document.getElementById('poke-fraquezas');
+const imunidadesEl   = document.getElementById('poke-imunidades');
 
 const evolucaoEl     = document.getElementById('linha-evolucao');
 const evoCarregandoEl= document.getElementById('evolucao-carregando');
@@ -72,6 +76,37 @@ function atualizarBotaoFavorito() {
   botaoFavorito.setAttribute('aria-pressed', String(favorito));
 }
 
+
+function desenharTiposEficacia(caixa, tipos) {
+  caixa.replaceChildren();
+  tipos.forEach(function (tipo) {
+    const item = elemento('li', tipo);
+    item.className = 'tipo';
+    item.dataset.tipo = tipo;
+    caixa.appendChild(item);
+  });
+}
+
+function desenharVantagensEFraquezas(efetividade) {
+  pokemonAtual.vantagens = efetividade.vantagens;
+  pokemonAtual.fraquezas = efetividade.fraquezas;
+  pokemonAtual.imunidades = efetividade.imunidades;
+
+  desenharTiposEficacia(vantagensEl, pokemonAtual.vantagens);
+  desenharTiposEficacia(fraquezasEl, pokemonAtual.fraquezas);
+  desenharTiposEficacia(imunidadesEl, pokemonAtual.imunidades);
+
+  mostrar(vantagensEl.parentElement, pokemonAtual.vantagens.length > 0);
+  mostrar(fraquezasEl.parentElement, pokemonAtual.fraquezas.length > 0);
+  mostrar(imunidadesEl.parentElement, pokemonAtual.imunidades.length > 0);
+}
+
+function atualizarBotaoComparar() {
+  const selecionado = estaNaComparacao(pokemonAtual.id);
+  botaoComparar.textContent = selecionado ? '✓ Remover da comparação' : '+ Comparar Pokémon';
+  botaoComparar.setAttribute('aria-pressed', String(selecionado));
+}
+
 function desenharPokemon(pokemon) {
   document.title = pokemon.nome + ' — Detalhes';
 
@@ -112,6 +147,11 @@ function desenharPokemon(pokemon) {
   });
 
   atualizarBotaoFavorito();
+  atualizarBotaoComparar();
+  atualizarLinksComparacao();
+  desenharTiposEficacia(vantagensEl, pokemon.vantagens);
+  desenharTiposEficacia(fraquezasEl, pokemon.fraquezas);
+  desenharTiposEficacia(imunidadesEl, pokemon.imunidades);
 }
 
 /* --------------------------------------------------------------------------
@@ -202,6 +242,18 @@ async function carregarDetalhes() {
     desenharPokemon(pokemonAtual);
     definirEstado('pronto');
 
+    // Vantagens/fraquezas sao carregadas depois da ficha principal para
+    // nao bloquear o conteudo essencial do Pokemon.
+    try {
+      const efetividade = await obterVantagensEFraquezas(pokemonAtual);
+      desenharVantagensEFraquezas(efetividade);
+    } catch (erro) {
+      // Se a tabela de tipos falhar, a ficha principal continua utilizavel.
+      mostrar(vantagensEl.parentElement, false);
+      mostrar(fraquezasEl.parentElement, false);
+      mostrar(imunidadesEl.parentElement, false);
+    }
+
     // A linha evolutiva chega depois, sem segurar o resto da tela.
     carregarEvolucao(pokemonAtual.id);
   } catch (erro) {
@@ -270,6 +322,17 @@ function limparBrilho(visor) {
 }
 
 /* Liga e desliga a cor rara. Troca o visor e a linha evolutiva juntos. */
+botaoComparar.addEventListener('click', function () {
+  if (!pokemonAtual) return;
+  const resultado = alternarComparacao(pokemonAtual);
+  if (resultado.cheia) {
+    window.alert('A comparação já possui 6 Pokémon. Remova um para adicionar outro.');
+    return;
+  }
+  atualizarBotaoComparar();
+  atualizarLinksComparacao();
+});
+
 botaoShiny.addEventListener('click', function () {
   modoShiny = !modoShiny;
   botaoShiny.textContent = modoShiny ? 'Ver normal' : 'Ver shiny';
