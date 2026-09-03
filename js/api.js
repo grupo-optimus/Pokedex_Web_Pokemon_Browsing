@@ -163,7 +163,13 @@ async function obterVantagensEFraquezas(pokemon) {
    Endpoint: GET /pokemon/{id-ou-nome}
    -------------------------------------------------------------------------- */
 async function obterPokemon(idOuNome) {
-  const chave = normalizarTexto(idOuNome);
+  let chave = normalizarTexto(idOuNome);
+
+  // A PokeAPI nao aceita zero a esquerda no numero (/pokemon/001 da 404).
+  // "004" (como aparece na Pokedex) precisa virar "4" antes de montar a URL.
+  if (/^\d+$/.test(chave)) {
+    chave = String(Number(chave));
+  }
 
   // Ja esta em memoria? entrega na hora, sem ir na rede.
   if (cacheDetalhes.has(chave)) {
