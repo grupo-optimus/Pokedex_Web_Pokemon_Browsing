@@ -1697,7 +1697,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 }
 
 .tabela-comparacao thead th {
-  min-width: 130px;
+  min-width: 151px;
   text-align: center;
   vertical-align: top;
   position: relative;
@@ -1705,7 +1705,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 }
 
 .tabela-comparacao thead th:first-child {
-  min-width: 150px;
+  min-width: 151px;
   text-align: left;
   vertical-align: middle;
 }
