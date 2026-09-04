@@ -13,21 +13,24 @@
 <body>
 
   <header>
-    <!-- Mesma marca do rodape, so que aqui em cima. -->
-    <!-- A marca leva pro comeco da lista. -->
-    <a class="marca" href="index.html" title="Voltar ao início">
-      <img src="img/pokeicon.png" alt="" class="marca-icone">
-      <span>Optimus<span>Dex</span></span>
-    </a>
-
-    <a href="index.html" id="btn-voltar">&#9664; Voltar</a>
-    <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
-    <h1>Detalhes do Pokémon</h1>
+    <h1>
+      <a class="marca" href="index.html" title="Voltar ao início">
+        <img src="img/pokeicon.png" alt="" class="marca-icone">
+        <span>Optimus<span>Dex</span></span>
+      </a>
+    </h1>
+    <nav>
+      <a href="index.html" id="btn-voltar">&#9664; Pokédex</a>
+      <a href="favoritos.html">&#9733; Meus Favoritos</a>
+      <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
+    </nav>
   </header>
 
   <hr>
 
   <main>
+
+    <h2 class="titulo-pagina">Detalhes do Pokémon</h2>
 
     <!-- Esperando a resposta. -->
     <p id="estado-carregando">Carregando…</p>
@@ -79,8 +82,14 @@
           <ul id="poke-habilidades"></ul>
         </section>
 
+        <section id="secao-super-efetivo" hidden>
+          <h2>Super efetivo contra</h2>
+          <p class="descricao-eficacia">Tipos de ataques deste Pokémon que podem causar dano super efetivo.</p>
+          <ul id="poke-super-eficaz" class="tipos"></ul>
+        </section>
+
         <section id="secao-vantagens" hidden>
-          <h2>Vantagens</h2>
+          <h2>Resistências</h2>
           <p class="descricao-eficacia">Tipos de ataques que causam menos dano a este Pokémon.</p>
           <ul id="poke-vantagens" class="tipos"></ul>
         </section>

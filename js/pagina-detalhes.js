@@ -18,6 +18,7 @@ const atributosEl    = document.getElementById('poke-atributos');
 const botaoFavorito  = document.getElementById('btn-favorito');
 const botaoShiny     = document.getElementById('btn-shiny');
 const botaoComparar  = document.getElementById('btn-comparar');
+const superEficazEl  = document.getElementById('poke-super-eficaz');
 const vantagensEl    = document.getElementById('poke-vantagens');
 const fraquezasEl    = document.getElementById('poke-fraquezas');
 const imunidadesEl   = document.getElementById('poke-imunidades');
@@ -88,14 +89,17 @@ function desenharTiposEficacia(caixa, tipos) {
 }
 
 function desenharVantagensEFraquezas(efetividade) {
+  pokemonAtual.superEficazContra = efetividade.superEficazContra;
   pokemonAtual.vantagens = efetividade.vantagens;
   pokemonAtual.fraquezas = efetividade.fraquezas;
   pokemonAtual.imunidades = efetividade.imunidades;
 
+  desenharTiposEficacia(superEficazEl, pokemonAtual.superEficazContra);
   desenharTiposEficacia(vantagensEl, pokemonAtual.vantagens);
   desenharTiposEficacia(fraquezasEl, pokemonAtual.fraquezas);
   desenharTiposEficacia(imunidadesEl, pokemonAtual.imunidades);
 
+  mostrar(superEficazEl.parentElement, pokemonAtual.superEficazContra.length > 0);
   mostrar(vantagensEl.parentElement, pokemonAtual.vantagens.length > 0);
   mostrar(fraquezasEl.parentElement, pokemonAtual.fraquezas.length > 0);
   mostrar(imunidadesEl.parentElement, pokemonAtual.imunidades.length > 0);
@@ -149,6 +153,7 @@ function desenharPokemon(pokemon) {
   atualizarBotaoFavorito();
   atualizarBotaoComparar();
   atualizarLinksComparacao();
+  desenharTiposEficacia(superEficazEl, pokemon.superEficazContra || []);
   desenharTiposEficacia(vantagensEl, pokemon.vantagens);
   desenharTiposEficacia(fraquezasEl, pokemon.fraquezas);
   desenharTiposEficacia(imunidadesEl, pokemon.imunidades);
@@ -158,11 +163,42 @@ function desenharPokemon(pokemon) {
    LINHA EVOLUTIVA. Um elo = um Pokemon da cadeia, clicavel.
    O elo do Pokemon que esta aberto agora fica marcado.
    -------------------------------------------------------------------------- */
+function identificarFormaEspecial(pokemon) {
+  const nomeApi = String(pokemon.nomeApi || '').toLowerCase();
+
+  const regras = [
+    { padrao: /-mega-x$/, rotulo: 'MEGA X' },
+    { padrao: /-mega-y$/, rotulo: 'MEGA Y' },
+    { padrao: /-mega$/, rotulo: 'MEGA' },
+    { padrao: /-gmax$/, rotulo: 'GIGANTAMAX' },
+    { padrao: /-primal$/, rotulo: 'PRIMAL' },
+    { padrao: /-ash$/, rotulo: 'ASH' },
+    { padrao: /-(alola|galar|hisui|paldea)$/, rotulo: 'REGIONAL' },
+    { padrao: /-origin$/, rotulo: 'ORIGIN' },
+    { padrao: /-(attack|defense|speed)$/, rotulo: 'FORMA' },
+    { padrao: /-(altered|sky|school|solo|complete|zen|crowned|eternamax|hero|resolute|ordinary|therian|incarnate)$/, rotulo: 'FORMA' },
+    { padrao: /-(white|black|sunny|rainy|snowy|dusk|dawn|midnight|midday|low-key|amped|full-belly|hangry)$/, rotulo: 'FORMA' },
+    { padrao: /-(10|50|100)-percent$/, rotulo: 'FORMA' },
+    { padrao: /-(rock-star|belle|pop-star|phd|libre|cosplay|original-cap|hoenn-cap|sinnoh-cap|unova-cap|kalos-cap|alola-cap|partner-cap|world-cap)$/, rotulo: 'FORMA' }
+  ];
+
+  const encontrada = regras.find(regra => regra.padrao.test(nomeApi));
+  return encontrada ? encontrada.rotulo : 'FORMA';
+}
+
 function criarElo(pokemon) {
   const elo = elemento('a');
   elo.className = 'evo';
   elo.href = 'detalhes.html?id=' + pokemon.id;
-  if (pokemon.id === pokemonAtual.id) elo.classList.add('evo-atual');
+
+  if (pokemon.id === pokemonAtual.id) {
+    elo.classList.add('evo-atual');
+  }
+
+  const formaEspecial = identificarFormaEspecial(pokemon);
+  if (formaEspecial) {
+    elo.classList.add('evo-forma-especial');
+  }
 
   const img = elemento('img');
   img.src = desenhoAtual(pokemon);
@@ -170,8 +206,6 @@ function criarElo(pokemon) {
   img.width = 128;
   img.height = 128;
   img.loading = 'lazy';
-
-  // Guarda os dois desenhos aqui pro botao de shiny trocar depois.
   img.dataset.normal = pokemon.imagem;
   if (pokemon.imagemShiny) img.dataset.shiny = pokemon.imagemShiny;
 
@@ -184,6 +218,14 @@ function criarElo(pokemon) {
   elo.appendChild(img);
   elo.appendChild(numero);
   elo.appendChild(nome);
+
+  if (formaEspecial) {
+    const badge = elemento('span', formaEspecial);
+    badge.className = 'forma-especial-badge';
+    badge.setAttribute('aria-label', 'Forma especial: ' + formaEspecial);
+    elo.appendChild(badge);
+  }
+
   return elo;
 }
 
@@ -220,8 +262,13 @@ async function carregarEvolucao(id) {
   try {
     const linha = await obterLinhaEvolutiva(id);
 
-    // Um andar so = Pokemon que nao evolui nem veio de ninguem.
-    if (linha.length <= 1) {
+    // Mega/Gmax ocupam o mesmo andar da especie-base. Por isso uma linha com
+    // apenas um estagio ainda e valida quando esse estagio possui mais de um item.
+    const temMaisDeUmItem = linha.some(function (andar) {
+      return andar.length > 1;
+    });
+
+    if (linha.length === 0 || (linha.length === 1 && !temMaisDeUmItem)) {
       estadoEvolucao('vazia');
       return;
     }
@@ -249,6 +296,7 @@ async function carregarDetalhes() {
       desenharVantagensEFraquezas(efetividade);
     } catch (erro) {
       // Se a tabela de tipos falhar, a ficha principal continua utilizavel.
+      mostrar(superEficazEl.parentElement, false);
       mostrar(vantagensEl.parentElement, false);
       mostrar(fraquezasEl.parentElement, false);
       mostrar(imunidadesEl.parentElement, false);

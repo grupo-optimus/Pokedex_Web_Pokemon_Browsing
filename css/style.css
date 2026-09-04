@@ -223,11 +223,6 @@ header {
   flex-wrap: wrap;
   gap: var(--espaco-md);
 
-  /* Mesmo tratamento do rodape, espelhado — barra escura com o risco
-     vermelho do aparelho na borda virada pro conteudo. Topo e rodape viram as
-     duas pontas da mesma moldura.
-     (Antes o topo era vermelho chapado, mas ai o "Dex" vermelho da marca
-     sumia dentro do fundo vermelho.) */
   background: var(--tela);
   color: var(--texto);
   padding: var(--espaco-md) max(var(--espaco-md), calc((100vw - 1180px) / 2));
@@ -237,8 +232,7 @@ header {
 }
 
 /* --------------------------------------------------------------------------
-   A MARCA. Uma regra so serve o topo E o rodape — mexeu aqui, mexeu
-   nos dois, e eles nao tem como ficar diferentes de novo.
+   A MARCA. O mesmo desenho no topo de todas as páginas.
    -------------------------------------------------------------------------- */
 .marca,
 .footer-logo {
@@ -254,19 +248,11 @@ header {
   text-shadow: 2px 2px 0 var(--moldura-tinta);
 }
 
-/* O "Dex" em vermelho, igual no rodape. */
 .marca span span,
 .footer-logo span:last-child span {
   color: var(--fire);
 }
 
-/* O icone e o pokeicon.png do projeto — o mesmo arquivo do favicon.
-   Antes o topo desenhava uma pokebola em CSS e o rodape usava o PNG:
-   eram dois desenhos diferentes da mesma coisa.
-
-   esse PNG e de paleta e NAO tem transparencia — o fundo dele e
-   branco de verdade. O recorte em circulo joga fora o quadrado branco e deixa
-   so a bola. Se um dia o arquivo ganhar canal alfa, da pra tirar o clip-path. */
 .marca-icone {
   width: 34px;
   height: 34px;
@@ -276,7 +262,6 @@ header {
   clip-path: circle(48%);
 }
 
-/* A marca e clicavel: leva pro comeco da lista. Clareia igual item de menu. */
 a.marca {
   transition: var(--transicao);
 }
@@ -289,13 +274,24 @@ header h1 {
   margin-right: auto;
 }
 
-/* Link do topo = item de menu do jogo. */
-header nav a,
-header > a {
+/* Todos os botões de navegação têm exatamente o mesmo tamanho. */
+header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+header nav a {
+  width: 190px;
+  min-width: 190px;
+  height: 48px;
+  padding: 0 1rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--espaco-xs);
-  padding: .6rem 1rem;
+  flex: 0 0 190px;
+
   background: var(--painel);
   color: var(--texto);
   border: 3px solid var(--moldura-luz);
@@ -305,14 +301,41 @@ header > a {
     0 0 0 2px var(--moldura-tinta);
   font-family: var(--fonte-pixel);
   font-size: .58rem;
+  line-height: 1.2;
+  text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: var(--transicao);
 }
 
-header nav a:hover,
-header > a:hover {
+header nav a:hover {
   background: var(--painel-alto);
   border-color: var(--realce);
+}
+
+header nav a:active {
+  background: var(--realce);
+  color: var(--texto-tinta);
+}
+
+/* Título de página fica no conteúdo, nunca compete com a marca do topo. */
+.titulo-pagina {
+  margin-bottom: var(--espaco-md);
+}
+
+.cabecalho-pagina-favoritos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-md);
+}
+
+@media (max-width: 800px) {
+  header nav {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* Contador de favoritos: visor de LED no canto da tela. */
@@ -1155,6 +1178,10 @@ tbody td {
   color: #fff;
 }
 
+tbody td:last-child {
+  width: 55%;
+}
+
 /* Barra de atributo: casco preto, miolo colorido, brilho no topo. */
 progress {
   display: block;
@@ -1285,7 +1312,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--erro);
 }
 
-/* O link "ir para a lista" do estado vazio tambem vira item de menu.*/
+/* O link "ir para a lista" do estado vazio tambem vira item de menu. */
 #estado-vazio a {
   display: inline-block;
   padding: .7rem 1.1rem;
@@ -1515,6 +1542,10 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     padding: var(--espaco-md);
   }
 
+  tbody td:last-child {
+    width: 40%;
+  }
+
   .filtros-acoes {
     flex-direction: column;
   }
@@ -1568,6 +1599,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 /* ==========================================================================
    16. VANTAGENS / FRAQUEZAS
    ========================================================================== */
+#secao-super-efetivo .tipo,
 #secao-vantagens .tipo,
 #secao-fraquezas .tipo,
 #secao-imunidades .tipo {
@@ -1581,6 +1613,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   font-size: .95rem;
 }
 
+#secao-super-efetivo h2::after,
 #secao-vantagens h2::after,
 #secao-fraquezas h2::after,
 #secao-imunidades h2::after {
@@ -1691,20 +1724,17 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 }
 
 .tabela-comparacao thead th {
-  min-width: 0;
   width: auto;
+  min-width: 0;
   text-align: center;
   vertical-align: top;
   position: relative;
   padding: .75rem .5rem;
 }
 
-.tabela-comparacao thead th:first-child,
-.tabela-comparacao tbody th {
-  width: 151px;
-}
-
 .tabela-comparacao thead th:first-child {
+  width: 150px;
+  min-width: 150px;
   text-align: left;
   vertical-align: middle;
 }
@@ -1826,5 +1856,248 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   .estado-comparacao-vazio,
   .tabela-comparacao {
     padding: var(--espaco-md);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   FORMAS ESPECIAIS — Mega / Gigantamax
+   A forma fica no mesmo estagio evolutivo, mas recebe uma identificacao visual propria.
+   -------------------------------------------------------------------------- */
+.evo-forma-especial {
+  border-color: var(--fire);
+}
+
+.evo-forma-especial img {
+  border-color: var(--fire);
+}
+
+.evo-forma-especial:hover img {
+  border-color: var(--realce);
+}
+
+.forma-especial-badge {
+  display: inline-block;
+  margin-top: .15rem;
+  padding: .3rem .45rem;
+  background: var(--fire);
+  color: #fff;
+  border: 2px solid var(--moldura-tinta);
+  border-radius: var(--r-sm);
+  font-family: var(--fonte-pixel);
+  font-size: .42rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   21. ORGANIZAÇÃO DA FICHA DE DETALHES
+   --------------------------------------------------------------------------
+   A ficha usa blocos previsíveis: informações rápidas em duas colunas,
+   evolução e atributos ocupando toda a largura. A linha evolutiva mantém
+   cada estágio visualmente separado, inclusive quando existem Mega/Gmax.
+   ========================================================================== */
+@media (min-width: 860px) {
+  #conteudo > .ficha {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--espaco-md);
+  }
+
+  #conteudo > .ficha > #secao-evolucao,
+  #conteudo > .ficha > section:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Blocos internos: mesma linguagem de moldura, mas mais leves que o card
+   principal para criar hierarquia visual sem deixar a tela pesada. */
+#conteudo > .ficha > section {
+  min-width: 0;
+  min-height: 150px;
+  height: auto;
+  align-self: start;
+  padding: var(--espaco-md);
+  background: rgba(14, 21, 38, .32);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  display: flex;
+  flex-direction: column;
+}
+
+/* As caixas informativas compartilham a mesma base visual, mas a altura
+   acompanha o conteúdo. Isso evita tanto caixas gigantes quando ha poucos
+   itens quanto scroll artificial quando ha mais informacoes. */
+#conteudo > .ficha > section:not(#secao-evolucao):not(:last-child) {
+  min-height: 145px;
+}
+
+#conteudo > .ficha > section:not(#secao-evolucao):not(:last-child) .descricao-eficacia {
+  margin-bottom: var(--espaco-sm);
+}
+
+/* Evolução e atributos têm conteúdo naturalmente variável e, por isso,
+   mantêm a altura determinada pelo próprio conteúdo. */
+#conteudo > .ficha > #secao-evolucao,
+#conteudo > .ficha > section:last-child {
+  height: auto;
+}
+
+#conteudo > .ficha > section h2 {
+  margin-bottom: var(--espaco-sm);
+}
+
+/* Tipos e habilidades ocupam o bloco com consistência visual. */
+#poke-tipos,
+#poke-habilidades {
+  min-height: 34px;
+  align-items: center;
+}
+
+#poke-habilidades li {
+  flex: 1 1 150px;
+  text-align: center;
+}
+
+/* Descrições de eficácia não ficam coladas aos chips. */
+#secao-vantagens,
+#secao-fraquezas,
+#secao-imunidades {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Linha evolutiva: cada estágio ganha seu próprio painel. */
+#linha-evolucao {
+  width: 100%;
+  align-items: stretch;
+  gap: var(--espaco-md);
+  margin-top: var(--espaco-md);
+}
+
+.estagio {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: var(--espaco-sm);
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+}
+
+/* A seta deixa de consumir espaço horizontal e passa a ficar entre os
+   painéis, deixando a leitura da cadeia mais clara. */
+.estagio + .estagio::before {
+  position: absolute;
+  left: calc(var(--espaco-md) * -1);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.formas {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  align-items: start;
+  justify-content: stretch;
+  gap: var(--espaco-xs);
+}
+
+.evo {
+  min-width: 0;
+  width: 100%;
+  padding: .45rem .35rem;
+  border-color: transparent;
+}
+
+.evo img {
+  width: 112px;
+  height: 112px;
+  max-width: 100%;
+}
+
+.evo .dex-numero,
+.evo .dex-nome,
+.forma-especial-badge {
+  text-align: center;
+}
+
+.evo .dex-numero {
+  font-size: .48rem;
+}
+
+.evo .dex-nome {
+  max-width: 100%;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.forma-especial-badge {
+  max-width: 100%;
+  margin-top: .1rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Atributos: a tabela ganha mais respiro dentro do bloco de largura total. */
+#conteudo > .ficha > section:last-child table {
+  margin-top: var(--espaco-xs);
+}
+
+/* No celular a ficha volta para uma única coluna e cada estágio ocupa a
+   largura disponível; a seta passa a apontar para baixo. */
+@media (max-width: 859px) {
+  #conteudo > .ficha {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espaco-md);
+  }
+}
+
+@media (max-width: 640px) {
+  #conteudo > .ficha > section {
+    min-height: 140px;
+    height: auto;
+    align-self: stretch;
+    padding: var(--espaco-sm);
+  }
+
+  #conteudo > .ficha > section:not(#secao-evolucao):not(:last-child) {
+    min-height: 135px;
+  }
+
+  #conteudo > .ficha > #secao-evolucao,
+  #conteudo > .ficha > section:last-child {
+    height: auto;
+  }
+
+  #linha-evolucao {
+    gap: var(--espaco-sm);
+  }
+
+  .estagio {
+    width: 100%;
+    flex: none;
+    padding: var(--espaco-xs);
+  }
+
+  .estagio + .estagio::before {
+    left: 50%;
+    top: calc(var(--espaco-sm) * -1);
+    transform: translate(-50%, -50%);
+  }
+
+  .formas {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+
+  .evo img {
+    width: 104px;
+    height: 104px;
   }
 }

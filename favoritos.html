@@ -13,17 +13,16 @@
 <body>
 
   <header>
-    <!-- Mesma marca do rodape, so que aqui em cima. -->
-    <!-- A marca leva pro comeco da lista. -->
-    <a class="marca" href="index.html" title="Voltar ao início">
-      <img src="img/pokeicon.png" alt="" class="marca-icone">
-      <span>Optimus<span>Dex</span></span>
-    </a>
-
-    <a href="index.html" id="btn-voltar">&#9664; Voltar</a>
-    <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
-    <h1>Meus Favoritos</h1>
-    <p id="contador"></p>
+    <h1>
+      <a class="marca" href="index.html" title="Voltar ao início">
+        <img src="img/pokeicon.png" alt="" class="marca-icone">
+        <span>Optimus<span>Dex</span></span>
+      </a>
+    </h1>
+    <nav>
+      <a href="index.html" id="btn-voltar">&#9664; Pokédex</a>
+      <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
+    </nav>
   </header>
 
   <hr>
@@ -40,6 +39,11 @@
   <hr>
 
   <main>
+
+    <div class="cabecalho-pagina-favoritos">
+      <h2 class="titulo-pagina">Meus Favoritos</h2>
+      <p id="contador"></p>
+    </div>
 
     <!-- Cards nascem no JS, cada um com botao de remover (RF004). -->
     <ul id="lista-favoritos" hidden></ul>
