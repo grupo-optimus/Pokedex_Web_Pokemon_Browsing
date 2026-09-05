@@ -75,3 +75,87 @@ function normalizarTexto(texto) {
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
 }
+
+
+/* --------------------------------------------------------------------------
+   TRADUÇÃO DAS HISTÓRIAS DA POKÉDEX
+   A história é buscada em inglês na PokéAPI. Esta função traduz o texto para
+   português sem alterar o texto original recebido da API.
+
+   O tradutor externo é usado somente para a tradução; os dados do Pokémon
+   continuam vindo exclusivamente da PokéAPI.
+   -------------------------------------------------------------------------- */
+async function traduzirHistoria(textoIngles) {
+  const texto = String(textoIngles || '').trim();
+
+  if (!texto) {
+    return '';
+  }
+
+  // A API de tradução trabalha melhor com trechos curtos. Mantemos cada
+  // requisição abaixo de aproximadamente 450 caracteres.
+  const trechos = dividirTextoParaTraducao(texto, 450);
+  const traducoes = [];
+
+  for (const trecho of trechos) {
+    try {
+      const url = 'https://api.mymemory.translated.net/get?q=' +
+        encodeURIComponent(trecho) + '&langpair=en|pt-BR';
+
+      const resposta = await fetch(url);
+
+      if (!resposta.ok) {
+        throw new Error('Falha no serviço de tradução.');
+      }
+
+      const dados = await resposta.json();
+      const traduzido = dados && dados.responseData
+        ? dados.responseData.translatedText
+        : '';
+
+      if (!traduzido) {
+        throw new Error('A tradução não retornou texto.');
+      }
+
+      traducoes.push(normalizarHistoriaTraduzida(traduzido));
+    } catch (erro) {
+      // Não esconde uma falha do tradutor: quem chama a função pode decidir
+      // mostrar a história original ou uma mensagem de erro.
+      throw new Error('Não foi possível traduzir a história para português.');
+    }
+  }
+
+  return traducoes.join(' ');
+}
+
+function dividirTextoParaTraducao(texto, limite) {
+  const palavras = texto.split(/(\s+)/);
+  const partes = [];
+  let atual = '';
+
+  palavras.forEach(function (palavra) {
+    if (atual.length + palavra.length <= limite) {
+      atual += palavra;
+      return;
+    }
+
+    if (atual.trim()) {
+      partes.push(atual.trim());
+    }
+
+    atual = palavra.trimStart();
+  });
+
+  if (atual.trim()) {
+    partes.push(atual.trim());
+  }
+
+  return partes;
+}
+
+function normalizarHistoriaTraduzida(texto) {
+  return String(texto)
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.!?;:])/g, '$1')
+    .trim();
+}

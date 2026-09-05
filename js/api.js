@@ -13,7 +13,9 @@ const TAMANHO_PAGINA = 20;
 /* Memoria curta. Pokemon ja pedido nao pede de novo.
    Isso ajuda o RNF003 (resposta rapida) e nao sobrecarrega a API de pedidos. */
 const cacheDetalhes = new Map();
-const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por Pokemon
+const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por especie
+const cacheHistoria = new Map(); // História em inglês da espécie
+const cacheFormasEspeciais = new Map(); // Mega/Gigantamax por especie-base
 const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
 let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
 
@@ -72,6 +74,8 @@ function escolherImagem(sprites, shiny) {
 function paraModelo(dadosBrutos) {
   return {
     id: dadosBrutos.id,
+    nomeApi: dadosBrutos.name,
+    nomeEspecie: dadosBrutos.species && dadosBrutos.species.name ? dadosBrutos.species.name : '',
     nome: arrumarTexto(dadosBrutos.name),
 
     imagem: escolherImagem(dadosBrutos.sprites, false),
@@ -94,7 +98,8 @@ function paraModelo(dadosBrutos) {
     // requisicoes extras a cada card da listagem.
     vantagens: [],
     fraquezas: [],
-    imunidades: []
+    imunidades: [],
+    superEficazContra: []
   };
 }
 
@@ -114,7 +119,8 @@ async function obterRelacoesTipo(tipoIngles) {
   const relacoes = {
     fraco: new Set(dados.damage_relations.double_damage_from.map(item => item.name)),
     resistente: new Set(dados.damage_relations.half_damage_from.map(item => item.name)),
-    imune: new Set(dados.damage_relations.no_damage_from.map(item => item.name))
+    imune: new Set(dados.damage_relations.no_damage_from.map(item => item.name)),
+    superEficazContra: new Set(dados.damage_relations.double_damage_to.map(item => item.name))
   };
 
   cacheRelacoesTipo.set(tipoIngles, relacoes);
@@ -141,6 +147,16 @@ async function calcularVantagensEFraquezas(tiposIngles) {
     return { tipo: tipoAtacante, multiplicador };
   });
 
+  const tiposSuperEficazes = new Set();
+
+  relacoesDefensivas.forEach(relacao => {
+    relacao.superEficazContra.forEach(tipoAlvo => {
+      if (todosOsTipos.includes(tipoAlvo)) {
+        tiposSuperEficazes.add(tipoAlvo);
+      }
+    });
+  });
+
   return {
     vantagens: multiplicadores
       .filter(item => item.multiplicador > 0 && item.multiplicador < 1)
@@ -150,7 +166,10 @@ async function calcularVantagensEFraquezas(tiposIngles) {
       .map(item => traduzirTipo(item.tipo)),
     imunidades: multiplicadores
       .filter(item => item.multiplicador === 0)
-      .map(item => traduzirTipo(item.tipo))
+      .map(item => traduzirTipo(item.tipo)),
+    superEficazContra: todosOsTipos
+      .filter(tipo => tiposSuperEficazes.has(tipo))
+      .map(tipo => traduzirTipo(tipo))
   };
 }
 
@@ -162,9 +181,58 @@ async function obterVantagensEFraquezas(pokemon) {
    Pega UM Pokemon pelo numero ou pelo nome.
    Endpoint: GET /pokemon/{id-ou-nome}
    -------------------------------------------------------------------------- */
-async function obterPokemon(idOuNome) {
-  const chave = normalizarTexto(idOuNome);
 
+/* --------------------------------------------------------------------------
+   HISTÓRIA / ENTRADA DA POKÉDEX
+   Busca a espécie separadamente porque /pokemon/{id} não traz as entradas de
+   texto da Pokédex. A primeira entrada em inglês é guardada em cache.
+   -------------------------------------------------------------------------- */
+async function obterHistoriaPokemon(idOuNome) {
+  let chave = normalizarTexto(idOuNome);
+
+  if (/^\d+$/.test(chave)) {
+    chave = String(Number(chave));
+  }
+
+  if (cacheHistoria.has(chave)) {
+    return cacheHistoria.get(chave);
+  }
+
+  const pokemon = await obterPokemon(chave);
+  const nomeEspecie = pokemon.nomeEspecie || chave;
+  const dados = await pedirJSON(BASE_URL + '/pokemon-species/' + nomeEspecie);
+
+  const entradasIngles = (dados.flavor_text_entries || []).filter(function (entrada) {
+    return entrada.language && entrada.language.name === 'en';
+  });
+
+  if (entradasIngles.length === 0) {
+    throw new Error('Este Pokémon não possui história em inglês na PokéAPI.');
+  }
+
+  // A mesma entrada pode aparecer em várias versões. Escolhe a mais recente.
+  const entrada = entradasIngles[entradasIngles.length - 1];
+  const historia = String(entrada.flavor_text || '')
+    .replace(/[\n\f\r]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  cacheHistoria.set(chave, historia);
+  cacheHistoria.set(nomeEspecie, historia);
+  cacheHistoria.set(String(pokemon.id), historia);
+
+  return historia;
+}
+
+async function obterPokemon(idOuNome) {
+    let chave = normalizarTexto(idOuNome);
+
+  // A PokeAPI nao aceita zero a esquerda no numero (/pokemon/001 da 404).
+  // "004" (como aparece na Pokedex) precisa virar "4" antes de montar a URL.
+  if (/^\d+$/.test(chave)) {
+    chave = String(Number(chave));
+  }
+  
   // Ja esta em memoria? entrega na hora, sem ir na rede.
   if (cacheDetalhes.has(chave)) {
     return cacheDetalhes.get(chave);
@@ -268,7 +336,8 @@ async function pokemonDaEspecie(nomeEspecie) {
 
   try {
     const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + nomeEspecie);
-    const padrao = especie.varieties.find(forma => forma.is_default);
+    const variedades = Array.isArray(especie.varieties) ? especie.varieties : [];
+    const padrao = variedades.find(forma => forma.is_default);
     return padrao ? await obterPokemon(padrao.pokemon.name) : null;
   } catch (erro) {
     return null;
@@ -276,16 +345,71 @@ async function pokemonDaEspecie(nomeEspecie) {
 }
 
 /* --------------------------------------------------------------------------
-   A linha evolutiva. Duas viagens ate a PokeAPI:
-     1) GET /pokemon-species/{id}  -> diz em qual cadeia o Pokemon esta
-     2) GET {evolution_chain.url}  -> a cadeia inteira
+   FORMAS ALTERNATIVAS DA ESPECIE
 
-   A cadeia vem como ARVORE, nao como fila: Eevee tem 8 galhos no mesmo ponto.
-   Entao achata em ANDARES. Bulbasaur vira  [[Bulbasaur], [Ivysaur], [Venusaur]]
-   e Eevee vira  [[Eevee], [Vaporeon, Jolteon, ... 8 Pokemon]].
+   A PokéAPI guarda as formas na lista "varieties" da espécie. Isso inclui
+   muito mais do que Mega e Gigantamax: formas Primal, Ash-Greninja, regionais
+   (Alola/Galar/Hisui/Paldea), formas de batalha, de origem, especiais etc.
+
+   A regra aqui é simples: a variedade padrão representa o Pokemon-base; toda
+   outra variedade da mesma espécie entra no mesmo estágio da evolução.
+   -------------------------------------------------------------------------- */
+async function obterFormasEspeciais(pokemon) {
+  const base = pokemon.nomeEspecie || '';
+
+  if (!base) return [];
+
+  if (cacheFormasEspeciais.has(base)) {
+    return cacheFormasEspeciais.get(base);
+  }
+
+  try {
+    const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + base);
+    const variedades = Array.isArray(especie.varieties) ? especie.varieties : [];
+
+    const nomesFormas = variedades
+      .filter(variedade => !variedade.is_default)
+      .map(variedade => variedade.pokemon && variedade.pokemon.name)
+      .filter(Boolean);
+
+    const formas = await Promise.all(nomesFormas.map(nome => obterPokemon(nome)));
+    const unicas = [];
+    const ids = new Set([pokemon.id]);
+
+    formas.filter(Boolean).forEach(function (forma) {
+      if (!ids.has(forma.id)) {
+        ids.add(forma.id);
+        unicas.push(forma);
+      }
+    });
+
+    cacheFormasEspeciais.set(base, unicas);
+    return unicas;
+  } catch (erro) {
+    console.error('Erro ao carregar formas alternativas de ' + base, erro);
+    cacheFormasEspeciais.set(base, []);
+    return [];
+  }
+}
+
+/* --------------------------------------------------------------------------
+   A linha evolutiva. A cadeia normal continua sendo montada por especie.
+   Mega/Gmax entram como formas alternativas no mesmo estagio da especie-base.
    -------------------------------------------------------------------------- */
 async function obterLinhaEvolutiva(idOuNome) {
-  const chave = normalizarTexto(idOuNome);
+  let chave = normalizarTexto(idOuNome);
+
+  // Descobrimos a especie real a partir do registro do Pokemon. Isso funciona
+  // para qualquer forma cadastrada pela PokéAPI, sem depender de regex no nome.
+  try {
+    const pokemonInformado = await obterPokemon(chave);
+    if (pokemonInformado.nomeEspecie) {
+      chave = pokemonInformado.nomeEspecie;
+    }
+  } catch (erro) {
+    // Se o valor recebido já for o nome de uma especie valida, o pedido abaixo
+    // continua funcionando normalmente.
+  }
 
   if (cacheEvolucao.has(chave)) {
     return cacheEvolucao.get(chave);
@@ -294,12 +418,15 @@ async function obterLinhaEvolutiva(idOuNome) {
   const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + chave);
 
   if (!especie.evolution_chain || !especie.evolution_chain.url) {
-    return [];
+    const base = await pokemonDaEspecie(chave);
+    const formasEspeciais = base ? await obterFormasEspeciais(base) : [];
+    const linha = base ? [[base, ...formasEspeciais.filter(forma => forma.id !== base.id)]] : [];
+    cacheEvolucao.set(chave, linha);
+    return linha;
   }
 
   const cadeia = await pedirJSON(especie.evolution_chain.url);
 
-  // Desce a arvore um andar por vez, guardando os nomes de cada andar.
   const andares = [];
   let atual = [cadeia.chain];
 
@@ -308,12 +435,29 @@ async function obterLinhaEvolutiva(idOuNome) {
     atual = atual.flatMap(no => no.evolves_to);
   }
 
-  // Nome vira Pokemon de verdade (com sprite e numero).
   const linha = [];
+
   for (const nomes of andares) {
     const resultados = await Promise.all(nomes.map(pokemonDaEspecie));
     const achados = resultados.filter(item => item !== null);
-    if (achados.length > 0) linha.push(achados);
+    if (achados.length === 0) continue;
+
+    const andar = [];
+
+    for (const pokemon of achados) {
+      if (!andar.some(item => item.id === pokemon.id)) {
+        andar.push(pokemon);
+      }
+
+      const formasEspeciais = await obterFormasEspeciais(pokemon);
+      formasEspeciais.forEach(function (forma) {
+        if (!andar.some(item => item.id === forma.id)) {
+          andar.push(forma);
+        }
+      });
+    }
+
+    if (andar.length > 0) linha.push(andar);
   }
 
   cacheEvolucao.set(chave, linha);
