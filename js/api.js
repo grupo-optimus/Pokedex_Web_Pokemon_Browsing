@@ -14,10 +14,7 @@ const TAMANHO_PAGINA = 20;
    Isso ajuda o RNF003 (resposta rapida) e nao sobrecarrega a API de pedidos. */
 const cacheDetalhes = new Map();
 const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por especie
-<<<<<<< HEAD
-=======
 const cacheHistoria = new Map(); // História em inglês da espécie
->>>>>>> gui
 const cacheFormasEspeciais = new Map(); // Mega/Gigantamax por especie-base
 const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
 let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
@@ -184,11 +181,6 @@ async function obterVantagensEFraquezas(pokemon) {
    Pega UM Pokemon pelo numero ou pelo nome.
    Endpoint: GET /pokemon/{id-ou-nome}
    -------------------------------------------------------------------------- */
-<<<<<<< HEAD
-async function obterPokemon(idOuNome) {
-    let chave = normalizarTexto(idOuNome);
-
-=======
 
 /* --------------------------------------------------------------------------
    HISTÓRIA / ENTRADA DA POKÉDEX
@@ -235,7 +227,6 @@ async function obterHistoriaPokemon(idOuNome) {
 async function obterPokemon(idOuNome) {
     let chave = normalizarTexto(idOuNome);
 
->>>>>>> gui
   // A PokeAPI nao aceita zero a esquerda no numero (/pokemon/001 da 404).
   // "004" (como aparece na Pokedex) precisa virar "4" antes de montar a URL.
   if (/^\d+$/.test(chave)) {

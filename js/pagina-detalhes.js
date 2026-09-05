@@ -18,12 +18,9 @@ const atributosEl    = document.getElementById('poke-atributos');
 const botaoFavorito  = document.getElementById('btn-favorito');
 const botaoShiny     = document.getElementById('btn-shiny');
 const botaoComparar  = document.getElementById('btn-comparar');
-<<<<<<< HEAD
-=======
 const historiaEl     = document.getElementById('poke-historia');
 const historiaCarregandoEl = document.getElementById('historia-carregando');
 const historiaErroEl  = document.getElementById('historia-erro');
->>>>>>> gui
 const superEficazEl  = document.getElementById('poke-super-eficaz');
 const vantagensEl    = document.getElementById('poke-vantagens');
 const fraquezasEl    = document.getElementById('poke-fraquezas');
