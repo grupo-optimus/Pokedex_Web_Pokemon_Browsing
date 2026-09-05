@@ -18,6 +18,12 @@ const atributosEl    = document.getElementById('poke-atributos');
 const botaoFavorito  = document.getElementById('btn-favorito');
 const botaoShiny     = document.getElementById('btn-shiny');
 const botaoComparar  = document.getElementById('btn-comparar');
+<<<<<<< HEAD
+=======
+const historiaEl     = document.getElementById('poke-historia');
+const historiaCarregandoEl = document.getElementById('historia-carregando');
+const historiaErroEl  = document.getElementById('historia-erro');
+>>>>>>> gui
 const superEficazEl  = document.getElementById('poke-super-eficaz');
 const vantagensEl    = document.getElementById('poke-vantagens');
 const fraquezasEl    = document.getElementById('poke-fraquezas');
@@ -111,6 +117,38 @@ function atualizarBotaoComparar() {
   botaoComparar.setAttribute('aria-pressed', String(selecionado));
 }
 
+
+
+/* --------------------------------------------------------------------------
+   HISTÓRIA
+   Primeiro pega a entrada original em inglês na PokéAPI. Depois passa somente
+   o texto para a função de tradução de traducoes.js.
+   -------------------------------------------------------------------------- */
+function estadoHistoria(estado) {
+  mostrar(historiaCarregandoEl, estado === 'carregando');
+  mostrar(historiaErroEl, estado === 'erro');
+  mostrar(historiaEl, estado === 'pronto');
+}
+
+async function carregarHistoria(id) {
+  estadoHistoria('carregando');
+  historiaEl.textContent = '';
+
+  try {
+    const historiaIngles = await obterHistoriaPokemon(id);
+    const historiaPortugues = await traduzirHistoria(historiaIngles);
+
+    if (!historiaPortugues) {
+      throw new Error('História vazia.');
+    }
+
+    historiaEl.textContent = historiaPortugues;
+    estadoHistoria('pronto');
+  } catch (erro) {
+    estadoHistoria('erro');
+  }
+}
+
 function desenharPokemon(pokemon) {
   document.title = pokemon.nome + ' — Detalhes';
 
@@ -149,6 +187,15 @@ function desenharPokemon(pokemon) {
 
     atributosEl.appendChild(linha);
   });
+
+  const totalAtributos = pokemon.atributos.reduce(function (total, atributo) {
+    return total + Number(atributo.valor);
+  }, 0);
+
+  const totalAtributosEl = document.getElementById('poke-total-atributos');
+  if (totalAtributosEl) {
+    totalAtributosEl.textContent = String(totalAtributos);
+  }
 
   atualizarBotaoFavorito();
   atualizarBotaoComparar();
@@ -288,6 +335,10 @@ async function carregarDetalhes() {
     pokemonAtual = await obterPokemon(id);
     desenharPokemon(pokemonAtual);
     definirEstado('pronto');
+
+    // A história é independente da ficha principal. Ela carrega e traduz
+    // depois, sem impedir que o restante da página apareça.
+    carregarHistoria(pokemonAtual.id);
 
     // Vantagens/fraquezas sao carregadas depois da ficha principal para
     // nao bloquear o conteudo essencial do Pokemon.

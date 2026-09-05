@@ -21,7 +21,11 @@
     </h1>
     <nav>
       <a href="index.html" id="btn-voltar">&#9664; Pokédex</a>
+<<<<<<< HEAD
       <a href="favoritos.html">&#9733; Meus Favoritos</a>
+=======
+      <a href="favoritos.html"><span class="icone-estrela">★</span> Meus Favoritos</a>
+>>>>>>> gui
       <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     </nav>
   </header>
@@ -63,6 +67,13 @@
         <!-- Mesmo botao poe e tira (RF004). Texto muda sozinho. -->
         <button type="button" id="btn-favorito" aria-pressed="false">☆ Adicionar aos favoritos</button>
         <button type="button" id="btn-comparar" aria-pressed="false">+ Comparar Pokémon</button>
+
+        <section id="secao-historia" class="historia-pokemon">
+          <h2>História</h2>
+          <p id="historia-carregando">Traduzindo história…</p>
+          <p id="historia-erro" hidden>Não foi possível carregar a história deste Pokémon.</p>
+          <p id="poke-historia" hidden></p>
+        </section>
 
       </div>
 
@@ -134,6 +145,10 @@
             <!-- As seis linhas nascem no JS. -->
             <tbody id="poke-atributos"></tbody>
           </table>
+
+          <p class="atributos-total">
+            Total dos atributos: <strong id="poke-total-atributos">0</strong>
+          </p>
         </section>
 
       </div>
@@ -161,18 +176,18 @@
 
         <div class="footer-section">
             <h3>Projeto</h3>
-            <a href="#">Pokédex</a>
-            <a href="#">Favoritos</a>
-            <a href="#">Sobre o projeto</a>
-        <a href="comparar.html">Comparar</a>
+            <a href="sobre-projeto.html">Sobre o projeto</a>
+            <a href="index.html">Pokédex</a>
+            <a href="favoritos.html">Favoritos</a>
+            <a href="comparar.html">Comparar</a>
         </div>
 
         <div class="footer-section">
             <h3>Recursos</h3>
-            <a href="https://pokeapi.co/" target="_blank">
+            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">
                 PokéAPI
             </a>
-            <a href="https://github.com/" target="_blank">
+            <a href="https://github.com/grupo-optimus/Pokedex_Web_Pokemon_Browsing" target="_blank" rel="noopener noreferrer">
                 GitHub
             </a>
         </div>
@@ -180,6 +195,9 @@
         <div class="footer-section">
             <h3>Grupo Optimus</h3>
             <p>Projeto acadêmico desenvolvido pelo Grupo Optimus.</p>
+            <a href="https://grupo-optimus.github.io/" target="_blank" rel="noopener noreferrer">
+                Conheça outros projetos
+            </a>
         </div>
 
     </div>
@@ -191,7 +209,7 @@
 
         <p>
             Dados fornecidos pela
-            <a href="https://pokeapi.co/" target="_blank">PokéAPI</a>
+            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>
         </p>
     </div>
   </footer>

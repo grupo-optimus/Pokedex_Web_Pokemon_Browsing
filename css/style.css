@@ -1,25 +1,13 @@
-/* ==========================================================================
-   OPTIMUSDEX — TEMA "FIRERED / LEAFGREEN: MODO NOTURNO"
-   --------------------------------------------------------------------------
-   A ideia: pegar a linguagem visual dos jogos de GBA (caixa de texto com
-   moldura dupla, fonte pixelada, cursor "▶" na selecao, barra de HP) e
-   trocar o interior branco das janelas por azul-noite. Ou seja: como se o
-   FireRed/LeafGreen tivesse modo escuro.
+/* Tema: identidade visual da Pokédex */
 
-   REGRA DA CASA: cor CHAPADA. Nada de degrade, brilho, halo, sombra flutuante
-   nem card que sobe no hover. O GBA desenha em tile de 8px com paleta fixa —
-   quem aponta um item ve o cursor e a moldura clarear, so isso. Gradiente aqui
-   so existe pra DESENHAR coisa (a pokebola, o brilho de cima da barra de HP).
-   ========================================================================== */
 
-/* ==========================================================================
-   1. TIPOGRAFIA
-   ========================================================================== */
+/* Tipografia: fontes do projeto */
+
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400..700&display=swap');
 
-/* ==========================================================================
-   2. RESET
-   ========================================================================== */
+
+/* Reset: normalização dos elementos */
+
 *,
 *::before,
 *::after {
@@ -28,91 +16,104 @@
   padding: 0;
 }
 
-/* Regra critica do JS: o atributo hidden manda em tudo. */
+
 [hidden] {
   display: none !important;
 }
 
-/* As linhas do HTML viram separadores desenhados pelo proprio tema. */
+
 hr {
   display: none;
 }
 
-/* ==========================================================================
-   3. PALETA & MEDIDAS (DESIGN SYSTEM DA POKEDEX NOTURNA)
-   ========================================================================== */
+
+/* Variáveis: cores, fontes, espaços e tamanhos */
+
 :root {
-  /* Fontes: uma pixelada de titulo, outra pixelada legivel para texto corrido. */
+  
+
   --fonte-pixel: 'Press Start 2P', 'Courier New', monospace;
   --fonte-texto: 'Pixelify Sans', 'Trebuchet MS', Verdana, sans-serif;
 
-  /* A escala saiu do azul que ja morava no rodape (#6d78a8, #94a3b8,
-     #cbd5e1). E o mesmo azul-ardosia em degraus de claridade, do visor ate a
-     moldura. Cor de verdade so o VERMELHO do aparelho e as PLAQUINHAS DE TIPO
-     — que e justamente o que a gente quer que salte aos olhos. */
-  --fundo: #16203a;
-  --painel: #2a3a5c;          /* Interior das janelas (o "branco" do GBA) */
-  --painel-alto: #38496e;
-  --tela: #0e1526;            /* Visor onde o sprite aparece */
+  
 
-  /* Moldura da caixa de texto: tinta escura por fora, faixa clara no meio */
+  --fundo: #16203a;
+  --painel: #2a3a5c;          
+
+  --painel-alto: #38496e;
+  --tela: #0e1526;            
+
+
+  
+
   --moldura-luz: #b6c3dc;
   --moldura-luz-2: #6d78a8;
   --moldura-tinta: #060a14;
 
-  /* A unica cor de acento: o vermelho do aparelho. */
+  
+
   --fire: #d8442c;
   --fire-claro: #ec5c42;
 
-  /* Amarelo de estrela. Aparece so pra dizer "isto ESTA favoritado" —
-     em nenhum outro lugar da interface. */
+  
+
   --favorito: #f5c542;
   --favorito-claro: #ffd869;
 
-  /* Vermelho puro: botao de buscar e o hover de remover. */
+  
+
   --vermelho: #ff0000;
   --vermelho-claro: #ff3b3b;
-  --chassi: #d40000;        /* O corpo vermelho da Pokedex */
+  --chassi: #d40000;        
 
-  /* Realce de item apontado. No jogo o menu clareia, nao acende. */
+
+  
+
   --realce: #ffffff;
 
-  /* Texto */
+  
+
   --texto: #eef2f9;
   --texto-suave: #94a3b8;
   --texto-tinta: #0b1020;
 
-  /* Cinza de etiqueta: numero da Pokedex, contador, pagina. */
+  
+
   --cinza: #cbd5e1;
 
-  /* Barrinhas de atributo (verde / amarelo / vermelho, igual barra de HP) */
+  
+
   --barra-alta: #40d14b;
   --barra-media: #f7d23b;
   --barra-baixa: #ee4b34;
 
-  /* Erro */
+  
+
   --erro: #ff8a72;
   --erro-fundo: #3a1a20;
   --erro-moldura: #d8442c;
 
-  /* Canto curto: moldura de GBA e desenhada em tile de 8px, nao e pilula. */
+  
+
   --r: 6px;
   --r-sm: 4px;
 
-  /* Espacamento */
+  
+
   --espaco-xs: .5rem;
   --espaco-sm: .75rem;
   --espaco-md: 1.25rem;
   --espaco-lg: 2rem;
   --espaco-xl: 3rem;
 
-  /* Transicao em degraus: movimento de sprite, nao de site. */
+  
+
   --transicao: all .12s steps(3, end);
 }
 
-/* ==========================================================================
-   4. BASE: fundo de rota noturna + malha de tiles
-   ========================================================================== */
+
+/* Base: corpo, títulos e elementos gerais */
+
 body {
   font-family: var(--fonte-texto);
   background-color: var(--fundo);
@@ -124,8 +125,6 @@ body {
   flex-direction: column;
 }
 
-/* O fundo e chapado de proposito. Tela de GBA nao tem brilho
-   de ambiente nem degrade: tem cor solida e pronto. */
 
 main {
   flex: 1;
@@ -142,8 +141,7 @@ h1, h2, h3 {
   letter-spacing: .5px;
 }
 
-/* Mesmo corpo e mesma sombra da marca do rodape. Sem caixa alta:
-   a marca e "OptimusDex", nao "OPTIMUSDEX". */
+
 h1 {
   font-size: .8rem;
   color: var(--texto);
@@ -167,7 +165,7 @@ a {
   text-decoration: none;
 }
 
-/* Foco visivel: moldura dourada, como o item selecionado no menu. */
+
 :focus-visible {
   outline: 3px solid var(--realce);
   outline-offset: 3px;
@@ -178,18 +176,15 @@ a {
   color: var(--texto-tinta);
 }
 
-/* Sprite renderiza com pixel quadrado, sem borrar na ampliacao. */
+
 img {
   image-rendering: crisp-edges;
   image-rendering: pixelated;
 }
 
-/* ==========================================================================
-   5. MOLDURA PADRAO — a caixa de dialogo do jogo
-   --------------------------------------------------------------------------
-   De fora pra dentro: tinta preta, faixa azul clara, risco escuro, interior.
-   Uma regra so atende todos os blocos da interface.
-   ========================================================================== */
+
+/* Molduras: caixas e painéis principais */
+
 #lista-pokemons > li > article,
 #lista-favoritos > li > article,
 #conteudo,
@@ -203,16 +198,16 @@ img {
   border: 3px solid var(--moldura-luz);
   border-radius: var(--r);
 
-  /* Risco escuro por dentro e contorno preto por fora. So isso.
-     Sem sombra: janela de menu fica APOIADA na tela, nao flutuando. */
+  
+
   box-shadow:
     inset 0 0 0 2px var(--moldura-tinta),
     0 0 0 3px var(--moldura-tinta);
 }
 
-/* ==========================================================================
-   6. TOPO — chassi da Pokedex
-   ========================================================================== */
+
+/* Header: marca e navegação */
+
 header {
   position: sticky;
   top: 0;
@@ -231,9 +226,13 @@ header {
   box-shadow: inset 0 -6px 0 -2px var(--chassi);
 }
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
    A MARCA. O mesmo desenho no topo de todas as páginas.
    -------------------------------------------------------------------------- */
+=======
+
+>>>>>>> gui
 .marca,
 .footer-logo {
   display: flex;
@@ -274,13 +273,30 @@ header h1 {
   margin-right: auto;
 }
 
+<<<<<<< HEAD
 /* Todos os botões de navegação têm exatamente o mesmo tamanho. */
+=======
+
+>>>>>>> gui
 header nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco-sm);
 }
 
+<<<<<<< HEAD
+=======
+/* Header: estrela do link Meus Favoritos */
+.icone-estrela {
+  display: inline-block;
+  font-family: var(--fonte-texto);
+  font-size: 1.5em;
+  line-height: 0;
+  vertical-align: -2px;
+  margin-right: .3rem;
+}
+
+>>>>>>> gui
 header nav a {
   width: 190px;
   min-width: 190px;
@@ -318,7 +334,11 @@ header nav a:active {
   color: var(--texto-tinta);
 }
 
+<<<<<<< HEAD
 /* Título de página fica no conteúdo, nunca compete com a marca do topo. */
+=======
+
+>>>>>>> gui
 .titulo-pagina {
   margin-bottom: var(--espaco-md);
 }
@@ -338,7 +358,11 @@ header nav a:active {
   }
 }
 
+<<<<<<< HEAD
 /* Contador de favoritos: visor de LED no canto da tela. */
+=======
+
+>>>>>>> gui
 #contador {
   font-family: var(--fonte-pixel);
   font-size: .6rem;
@@ -350,9 +374,9 @@ header nav a:active {
   box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
-/* ==========================================================================
-   7. BUSCA — janela de texto com o campo dentro
-   ========================================================================== */
+
+/* Busca: formulário de pesquisa */
+
 body > section {
   padding: 0 var(--espaco-md);
 }
@@ -402,9 +426,9 @@ input[type="search"]:focus {
   box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
-/* ==========================================================================
-   8. BOTOES — item de menu com o cursor "▶" da selecao
-   ========================================================================== */
+
+/* Botões: ações e estados */
+
 button {
   display: inline-flex;
   align-items: center;
@@ -429,10 +453,7 @@ button {
   transition: var(--transicao);
 }
 
-/* O cursorzinho triangular que aparece no item apontado.
-   Desenhado com borda, nao com caractere: a fonte pixelada nao tem esse glifo.
-   Fica FORA do fluxo (absolute): assim ele aparece sem empurrar o texto do
-   botao pro lado. Nada se move no hover, so acende. */
+
 button::before {
   content: '';
   position: absolute;
@@ -457,8 +478,7 @@ button:hover:not(:disabled) {
   border-color: var(--realce);
 }
 
-/* Apertado: o botao inverte, do jeito que o menu do jogo marca a escolha. */
-/* Apertado: o botao inverte, igual item de menu escolhido no jogo. */
+
 button:active:not(:disabled) {
   background: var(--realce);
   color: var(--texto-tinta);
@@ -472,7 +492,7 @@ button:disabled {
   box-shadow: inset 0 0 0 2px var(--moldura-tinta), 0 0 0 2px var(--moldura-tinta);
 }
 
-/* Botao de busca puxa o vermelho da versao FireRed. */
+
 #form-busca button[type="submit"],
 #form-busca-fav button[type="submit"] {
   background: var(--vermelho);
@@ -487,54 +507,42 @@ button:disabled {
   color: #fff;
 }
 
-/* --------------------------------------------------------------------------
-   BOTAO DE FAVORITAR DA TELA DE DETALHES
-   Quatro situacoes. A cor do hover sempre mostra no que o clique vai dar:
 
-     parado, nao favoritado  -> neutro
-     mouse em cima           -> AMARELO   (vai favoritar)
-     parado, favoritado      -> AMARELO   (esta favoritado)
-     mouse em cima           -> VERMELHO  (vai remover)
-
-   As tres regras tem especificidade crescente de proposito: a de favoritado
-   com mouse (1,3,0) ganha da de mouse (1,2,0), que ganha da de favoritado
-   parado (1,1,0). E o que faz as quatro situacoes nao se atropelarem.
-   -------------------------------------------------------------------------- */
 #btn-favorito {
   width: 100%;
   padding: .9rem;
   font-size: .65rem;
 }
 
-/* Ainda nao favoritado, mouse em cima: amarelo do que vai virar. */
+
 #btn-favorito:hover:not(:disabled) {
   background: var(--favorito);
   border-color: var(--favorito);
   color: var(--texto-tinta);
 }
 
-/* Ja favoritado, parado: amarelo. */
+
 #btn-favorito[aria-pressed="true"] {
   background: var(--favorito);
   border-color: var(--favorito);
   color: var(--texto-tinta);
 }
 
-/* Ja favoritado, mouse em cima: vermelho, avisando que o clique remove. */
+
 #btn-favorito[aria-pressed="true"]:hover:not(:disabled) {
   background: var(--vermelho);
   border-color: var(--vermelho);
   color: #fff;
 }
 
-/* Ver shiny: botao neutro; ligado, ele inverte (ver regra mais abaixo). */
+
 #btn-shiny {
   width: 100%;
   padding: .75rem;
   font-size: .58rem;
 }
 
-/* Shiny ligado: botao invertido (claro com texto escuro). Sem cor nova. */
+
 #btn-shiny[aria-pressed="true"] {
   background: var(--realce);
   border-color: var(--realce);
@@ -546,9 +554,7 @@ button:disabled {
   color: var(--texto-tinta);
 }
 
-/* --------------------------------------------------------------------------
-   A ESTRELINHA de favoritar: mora no canto de cima do card, sem ocupar linha.
-   -------------------------------------------------------------------------- */
+
 .estrela-favorito {
   position: absolute;
   top: 6px;
@@ -567,7 +573,7 @@ button:disabled {
   color: var(--texto-suave);
 }
 
-/* Aqui o cursor "▶" nao cabe e nao faz sentido: o alvo e a propria estrela. */
+
 .estrela-favorito::before {
   content: none;
 }
@@ -576,9 +582,7 @@ button:disabled {
   color: var(--realce);
 }
 
-/* Ja favoritado: estrela cheia e amarela, igual ao botao da tela de detalhes.
-   O vermelho fica reservado pro botao de REMOVER da tela de favoritos, que e
-   acao destrutiva — aqui e so estado. */
+
 .estrela-favorito[aria-pressed="true"] {
   background: var(--favorito);
   border-color: var(--favorito);
@@ -591,9 +595,9 @@ button:disabled {
   color: var(--texto-tinta);
 }
 
-/* ==========================================================================
-   9. FILTROS — janela de opcoes que abre embaixo da busca
-   ========================================================================== */
+
+/* Filtros: opções de busca */
+
 #painel-filtros {
   max-width: 1180px;
   margin: calc(var(--espaco-lg) * -1 + var(--espaco-xs)) auto var(--espaco-lg);
@@ -627,7 +631,7 @@ button:disabled {
   gap: .4rem;
 }
 
-/* Chip = opcao de filtro. Menor que botao normal e sem o cursor "▶". */
+
 .chip {
   padding: .45rem .7rem;
   font-size: .52rem;
@@ -638,8 +642,7 @@ button:disabled {
   content: none;
 }
 
-/* Regiao nao tem cor propria: marcada, ela inverte, do jeito que o menu do
-   jogo marca a opcao escolhida. */
+
 #filtro-regioes .chip[aria-pressed="true"] {
   background: var(--realce);
   border-color: var(--realce);
@@ -651,12 +654,7 @@ button:disabled {
   color: var(--texto-tinta);
 }
 
-/* --------------------------------------------------------------------------
-   TIPO e CATEGORIA vem coloridos.
-   O chip de tipo NAO repete as 18 cores: ele leva o mesmo data-tipo das
-   plaquinhas do card, entao herda a cor da secao 11. Uma fonte de cor so.
-   Desmarcado o chip fica mais escuro; marcado, acende e ganha o anel branco.
-   -------------------------------------------------------------------------- */
+
 #filtro-tipos .chip,
 #filtro-categorias .chip {
   color: var(--texto-tinta);
@@ -677,7 +675,7 @@ button:disabled {
     0 0 0 5px var(--realce);
 }
 
-/* As quatro categorias, cada uma na cor que a serie usa pra ela. */
+
 #filtro-categorias .chip[data-valor="lendario"] { background: #d9a441; }
 #filtro-categorias .chip[data-valor="mitico"]   { background: #b98ad6; }
 #filtro-categorias .chip[data-valor="mega"]     { background: #5fc9b8; }
@@ -710,9 +708,9 @@ button:disabled {
   color: #fff;
 }
 
-/* ==========================================================================
-   10. CARDS — cada Pokemon e uma entrada da lista da Pokedex
-   ========================================================================== */
+
+/* Cards: lista de Pokémon */
+
 #lista-pokemons,
 #lista-favoritos {
   list-style: none;
@@ -735,7 +733,7 @@ button:disabled {
   transition: var(--transicao);
 }
 
-/* Pokebolinha no canto, como a marca de "ja registrado" da Pokedex. */
+
 #lista-pokemons > li > article::after,
 #lista-favoritos > li > article::after {
   content: '';
@@ -776,7 +774,7 @@ button:disabled {
   width: 100%;
 }
 
-/* O sprite fica dentro de uma telinha afundada, com risco de varredura. */
+
 #lista-pokemons article img,
 #lista-favoritos article img {
   width: 146px;
@@ -807,8 +805,7 @@ button:disabled {
   text-shadow: 2px 2px 0 var(--moldura-tinta);
 }
 
-/* Numero da Pokedex em dourado, do jeito que o jogo mostra. */
-/* O numero e etiqueta, nao destaque. Fica em cinza. */
+
 .dex-numero {
   font-size: .58rem;
   color: var(--cinza);
@@ -818,9 +815,9 @@ button:disabled {
   color: #fff;
 }
 
-/* ==========================================================================
-   11. TIPOS — placas coloridas com contorno preto
-   ========================================================================== */
+
+/* Tipos: etiquetas coloridas */
+
 .tipos {
   display: flex;
   flex-wrap: wrap;
@@ -842,7 +839,7 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* As cores dos 18 tipos, na chave em portugues que o tradutor devolve. */
+
 [data-tipo="Normal"]     { background: #b9b98e; }
 [data-tipo="Lutador"]    { background: #e0483f; }
 [data-tipo="Voador"]     { background: #b7a3f7; }
@@ -863,11 +860,10 @@ button:disabled {
 [data-tipo="Fada"]       { background: #eb9cc0; }
 [data-tipo="Estelar"]    { background: #5fc9b8; }
 
-/* ==========================================================================
-   12. FAVORITOS — botao de remover dentro do card
-   ========================================================================== */
-/* Parado o botao e neutro: ele nao precisa gritar sozinho no meio do card.
-   O vermelho aparece quando o mouse chega, avisando que aquilo remove. */
+
+/* Favoritos: ações e estados */
+
+
 #lista-favoritos article > button {
   width: 100%;
   margin-top: var(--espaco-xs);
@@ -881,9 +877,9 @@ button:disabled {
   color: #fff;
 }
 
-/* ==========================================================================
-   13. DETALHES — a tela grande da Pokedex aberta
-   ========================================================================== */
+
+/* Detalhes: ficha principal */
+
 #conteudo {
   padding: var(--espaco-lg);
   display: grid;
@@ -902,22 +898,21 @@ button:disabled {
   #conteudo > .ficha { grid-column: 2; }
 }
 
-/* Coluna da esquerda: visor + botoes, empilhados e colados. */
+
 .visor {
   display: flex;
   flex-direction: column;
   gap: var(--espaco-md);
 }
 
-/* Coluna da direita: as secoes fluem uma embaixo da outra. */
+
 .ficha {
   display: flex;
   flex-direction: column;
   gap: var(--espaco-lg);
 }
 
-/* Visor principal. O position e a referencia das faiscas do shiny, e o
-   overflow impede que alguma escape pra fora da moldura. */
+
 #conteudo figure {
   position: relative;
   overflow: hidden;
@@ -960,7 +955,7 @@ button:disabled {
   color: #fff;
 }
 
-/* Listas de tipo e habilidade */
+
 #poke-tipos,
 #poke-habilidades {
   list-style: none;
@@ -979,7 +974,7 @@ button:disabled {
   border-radius: 4px;
 }
 
-/* Titulo de secao com o tracinho de menu na frente. */
+
 #conteudo section h2::before {
   content: '';
   display: inline-block;
@@ -992,9 +987,9 @@ button:disabled {
   border-color: transparent transparent transparent var(--fire);
 }
 
-/* ==========================================================================
-   14. LINHA EVOLUTIVA — quem vira quem
-   ========================================================================== */
+
+/* Evolução: linha e estágios */
+
 #secao-evolucao p {
   font-family: var(--fonte-texto);
   font-size: 1rem;
@@ -1020,7 +1015,7 @@ button:disabled {
   gap: var(--espaco-sm);
 }
 
-/* Seta dourada apontando pro proximo estagio da cadeia. */
+
 .estagio + .estagio::before {
   content: '';
   flex: none;
@@ -1031,7 +1026,7 @@ button:disabled {
   border-color: transparent transparent transparent var(--realce);
 }
 
-/* Um estagio pode ter varios Pokemon (Eevee tem 8). Eles quebram em linha. */
+
 .formas {
   display: flex;
   flex-wrap: wrap;
@@ -1078,7 +1073,7 @@ button:disabled {
   border-color: var(--realce);
 }
 
-/* O Pokemon que esta aberto agora aparece marcado na linha. */
+
 .evo-atual {
   border-color: var(--realce);
   background: rgba(255, 255, 255, .07);
@@ -1088,16 +1083,9 @@ button:disabled {
   border-color: var(--realce);
 }
 
-/* --------------------------------------------------------------------------
-   O BRILHO DO SHINY
-   Duas partes, na ordem em que a pessoa ve:
-     1. o sprite leva um CLARAO e da um pulinho     (.cintilando)
-     2. FAISCAS estouram em volta e somem           (.faisca)
 
-   Tudo em steps(): cada quadro entra de uma vez, sem transicao suave. E o
-   jeito que sprite de GBA se anima — poucos quadros, cada um inteiro.
-   O --atraso-brilho vem do JS e faz o clarao correr pela linha evolutiva.
-   -------------------------------------------------------------------------- */
+/* Animações: efeitos de shiny */
+
 @keyframes clarao {
   0%   { filter: brightness(4) contrast(1.4); transform: scale(1.07); }
   18%  { filter: none;                        transform: scale(.97);  }
@@ -1110,7 +1098,7 @@ button:disabled {
   animation: clarao .5s steps(1, end) var(--atraso-brilho, 0ms) 1 both;
 }
 
-/* Faisca de quatro pontas, recortada com clip-path. */
+
 @keyframes faiscar {
   0%   { opacity: 0; transform: scale(0)   rotate(0deg);  }
   30%  { opacity: 1; transform: scale(1.2) rotate(30deg); }
@@ -1131,9 +1119,9 @@ button:disabled {
   animation: faiscar .55s steps(4, end) var(--atraso-faisca, 0ms) 1 both;
 }
 
-/* ==========================================================================
-   15. ATRIBUTOS — quadro de status com barra de HP
-   ========================================================================== */
+
+/* Atributos: tabela e barras */
+
 table {
   width: 100%;
   border-collapse: separate;
@@ -1182,7 +1170,25 @@ tbody td:last-child {
   width: 55%;
 }
 
-/* Barra de atributo: casco preto, miolo colorido, brilho no topo. */
+.atributos-total {
+  margin-top: var(--espaco-sm);
+  padding: .7rem 1rem;
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  font-family: var(--fonte-pixel);
+  font-size: .6rem;
+  color: var(--texto-suave);
+  text-align: right;
+}
+
+.atributos-total strong {
+  color: var(--texto);
+  font-size: .7rem;
+}
+
+
 progress {
   display: block;
   width: 100%;
@@ -1211,7 +1217,7 @@ progress::-moz-progress-bar {
     var(--barra-media) 3px 100%);
 }
 
-/* Verde / amarelo / vermelho conforme o valor, igual barra de HP em batalha. */
+
 progress[data-nivel="alto"]::-webkit-progress-value {
   background: linear-gradient(180deg,
     rgba(255, 255, 255, .45) 0 3px, var(--barra-alta) 3px 100%);
@@ -1232,9 +1238,9 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     rgba(255, 255, 255, .45) 0 3px, var(--barra-baixa) 3px 100%);
 }
 
-/* ==========================================================================
-   16. ESTADOS: carregando / erro / vazio
-   ========================================================================== */
+
+/* Estados: carregamento, erro e vazio */
+
 #estado-carregando,
 #estado-erro,
 #estado-vazio,
@@ -1247,7 +1253,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   line-height: 2;
 }
 
-/* Pokebola chacoalhando enquanto a resposta nao chega. */
+
 #estado-carregando::before {
   content: '';
   display: block;
@@ -1260,7 +1266,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   animation: chacoalhar 1.1s steps(8, end) infinite;
 }
 
-/* A setinha piscando de "aperte A para continuar". */
+
 #estado-carregando::after {
   content: '';
   display: block;
@@ -1312,7 +1318,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--erro);
 }
 
+<<<<<<< HEAD
 /* O link "ir para a lista" do estado vazio tambem vira item de menu. */
+=======
+
+>>>>>>> gui
 #estado-vazio a {
   display: inline-block;
   padding: .7rem 1.1rem;
@@ -1332,9 +1342,9 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   border-color: var(--realce);
 }
 
-/* ==========================================================================
-   17. PAGINACAO — botoes do D-pad + visor da pagina
-   ========================================================================== */
+
+/* Paginação: navegação entre páginas */
+
 #paginacao {
   display: flex;
   align-items: center;
@@ -1355,14 +1365,14 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   white-space: nowrap;
 }
 
-/* Aqui a seta ja esta no texto do botao; nao precisa do cursor extra. */
+
 #paginacao button::before {
   content: none;
 }
 
-/* ==========================================================================
-   18. RODAPE — placa de creditos
-   ========================================================================== */
+
+/* Footer: créditos e links */
+
 .site-footer {
   margin-top: var(--espaco-xl);
   background: var(--tela);
@@ -1468,9 +1478,9 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--realce);
 }
 
-/* ==========================================================================
-   19. RESPONSIVO
-   ========================================================================== */
+
+/* Responsividade: telas menores */
+
 @media (max-width: 800px) {
   .footer-container {
     grid-template-columns: 1fr 1fr;
@@ -1554,7 +1564,8 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     padding: .55rem .7rem;
   }
 
-  /* Sem largura pra fila: a cadeia desce, e a seta aponta pra baixo. */
+  
+
   #linha-evolucao,
   .estagio {
     flex-direction: column;
@@ -1582,9 +1593,9 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 }
 
-/* ==========================================================================
-   20. QUEM PEDE MENOS MOVIMENTO, RECEBE MENOS MOVIMENTO
-   ========================================================================== */
+
+/* Acessibilidade: movimento reduzido */
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1596,9 +1607,15 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 }
 
+<<<<<<< HEAD
 /* ==========================================================================
    16. VANTAGENS / FRAQUEZAS
    ========================================================================== */
+=======
+
+/* Efetividade: vantagens, fraquezas e imunidades */
+
+>>>>>>> gui
 #secao-super-efetivo .tipo,
 #secao-vantagens .tipo,
 #secao-fraquezas .tipo,
@@ -1624,9 +1641,9 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   margin-left: .65rem;
 }
 
-/* ==========================================================================
-   17. COMPARACAO
-   ========================================================================== */
+
+/* Comparação: seleção e tabela */
+
 .link-comparacao {
   white-space: nowrap;
 }
@@ -1860,10 +1877,15 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 }
 
 
+<<<<<<< HEAD
 /* --------------------------------------------------------------------------
    FORMAS ESPECIAIS — Mega / Gigantamax
    A forma fica no mesmo estagio evolutivo, mas recebe uma identificacao visual propria.
    -------------------------------------------------------------------------- */
+=======
+/* Formas especiais: Mega e Gigantamax */
+
+>>>>>>> gui
 .evo-forma-especial {
   border-color: var(--fire);
 }
@@ -1890,6 +1912,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   text-transform: uppercase;
 }
 
+<<<<<<< HEAD
 /* ==========================================================================
    21. ORGANIZAÇÃO DA FICHA DE DETALHES
    --------------------------------------------------------------------------
@@ -1897,6 +1920,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
    evolução e atributos ocupando toda a largura. A linha evolutiva mantém
    cada estágio visualmente separado, inclusive quando existem Mega/Gmax.
    ========================================================================== */
+=======
+
+/* Ficha: organização dos blocos */
+
+>>>>>>> gui
 @media (min-width: 860px) {
   #conteudo > .ficha {
     display: grid;
@@ -1911,8 +1939,12 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 }
 
+<<<<<<< HEAD
 /* Blocos internos: mesma linguagem de moldura, mas mais leves que o card
    principal para criar hierarquia visual sem deixar a tela pesada. */
+=======
+
+>>>>>>> gui
 #conteudo > .ficha > section {
   min-width: 0;
   min-height: 150px;
@@ -1927,9 +1959,13 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   flex-direction: column;
 }
 
+<<<<<<< HEAD
 /* As caixas informativas compartilham a mesma base visual, mas a altura
    acompanha o conteúdo. Isso evita tanto caixas gigantes quando ha poucos
    itens quanto scroll artificial quando ha mais informacoes. */
+=======
+
+>>>>>>> gui
 #conteudo > .ficha > section:not(#secao-evolucao):not(:last-child) {
   min-height: 145px;
 }
@@ -1938,8 +1974,12 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   margin-bottom: var(--espaco-sm);
 }
 
+<<<<<<< HEAD
 /* Evolução e atributos têm conteúdo naturalmente variável e, por isso,
    mantêm a altura determinada pelo próprio conteúdo. */
+=======
+
+>>>>>>> gui
 #conteudo > .ficha > #secao-evolucao,
 #conteudo > .ficha > section:last-child {
   height: auto;
@@ -1949,7 +1989,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   margin-bottom: var(--espaco-sm);
 }
 
+<<<<<<< HEAD
 /* Tipos e habilidades ocupam o bloco com consistência visual. */
+=======
+
+>>>>>>> gui
 #poke-tipos,
 #poke-habilidades {
   min-height: 34px;
@@ -1961,7 +2005,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   text-align: center;
 }
 
+<<<<<<< HEAD
 /* Descrições de eficácia não ficam coladas aos chips. */
+=======
+
+>>>>>>> gui
 #secao-vantagens,
 #secao-fraquezas,
 #secao-imunidades {
@@ -1969,7 +2017,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   flex-direction: column;
 }
 
+<<<<<<< HEAD
 /* Linha evolutiva: cada estágio ganha seu próprio painel. */
+=======
+
+>>>>>>> gui
 #linha-evolucao {
   width: 100%;
   align-items: stretch;
@@ -1988,8 +2040,12 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
+<<<<<<< HEAD
 /* A seta deixa de consumir espaço horizontal e passa a ficar entre os
    painéis, deixando a leitura da cadeia mais clara. */
+=======
+
+>>>>>>> gui
 .estagio + .estagio::before {
   position: absolute;
   left: calc(var(--espaco-md) * -1);
@@ -2044,13 +2100,21 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   overflow-wrap: anywhere;
 }
 
+<<<<<<< HEAD
 /* Atributos: a tabela ganha mais respiro dentro do bloco de largura total. */
+=======
+
+>>>>>>> gui
 #conteudo > .ficha > section:last-child table {
   margin-top: var(--espaco-xs);
 }
 
+<<<<<<< HEAD
 /* No celular a ficha volta para uma única coluna e cada estágio ocupa a
    largura disponível; a seta passa a apontar para baixo. */
+=======
+
+>>>>>>> gui
 @media (max-width: 859px) {
   #conteudo > .ficha {
     display: flex;
@@ -2101,3 +2165,34 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     height: 104px;
   }
 }
+<<<<<<< HEAD
+=======
+
+
+/* História: texto traduzido do Pokémon */
+.historia-pokemon {
+  margin-top: var(--espaco-sm);
+  padding: var(--espaco-md);
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 1px var(--moldura-tinta);
+}
+
+.historia-pokemon h2 {
+  margin: 0 0 var(--espaco-sm);
+  font-family: var(--fonte-pixel);
+  font-size: .9rem;
+}
+
+.historia-pokemon p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+#historia-carregando,
+#historia-erro {
+  color: var(--cinza);
+  font-size: .9rem;
+}
+>>>>>>> gui

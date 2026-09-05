@@ -14,6 +14,10 @@ const TAMANHO_PAGINA = 20;
    Isso ajuda o RNF003 (resposta rapida) e nao sobrecarrega a API de pedidos. */
 const cacheDetalhes = new Map();
 const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por especie
+<<<<<<< HEAD
+=======
+const cacheHistoria = new Map(); // História em inglês da espécie
+>>>>>>> gui
 const cacheFormasEspeciais = new Map(); // Mega/Gigantamax por especie-base
 const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
 let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
@@ -180,9 +184,58 @@ async function obterVantagensEFraquezas(pokemon) {
    Pega UM Pokemon pelo numero ou pelo nome.
    Endpoint: GET /pokemon/{id-ou-nome}
    -------------------------------------------------------------------------- */
+<<<<<<< HEAD
 async function obterPokemon(idOuNome) {
     let chave = normalizarTexto(idOuNome);
 
+=======
+
+/* --------------------------------------------------------------------------
+   HISTÓRIA / ENTRADA DA POKÉDEX
+   Busca a espécie separadamente porque /pokemon/{id} não traz as entradas de
+   texto da Pokédex. A primeira entrada em inglês é guardada em cache.
+   -------------------------------------------------------------------------- */
+async function obterHistoriaPokemon(idOuNome) {
+  let chave = normalizarTexto(idOuNome);
+
+  if (/^\d+$/.test(chave)) {
+    chave = String(Number(chave));
+  }
+
+  if (cacheHistoria.has(chave)) {
+    return cacheHistoria.get(chave);
+  }
+
+  const pokemon = await obterPokemon(chave);
+  const nomeEspecie = pokemon.nomeEspecie || chave;
+  const dados = await pedirJSON(BASE_URL + '/pokemon-species/' + nomeEspecie);
+
+  const entradasIngles = (dados.flavor_text_entries || []).filter(function (entrada) {
+    return entrada.language && entrada.language.name === 'en';
+  });
+
+  if (entradasIngles.length === 0) {
+    throw new Error('Este Pokémon não possui história em inglês na PokéAPI.');
+  }
+
+  // A mesma entrada pode aparecer em várias versões. Escolhe a mais recente.
+  const entrada = entradasIngles[entradasIngles.length - 1];
+  const historia = String(entrada.flavor_text || '')
+    .replace(/[\n\f\r]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  cacheHistoria.set(chave, historia);
+  cacheHistoria.set(nomeEspecie, historia);
+  cacheHistoria.set(String(pokemon.id), historia);
+
+  return historia;
+}
+
+async function obterPokemon(idOuNome) {
+    let chave = normalizarTexto(idOuNome);
+
+>>>>>>> gui
   // A PokeAPI nao aceita zero a esquerda no numero (/pokemon/001 da 404).
   // "004" (como aparece na Pokedex) precisa virar "4" antes de montar a URL.
   if (/^\d+$/.test(chave)) {
