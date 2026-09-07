@@ -178,11 +178,6 @@ async function obterVantagensEFraquezas(pokemon) {
 }
 
 /* --------------------------------------------------------------------------
-   Pega UM Pokemon pelo numero ou pelo nome.
-   Endpoint: GET /pokemon/{id-ou-nome}
-   -------------------------------------------------------------------------- */
-
-/* --------------------------------------------------------------------------
    HISTÓRIA / ENTRADA DA POKÉDEX
    Busca a espécie separadamente porque /pokemon/{id} não traz as entradas de
    texto da Pokédex. A primeira entrada em inglês é guardada em cache.
@@ -224,15 +219,19 @@ async function obterHistoriaPokemon(idOuNome) {
   return historia;
 }
 
+/* --------------------------------------------------------------------------
+   Pega UM Pokemon pelo numero ou pelo nome.
+   Endpoint: GET /pokemon/{id-ou-nome}
+   -------------------------------------------------------------------------- */
 async function obterPokemon(idOuNome) {
-    let chave = normalizarTexto(idOuNome);
+  let chave = normalizarTexto(idOuNome);
 
   // A PokeAPI nao aceita zero a esquerda no numero (/pokemon/001 da 404).
   // "004" (como aparece na Pokedex) precisa virar "4" antes de montar a URL.
   if (/^\d+$/.test(chave)) {
     chave = String(Number(chave));
   }
-  
+
   // Ja esta em memoria? entrega na hora, sem ir na rede.
   if (cacheDetalhes.has(chave)) {
     return cacheDetalhes.get(chave);
