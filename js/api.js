@@ -392,8 +392,28 @@ async function obterFormasEspeciais(pokemon) {
 }
 
 /* --------------------------------------------------------------------------
-   A linha evolutiva. A cadeia normal continua sendo montada por especie.
-   Mega/Gmax entram como formas alternativas no mesmo estagio da especie-base.
+   A PokeAPI guarda UM metodo de evolucao POR geracao de jogo. Leafeon, por
+   exemplo, tem seis: cinco por local (a pedra de musgo de cada regiao) e um
+   por item. O marcado is_default e o metodo atual; sem ele, fica o primeiro.
+   -------------------------------------------------------------------------- */
+function detalheAtualDaEvolucao(detalhes) {
+  if (!Array.isArray(detalhes) || detalhes.length === 0) return null;
+  return detalhes.find(detalhe => detalhe.is_default) || detalhes[0];
+}
+
+/* --------------------------------------------------------------------------
+   A linha evolutiva, em duas partes separadas:
+
+     estagios   a cadeia de verdade, so com a forma padrao de cada especie, na
+                ordem em que evolui. E a fileira de cima da tela.
+     variacoes  Mega, Gigantamax, regionais e afins de QUALQUER estagio, todas
+                juntas. E a fileira de baixo.
+     requisitos o que fazer para chegar em cada especie, indexado pelo nome
+                dela. O primeiro estagio nao entra: ninguem evolui para ele.
+
+   Antes as variacoes entravam no mesmo andar da especie-base, e o andar do
+   Charizard vinha com quatro cards. Isso misturava duas coisas diferentes:
+   quem evolui para quem, e quem e outra forma do mesmo bicho.
    -------------------------------------------------------------------------- */
 async function obterLinhaEvolutiva(idOuNome) {
   let chave = normalizarTexto(idOuNome);
@@ -416,49 +436,62 @@ async function obterLinhaEvolutiva(idOuNome) {
 
   const especie = await pedirJSON(BASE_URL + '/pokemon-species/' + chave);
 
+  // Especie sem cadeia cadastrada: nao evolui, mas ainda pode ter Mega/Gmax.
   if (!especie.evolution_chain || !especie.evolution_chain.url) {
     const base = await pokemonDaEspecie(chave);
-    const formasEspeciais = base ? await obterFormasEspeciais(base) : [];
-    const linha = base ? [[base, ...formasEspeciais.filter(forma => forma.id !== base.id)]] : [];
+    const linha = {
+      estagios: base ? [[base]] : [],
+      variacoes: base ? await obterFormasEspeciais(base) : [],
+      requisitos: {}
+    };
     cacheEvolucao.set(chave, linha);
     return linha;
   }
 
   const cadeia = await pedirJSON(especie.evolution_chain.url);
 
+  // Anda a cadeia de andar em andar guardando o NO inteiro, e nao so o nome:
+  // e dentro do no que vive o evolution_details, o "como chegar ate aqui".
   const andares = [];
   let atual = [cadeia.chain];
 
   while (atual.length > 0) {
-    andares.push(atual.map(no => no.species.name));
+    andares.push(atual);
     atual = atual.flatMap(no => no.evolves_to);
   }
 
-  const linha = [];
+  const estagios = [];
+  const variacoes = [];
+  const requisitos = {};
 
-  for (const nomes of andares) {
-    const resultados = await Promise.all(nomes.map(pokemonDaEspecie));
-    const achados = resultados.filter(item => item !== null);
-    if (achados.length === 0) continue;
+  for (const nos of andares) {
+    const resultados = await Promise.all(nos.map(no => pokemonDaEspecie(no.species.name)));
+    const estagio = [];
 
-    const andar = [];
+    for (let i = 0; i < resultados.length; i++) {
+      const pokemon = resultados[i];
+      if (!pokemon) continue;
 
-    for (const pokemon of achados) {
-      if (!andar.some(item => item.id === pokemon.id)) {
-        andar.push(pokemon);
+      const comoEvoluir = descreverEvolucao(detalheAtualDaEvolucao(nos[i].evolution_details));
+      if (comoEvoluir) requisitos[nos[i].species.name] = comoEvoluir;
+
+      if (!estagio.some(item => item.id === pokemon.id)) {
+        estagio.push(pokemon);
       }
 
+      // A forma alternativa sai do andar e vai para a fileira de baixo.
       const formasEspeciais = await obterFormasEspeciais(pokemon);
       formasEspeciais.forEach(function (forma) {
-        if (!andar.some(item => item.id === forma.id)) {
-          andar.push(forma);
+        if (!variacoes.some(item => item.id === forma.id)) {
+          variacoes.push(forma);
         }
       });
     }
 
-    if (andar.length > 0) linha.push(andar);
+    if (estagio.length > 0) estagios.push(estagio);
   }
 
+  const linha = { estagios, variacoes, requisitos };
   cacheEvolucao.set(chave, linha);
   return linha;
 }

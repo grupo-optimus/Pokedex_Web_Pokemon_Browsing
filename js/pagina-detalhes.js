@@ -26,10 +26,13 @@ const vantagensEl    = document.getElementById('poke-vantagens');
 const fraquezasEl    = document.getElementById('poke-fraquezas');
 const imunidadesEl   = document.getElementById('poke-imunidades');
 
+const secaoEvolucaoEl= document.getElementById('secao-evolucao');
 const evolucaoEl     = document.getElementById('linha-evolucao');
 const evoCarregandoEl= document.getElementById('evolucao-carregando');
 const evoVaziaEl     = document.getElementById('evolucao-vazia');
 const evoErroEl      = document.getElementById('evolucao-erro');
+const blocoVariacoesEl = document.getElementById('bloco-variacoes');
+const listaVariacoesEl = document.getElementById('lista-variacoes');
 
 let pokemonAtual = null;
 
@@ -52,12 +55,18 @@ function desenhoAtual(pokemon) {
   return (modoShiny && pokemon.imagemShiny) ? pokemon.imagemShiny : pokemon.imagem;
 }
 
+/* As duas fileiras da secao: a cadeia em cima e as variacoes embaixo.
+   Quem troca sprite ou solta brilho precisa pegar as duas. */
+function spritesDaEvolucao() {
+  return Array.from(secaoEvolucaoEl.querySelectorAll('img'));
+}
+
 /* Repinta o visor grande E os sprites da linha evolutiva.
    Cada sprite da linha guarda os dois enderecos em data-normal / data-shiny. */
 function trocarSprites() {
   if (pokemonAtual) imagemEl.src = desenhoAtual(pokemonAtual);
 
-  evolucaoEl.querySelectorAll('img').forEach(function (img) {
+  spritesDaEvolucao().forEach(function (img) {
     const alvo = modoShiny ? img.dataset.shiny : img.dataset.normal;
     if (alvo) img.src = alvo;
   });
@@ -226,11 +235,17 @@ function identificarFormaEspecial(pokemon) {
     { padrao: /-(rock-star|belle|pop-star|phd|libre|cosplay|original-cap|hoenn-cap|sinnoh-cap|unova-cap|kalos-cap|alola-cap|partner-cap|world-cap)$/, rotulo: 'FORMA' }
   ];
 
+  // Sem regra batendo, quem chamou decide o que fazer. Antes esta linha
+  // devolvia 'FORMA' e carimbava a etiqueta vermelha ate no Bulbasaur.
   const encontrada = regras.find(regra => regra.padrao.test(nomeApi));
-  return encontrada ? encontrada.rotulo : 'FORMA';
+  return encontrada ? encontrada.rotulo : null;
 }
 
-function criarElo(pokemon) {
+/* opcoes.variacao  = card da fileira de baixo (Mega, Gmax, regional...).
+   opcoes.requisito = o que fazer para evoluir ATE este Pokemon. */
+function criarElo(pokemon, opcoes) {
+  const config = opcoes || {};
+
   const elo = elemento('a');
   elo.className = 'evo';
   elo.href = 'detalhes.html?id=' + pokemon.id;
@@ -239,8 +254,7 @@ function criarElo(pokemon) {
     elo.classList.add('evo-atual');
   }
 
-  const formaEspecial = identificarFormaEspecial(pokemon);
-  if (formaEspecial) {
+  if (config.variacao) {
     elo.classList.add('evo-forma-especial');
   }
 
@@ -263,39 +277,68 @@ function criarElo(pokemon) {
   elo.appendChild(numero);
   elo.appendChild(nome);
 
-  if (formaEspecial) {
-    const badge = elemento('span', formaEspecial);
+  // A etiqueta diz QUAL forma e. Quando a regra nao reconhece o sufixo, a
+  // palavra generica ainda serve: o card ja esta na fileira das variacoes.
+  if (config.variacao) {
+    const rotulo = identificarFormaEspecial(pokemon) || 'FORMA';
+    const badge = elemento('span', rotulo);
     badge.className = 'forma-especial-badge';
-    badge.setAttribute('aria-label', 'Forma especial: ' + formaEspecial);
+    badge.setAttribute('aria-label', 'Forma especial: ' + rotulo);
     elo.appendChild(badge);
+  }
+
+  if (config.requisito) {
+    const comoEvoluir = elemento('span', config.requisito);
+    comoEvoluir.className = 'evo-requisito';
+    elo.appendChild(comoEvoluir);
   }
 
   return elo;
 }
 
-/* Liga um estado de cada vez, igual as outras telas fazem. */
+/* Liga um estado de cada vez, igual as outras telas fazem.
+   A fileira das variacoes e quem desenha que decide: pode nao existir. */
 function estadoEvolucao(estado) {
   mostrar(evoCarregandoEl, estado === 'carregando');
   mostrar(evoVaziaEl,      estado === 'vazia');
   mostrar(evoErroEl,       estado === 'erro');
   mostrar(evolucaoEl,      estado === 'pronto');
+  if (estado !== 'pronto') mostrar(blocoVariacoesEl, false);
 }
 
 function desenharEvolucao(linha) {
+  // Fileira de cima: um estagio atras do outro, na ordem em que evolui.
   evolucaoEl.replaceChildren();
 
-  linha.forEach(function (andar) {
+  linha.estagios.forEach(function (pokemons, indice) {
     const estagio = elemento('li');
     estagio.className = 'estagio';
 
-    // Um andar pode ter varios Pokemon (Eevee tem 8). Empilha todos.
+    // Um estagio pode ter varios Pokemon quando a cadeia abre em leque:
+    // Eevee vira oito. Ai eles dividem o mesmo degrau, lado a lado.
     const formas = elemento('div');
     formas.className = 'formas';
-    andar.forEach(pokemon => formas.appendChild(criarElo(pokemon)));
+
+    pokemons.forEach(function (pokemon) {
+      // O primeiro estagio e o ponto de partida: ninguem evolui para ele.
+      const requisito = indice === 0 ? '' : (linha.requisitos[pokemon.nomeEspecie] || '');
+      formas.appendChild(criarElo(pokemon, { requisito: requisito }));
+    });
 
     estagio.appendChild(formas);
     evolucaoEl.appendChild(estagio);
   });
+
+  // Fileira de baixo: as formas alternativas de toda a cadeia.
+  listaVariacoesEl.replaceChildren();
+
+  linha.variacoes.forEach(function (pokemon) {
+    const item = elemento('li');
+    item.appendChild(criarElo(pokemon, { variacao: true }));
+    listaVariacoesEl.appendChild(item);
+  });
+
+  mostrar(blocoVariacoesEl, linha.variacoes.length > 0);
 }
 
 /* A cadeia vem DEPOIS do Pokemon, em pedido separado.
@@ -306,13 +349,9 @@ async function carregarEvolucao(id) {
   try {
     const linha = await obterLinhaEvolutiva(id);
 
-    // Mega/Gmax ocupam o mesmo andar da especie-base. Por isso uma linha com
-    // apenas um estagio ainda e valida quando esse estagio possui mais de um item.
-    const temMaisDeUmItem = linha.some(function (andar) {
-      return andar.length > 1;
-    });
-
-    if (linha.length === 0 || (linha.length === 1 && !temMaisDeUmItem)) {
+    // Um estagio so quer dizer que nao evolui. Mas se tiver Mega ou Gmax a
+    // secao continua valendo: e a fileira de baixo que tem o que mostrar.
+    if (linha.estagios.length <= 1 && linha.variacoes.length === 0) {
       estadoEvolucao('vazia');
       return;
     }
@@ -386,9 +425,7 @@ function darClarao(sprite, atraso) {
 }
 
 function brilharTudo() {
-  const sprites = [imagemEl].concat(
-    Array.from(evolucaoEl.querySelectorAll('img'))
-  );
+  const sprites = [imagemEl].concat(spritesDaEvolucao());
   sprites.forEach((sprite, i) => darClarao(sprite, i * 70));
 }
 
