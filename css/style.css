@@ -882,19 +882,24 @@ button:disabled {
   color: var(--erro);
 }
 
+/* A fileira de cima e uma linha so: estagio, seta, estagio, seta...
+   Sem quebra. Se a cadeia nao couber na largura, ela rola de lado. */
 #linha-evolucao {
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--espaco-sm);
   margin-top: var(--espaco-xs);
+  padding-bottom: var(--espaco-xs);
+  overflow-x: auto;
 }
 
 .estagio {
   display: flex;
   align-items: center;
   gap: var(--espaco-sm);
+  flex: none;
 }
 
 .estagio + .estagio::before {
@@ -907,12 +912,15 @@ button:disabled {
   border-color: transparent transparent transparent var(--realce);
 }
 
+/* Cadeia que abre em leque (Eevee vira oito) divide o degrau em grade,
+   senao um unico estagio empurraria a fileira inteira para o lado. */
 .formas {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
   gap: var(--espaco-xs);
-  max-width: 460px;
+  max-width: 640px;
 }
 
 .evo {
@@ -947,6 +955,18 @@ button:disabled {
 .evo .dex-nome {
   font-size: .58rem;
   text-transform: capitalize;
+}
+
+/* O "como evoluir" mora embaixo do card, na largura do sprite. Fonte de
+   leitura, e nao a pixelada: sao frases inteiras, nao rotulo de duas palavras. */
+.evo-requisito {
+  max-width: 136px;
+  margin-top: .15rem;
+  font-family: var(--fonte-texto);
+  font-size: .82rem;
+  line-height: 1.35;
+  color: var(--cinza);
+  text-align: center;
 }
 
 .evo:hover img {
@@ -1422,15 +1442,25 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 
   
 
+  /* Em tela estreita a fileira vira coluna e a seta aponta para baixo. */
   #linha-evolucao,
   .estagio {
     flex-direction: column;
+  }
+
+  #linha-evolucao {
+    align-items: center;
+    overflow-x: visible;
   }
 
   .estagio + .estagio::before {
     align-self: center;
     border-width: 12px 8px 0 8px;
     border-color: var(--realce) transparent transparent transparent;
+  }
+
+  #lista-variacoes {
+    justify-content: center;
   }
 }
 
@@ -1721,6 +1751,30 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 }
 
 /* Formas especiais: Mega e Gigantamax */
+
+/* A fileira de baixo. Aqui pode quebrar em varias linhas: nao ha ordem
+   nenhuma entre as formas, entao nao ha nada para uma seta apontar. */
+#bloco-variacoes {
+  margin-top: var(--espaco-md);
+  padding-top: var(--espaco-md);
+  border-top: 2px solid var(--moldura-luz-2);
+}
+
+#titulo-variacoes {
+  font-size: .6rem;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+  margin-bottom: var(--espaco-xs);
+}
+
+#lista-variacoes {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-xs);
+}
+
 .evo-forma-especial {
   border-color: var(--fire);
 }
@@ -1816,11 +1870,25 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   align-items: stretch;
   gap: var(--espaco-md);
   margin-top: var(--espaco-md);
+
+  /* A cadeia fica no meio da secao em vez de encostada na esquerda.
+     A segunda linha repete a primeira com "safe": quando a cadeia for
+     larga demais e precisar rolar de lado, centralizar esconderia o
+     comeco dela fora do alcance da rolagem. "safe" desliga o centro
+     nesse caso e volta a alinhar pela esquerda. Navegador que nao
+     conhece a palavra ignora a linha e fica com o centro puro. */
+  justify-content: center;
+  justify-content: safe center;
 }
 
+/* flex: 0 1 auto e o que faz a fileira ficar em ordem e no tamanho certo.
+   Com o antigo "1 1 220px" todo estagio esticava igual, entao o degrau do
+   Charmander sozinho ocupava a mesma largura do degrau com oito Eeveelutions
+   — e as oito se espremiam em duas colunas. Agora cada degrau pede a largura
+   do que tem dentro e so encolhe se faltar espaco. */
 .estagio {
   position: relative;
-  flex: 1 1 220px;
+  flex: 0 1 auto;
   min-width: 0;
   padding: var(--espaco-sm);
   background: var(--tela);
@@ -1841,6 +1909,11 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   width: 100%;
   max-width: none;
   display: grid;
+  /* Aqui a coluna PRECISA ser 1fr. O degrau e um item flex que encolhe ate
+     o proprio conteudo, entao com um teto fixo o auto-fit e a largura do
+     degrau ficam um esperando o outro e a grade colapsa em uma coluna so —
+     as oito Eeveelutions viravam uma fila unica. Quem centraliza a fileira
+     e o justify-content la do #linha-evolucao, nao esta grade. */
   grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   align-items: start;
   justify-content: stretch;
@@ -1876,11 +1949,41 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   overflow-wrap: anywhere;
 }
 
+/* O card aqui e estreito (uma coluna da grade), entao o "como evoluir"
+   acompanha a coluna em vez de ter largura propria. */
+.evo-requisito {
+  max-width: 100%;
+  font-size: .78rem;
+}
+
 .forma-especial-badge {
   max-width: 100%;
   margin-top: .1rem;
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+/* A fileira de baixo usa a mesma grade e a mesma moldura do degrau de cima,
+   para as duas lerem como fileiras irmas da mesma secao. */
+#lista-variacoes {
+  display: grid;
+  /* auto-fit, e nao auto-fill: o fill deixa as colunas vazias ocupando a
+     largura toda, e ai nao sobra espaco nenhum para o centro distribuir.
+     O fit descarta as vazias, entao a fileira encolhe ate o tamanho do que
+     tem e o justify-content consegue centralizar. */
+  grid-template-columns: repeat(auto-fit, minmax(118px, 140px));
+  justify-content: center;
+  gap: var(--espaco-xs);
+  padding: var(--espaco-sm);
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+}
+
+#lista-variacoes > li {
+  min-width: 0;
+  display: flex;
 }
 
 #conteudo > .ficha > section:last-child table {
@@ -1930,6 +2033,10 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 
   .formas {
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+
+  #lista-variacoes {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 132px));
   }
 
   .evo img {

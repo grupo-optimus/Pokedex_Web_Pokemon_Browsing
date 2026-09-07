@@ -122,7 +122,16 @@
           <p id="evolucao-carregando">Procurando a linha…</p>
           <p id="evolucao-vazia" hidden>Este Pokémon não evolui.</p>
           <p id="evolucao-erro" hidden>Não foi possível carregar a linha evolutiva.</p>
+
+          <!-- Fileira de cima: a cadeia em ordem, so com as formas padrao. -->
           <ol id="linha-evolucao" hidden></ol>
+
+          <!-- Fileira de baixo: Mega, Gigantamax, regionais e afins.
+               So aparece quando a especie tem alguma. -->
+          <div id="bloco-variacoes" hidden>
+            <h3 id="titulo-variacoes">Outras formas</h3>
+            <ul id="lista-variacoes" aria-labelledby="titulo-variacoes"></ul>
+          </div>
         </section>
 
         <hr>
