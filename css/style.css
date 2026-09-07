@@ -1964,3 +1964,125 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--cinza);
   font-size: .9rem;
 }
+/* Sobre: página de apresentação do projeto */
+.sobre-capa {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-md);
+  margin-bottom: var(--espaco-lg);
+  padding: var(--espaco-md);
+  background: var(--tela);
+  border: 3px solid var(--moldura-luz-2);
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+}
+
+.sobre-capa-icone {
+  width: 62px;
+  height: 62px;
+  flex: none;
+  object-fit: contain;
+  border-radius: 50%;
+  clip-path: circle(48%);
+}
+
+.sobre-capa .titulo-pagina {
+  margin-bottom: var(--espaco-xs);
+}
+
+.sobre-linha-fina {
+  font-family: var(--fonte-pixel);
+  font-size: .6rem;
+  line-height: 1.8;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
+}
+
+.sobre-texto {
+  padding: var(--espaco-lg) var(--espaco-md);
+  background: var(--painel);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta);
+}
+
+.sobre-texto > p {
+  max-width: 43rem;
+  margin: 0 auto var(--espaco-md);
+  font-size: 1.08rem;
+  line-height: 1.85;
+  color: var(--texto);
+}
+
+/* Fecho do texto: sem moldura, so a cor e o tamanho separam do resto. */
+.sobre-destaque {
+  margin-bottom: 0 !important;
+  font-size: 1.25rem !important;
+  color: var(--favorito);
+}
+
+/* Atalhos: mesmos botões do topo, agora fechando a página. */
+.sobre-atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-lg);
+}
+
+.sobre-atalhos a {
+  padding: .8rem 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--painel);
+  color: var(--texto);
+  border: 3px solid var(--moldura-luz);
+  border-radius: var(--r-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 2px var(--moldura-tinta);
+  font-family: var(--fonte-pixel);
+  font-size: .58rem;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+  transition: var(--transicao);
+}
+
+.sobre-atalhos a:hover {
+  background: var(--painel-alto);
+  border-color: var(--realce);
+}
+
+.sobre-atalhos a:active {
+  background: var(--realce);
+  color: var(--texto-tinta);
+}
+
+@media (max-width: 640px) {
+  .sobre-capa {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sobre-texto {
+    padding: var(--espaco-md);
+  }
+
+  .sobre-texto > p {
+    font-size: 1rem;
+  }
+
+  .sobre-destaque {
+    font-size: 1.12rem !important;
+  }
+
+  .sobre-atalhos {
+    flex-direction: column;
+  }
+}
