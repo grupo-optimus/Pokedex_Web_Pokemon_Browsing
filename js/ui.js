@@ -237,4 +237,30 @@ function ligarBotaoVoltar() {
   });
 }
 
+/* --------------------------------------------------------------------------
+   O X QUE LIMPA A BUSCA.
+   O X nativo do navegador nao aceita ser repintado (o CSS explica o porque),
+   entao ele fica escondido e este botao toma o lugar dele.
+   Aparecer ou sumir e problema do CSS, pelo :placeholder-shown. Aqui so mora
+   o que acontece no clique.
+   -------------------------------------------------------------------------- */
+function ligarLimparBusca() {
+  document.querySelectorAll('.campo-busca').forEach(function (caixa) {
+    const campo = caixa.querySelector('input[type="search"]');
+    const botao = caixa.querySelector('.btn-limpar-busca');
+    if (!campo || !botao) return;
+
+    botao.addEventListener('click', function () {
+      campo.value = '';
+
+      // O X nativo tambem dispara input ao limpar. Quem filtra enquanto se
+      // digita (a tela de favoritos) precisa saber que o campo esvaziou.
+      campo.dispatchEvent(new Event('input', { bubbles: true }));
+
+      campo.focus(); // Quem limpou provavelmente vai digitar outra coisa.
+    });
+  });
+}
+
 ligarBotaoVoltar();
+ligarLimparBusca();

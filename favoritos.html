@@ -31,7 +31,11 @@
   <section>
     <form id="form-busca-fav" role="search">
       <label for="buscaFav">Buscar favoritos:</label>
-      <input type="search" id="buscaFav" name="q" placeholder="Nome ou número">
+      <div class="campo-busca">
+        <input type="search" id="buscaFav" name="q" placeholder="Nome ou número">
+        <button type="button" class="btn-limpar-busca"
+                title="Limpar busca" aria-label="Limpar busca"></button>
+      </div>
       <button type="submit"> Buscar</button>
     </form>
   </section>

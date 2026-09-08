@@ -348,6 +348,93 @@ input[type="search"]:focus {
   box-shadow: inset 0 0 0 2px var(--moldura-tinta);
 }
 
+/* --------------------------------------------------------------------------
+   O X QUE LIMPA A BUSCA
+
+   O input[type="search"] ganha um X de fabrica do navegador, cinza e
+   arredondado, com a cara do sistema. Repintar ele nao da: assim que recebe
+   -webkit-appearance: none, o Chrome colapsa o pseudo-elemento e ele para de
+   desenhar qualquer coisa, ate um fundo solido. So da para esconder.
+
+   Entao o nativo sai de cena aqui embaixo e o X que aparece na tela e o
+   .btn-limpar-busca, um botao de verdade no HTML. De quebra, ele tambem
+   existe no Firefox, que nunca desenhou X nenhum nesse campo.
+
+   O desenho e um SVG inline numa grade de 7x7 quadradinhos, com
+   shape-rendering: crispEdges para a borda nao ser suavizada. A caixa do
+   desenho tem 14px, entao cada quadradinho cai em exatos 2px e sai crespo.
+   -------------------------------------------------------------------------- */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* O campo e o X dividem a mesma caixa: o X fica por cima, encostado na borda. */
+.campo-busca {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 240px;
+}
+
+.campo-busca input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  padding-right: 2.5rem; /* o texto nao passa por baixo do X */
+}
+
+.btn-limpar-busca {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  /* Zera a moldura pixelada que todo button do projeto tem: aqui o botao e
+     so o desenho, sem caixa em volta. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23d8442c' d='M0 0h1v1H0zM1 0h1v1H1zM5 0h1v1H5zM6 0h1v1H6zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM4 1h1v1H4zM5 1h1v1H5zM6 1h1v1H6zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM4 2h1v1H4zM5 2h1v1H5zM2 3h1v1H2zM3 3h1v1H3zM4 3h1v1H4zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM4 4h1v1H4zM5 4h1v1H5zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM4 5h1v1H4zM5 5h1v1H5zM6 5h1v1H6zM0 6h1v1H0zM1 6h1v1H1zM5 6h1v1H5zM6 6h1v1H6z'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+  border: none;
+  border-radius: var(--r-sm);
+  box-shadow: none;
+
+  image-rendering: pixelated;
+  cursor: pointer;
+  transition: var(--transicao);
+}
+
+/* A setinha branca que nasce em todo button nao cabe num botao de 28px. */
+.btn-limpar-busca::before {
+  content: none;
+}
+
+/* Some quando o campo esta vazio. Quem decide e o :placeholder-shown, que so
+   casa com campo vazio — assim nao ha estado nenhum para o JS sincronizar, e
+   funciona ate quando a tela preenche o campo sozinha (a lista restaura o
+   termo que veio na URL sem disparar evento algum). */
+.campo-busca input[type="search"]:placeholder-shown ~ .btn-limpar-busca {
+  display: none;
+}
+
+.btn-limpar-busca:hover,
+.btn-limpar-busca:focus-visible {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23ff3b3b' d='M0 0h1v1H0zM1 0h1v1H1zM5 0h1v1H5zM6 0h1v1H6zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM4 1h1v1H4zM5 1h1v1H5zM6 1h1v1H6zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM4 2h1v1H4zM5 2h1v1H5zM2 3h1v1H2zM3 3h1v1H3zM4 3h1v1H4zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM4 4h1v1H4zM5 4h1v1H5zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM4 5h1v1H4zM5 5h1v1H5zM6 5h1v1H6zM0 6h1v1H0zM1 6h1v1H1zM5 6h1v1H5zM6 6h1v1H6z'/%3E%3C/svg%3E");
+  border-color: transparent;
+}
+
+/* Todo button do projeto afunda em branco no clique (button:active la
+   embaixo). Num botao que e so um desenho, esse quadrado branco atras do X
+   fica horrivel. O :not(:disabled) esta aqui so para empatar a especificidade
+   daquela regra global e passar na frente dela — sem ele o branco volta.
+   No lugar do quadrado, o X desce 1px, como tecla sendo apertada. */
+.btn-limpar-busca:active:not(:disabled) {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23ff3b3b' d='M0 0h1v1H0zM1 0h1v1H1zM5 0h1v1H5zM6 0h1v1H6zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM4 1h1v1H4zM5 1h1v1H5zM6 1h1v1H6zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM4 2h1v1H4zM5 2h1v1H5zM2 3h1v1H2zM3 3h1v1H3zM4 3h1v1H4zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM4 4h1v1H4zM5 4h1v1H5zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM4 5h1v1H4zM5 5h1v1H5zM6 5h1v1H6zM0 6h1v1H0zM1 6h1v1H1zM5 6h1v1H5zM6 6h1v1H6z'/%3E%3C/svg%3E");
+  transform: translateY(calc(-50% + 1px));
+}
+
 /* Botões: ações e estados */
 button {
   display: inline-flex;

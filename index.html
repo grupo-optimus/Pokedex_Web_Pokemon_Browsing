@@ -34,7 +34,11 @@
   <section>
     <form id="form-busca" role="search">
       <label for="busca">Nome ou número da Pokédex:</label>
-      <input type="search" id="busca" name="q" placeholder="Nome ou ID">
+      <div class="campo-busca">
+        <input type="search" id="busca" name="q" placeholder="Nome ou ID">
+        <button type="button" class="btn-limpar-busca"
+                title="Limpar busca" aria-label="Limpar busca"></button>
+      </div>
       <button type="submit">Buscar</button>
       <button type="button" id="btn-filtros"
               aria-expanded="false" aria-controls="painel-filtros">Filtros</button>
