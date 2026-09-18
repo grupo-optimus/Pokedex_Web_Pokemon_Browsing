@@ -21,7 +21,7 @@
     </h1>
     <nav>
       <a href="index.html" id="btn-voltar">&#9664; Pokédex</a>
-      <a href="favoritos.html">&#9733; Meus Favoritos</a>
+      <a href="favoritos.html"><span class="icone-estrela">★</span> Meus Favoritos</a>
       <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     </nav>
   </header>
@@ -43,7 +43,7 @@
     </section>
 
     <!-- ================= O POKEMON ================= -->
-    <!-- Casca vazia. JS enche com dado da PokeAPI. -->
+    <!-- Casca vazia. JS enche com os dados de js/dados-pokemon.js. -->
     <div id="conteudo" hidden>
 
       <!-- O visor e os dois botoes dele. Coluna da esquerda. -->
@@ -66,7 +66,7 @@
 
         <section id="secao-historia" class="historia-pokemon">
           <h2>História</h2>
-          <p id="historia-carregando">Traduzindo história…</p>
+          <p id="historia-carregando">Carregando história…</p>
           <p id="historia-erro" hidden>Não foi possível carregar a história deste Pokémon.</p>
           <p id="poke-historia" hidden></p>
         </section>
@@ -120,7 +120,7 @@
         <section id="secao-evolucao">
           <h2>Linha evolutiva</h2>
           <p id="evolucao-carregando">Procurando a linha…</p>
-          <p id="evolucao-vazia" hidden>Este Pokémon não evolui.</p>
+          <p id="evolucao-vazia" hidden>Nenhuma evolução deste Pokémon está cadastrada.</p>
           <p id="evolucao-erro" hidden>Não foi possível carregar a linha evolutiva.</p>
 
           <!-- Fileira de cima: a cadeia em ordem, so com as formas padrao. -->
@@ -189,9 +189,6 @@
 
         <div class="footer-section">
             <h3>Recursos</h3>
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">
-                PokéAPI
-            </a>
             <a href="https://github.com/grupo-optimus/Pokedex_Web_Pokemon_Browsing" target="_blank" rel="noopener noreferrer">
                 GitHub
             </a>
@@ -211,16 +208,12 @@
         <p>
             © 2026 Grupo Optimus · OptimusDex
         </p>
-
-        <p>
-            Dados fornecidos pela
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>
-        </p>
     </div>
   </footer>
 
   <script src="js/traducoes.js"></script>
-  <script src="js/api.js"></script>
+  <script src="js/dados-pokemon.js"></script>
+  <script src="js/pokedex.js"></script>
   <script src="js/favoritos.js"></script>
   <script src="js/comparacao.js"></script>
   <script src="js/ui.js"></script>

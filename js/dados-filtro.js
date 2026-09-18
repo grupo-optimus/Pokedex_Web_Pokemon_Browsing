@@ -3,23 +3,24 @@
    e so lista de coisa que nao muda.
    ========================================================================== */
 
-/* Regiao do jogo = geracao da PokeAPI. O endpoint e /generation/N. */
+/* Regiao do jogo = geracao. Cada geracao ocupa uma faixa continua de
+   numeros da Pokedex Nacional: Kanto vai do #1 ao #151. */
 const REGIOES = [
-  { geracao: 1, nome: 'Kanto'   },
-  { geracao: 2, nome: 'Johto'   },
-  { geracao: 3, nome: 'Hoenn'   },
-  { geracao: 4, nome: 'Sinnoh'  },
-  { geracao: 5, nome: 'Unova'   },
-  { geracao: 6, nome: 'Kalos'   },
-  { geracao: 7, nome: 'Alola'   },
-  { geracao: 8, nome: 'Galar'   },
-  { geracao: 9, nome: 'Paldea'  }
+  { geracao: 1, nome: 'Kanto',  primeiro: 1,   ultimo: 151  },
+  { geracao: 2, nome: 'Johto',  primeiro: 152, ultimo: 251  },
+  { geracao: 3, nome: 'Hoenn',  primeiro: 252, ultimo: 386  },
+  { geracao: 4, nome: 'Sinnoh', primeiro: 387, ultimo: 493  },
+  { geracao: 5, nome: 'Unova',  primeiro: 494, ultimo: 649  },
+  { geracao: 6, nome: 'Kalos',  primeiro: 650, ultimo: 721  },
+  { geracao: 7, nome: 'Alola',  primeiro: 722, ultimo: 809  },
+  { geracao: 8, nome: 'Galar',  primeiro: 810, ultimo: 905  },
+  { geracao: 9, nome: 'Paldea', primeiro: 906, ultimo: 1025 }
 ];
 
 /* As categorias especiais.
    'lendario' e 'mitico' saem das listas de numero aqui de baixo.
-   'mega' e 'gmax' saem do NOME do Pokemon no indice: a PokeAPI cadastra essas
-   formas como Pokemon separado, tipo "charizard-mega-x" e "venusaur-gmax". */
+   'mega' e 'gmax' saem da CHAVE do Pokemon: formas assim sao cadastradas
+   como Pokemon separado, tipo "charizard-mega-x" e "venusaur-gmax". */
 const CATEGORIAS = [
   { chave: 'lendario', nome: 'Lendários'   },
   { chave: 'mitico',   nome: 'Míticos'     },
@@ -28,11 +29,8 @@ const CATEGORIAS = [
 ];
 
 /* --------------------------------------------------------------------------
-   Por que essa lista existe na mao?
-   A PokeAPI so conta se um Pokemon e lendario dentro de /pokemon-species/{id},
-   um pedido POR POKEMON. Para montar a lista inteira seriam mais de mil pedidos
-   toda vez que alguem clicasse no filtro. Entao os NUMEROS ficam guardados
-   aqui, e o dado do Pokemon (nome, sprite, tipo) continua vindo todo da API.
+   Os NUMEROS de todos os lendarios e miticos da Pokedex Nacional.
+   O filtro so mostra os que estiverem cadastrados em dados-pokemon.js.
    -------------------------------------------------------------------------- */
 const IDS_LENDARIOS = [
   144, 145, 146, 150,                                    // Kanto

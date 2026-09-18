@@ -1,7 +1,8 @@
 # PokéLista — Projeto 01
 
-Front-end em HTML + JavaScript puro (sem framework, sem build, sem dependência) que consome a
-[PokéAPI](https://pokeapi.co/) para listar, buscar, detalhar e favoritar Pokémons.
+Front-end em HTML + JavaScript puro (sem framework, sem build, sem dependência) para listar,
+buscar, detalhar, comparar e favoritar Pokémons. Todos os dados ficam no próprio projeto: não há
+nenhuma chamada de rede.
 
 **Integrantes:** Cauê Vergopolan Hanzen · Andre Luis Castelhano · Carlos Henrique da Silva Menger Neto · Pedro Pimentel Perdomo · Guilherme da Cunha Bonetto
 
@@ -9,8 +10,10 @@ Front-end em HTML + JavaScript puro (sem framework, sem build, sem dependência)
 
 ## 1. Como rodar
 
-O projeto é estático, mas **não abra pelo `file://`** — o navegador bloqueia requisições de rede
-vindas de arquivo local. Suba um servidor simples na pasta do projeto:
+Não precisa de servidor nem de internet: basta abrir o `index.html` no navegador.
+
+Se preferir servir por HTTP (fica igual a um site publicado), suba um servidor simples na pasta
+do projeto:
 
 ```bash
 # Python (já vem instalado na maioria das máquinas)
@@ -20,9 +23,8 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Depois abra `http://localhost:8000`.
-
-Requer internet (RNF006), exceto a tela de favoritos, que funciona offline.
+Depois abra `http://localhost:8000`. Sem internet, só as fontes do Google Fonts deixam de
+carregar (veja a seção 8).
 
 ---
 
@@ -30,237 +32,127 @@ Requer internet (RNF006), exceto a tela de favoritos, que funciona offline.
 
 ```
 .
-├── index.html              Tela 1 — lista + busca
-├── detalhes.html           Tela 2 — detalhes de um Pokémon
-├── favoritos.html          Tela 3 — favoritos salvos
+├── index.html               Tela 1 — lista + busca + filtros
+├── detalhes.html            Tela 2 — detalhes de um Pokémon
+├── favoritos.html           Tela 3 — favoritos salvos
+├── comparar.html            Tela 4 — comparação de até 6 Pokémon
+├── sobre-projeto.html       Tela 5 — sobre o projeto
 ├── css/
-│   └── style.css           Tema visual (FireRed/LeafGreen em modo escuro)
+│   └── style.css            Tema visual (FireRed/LeafGreen em modo escuro)
+├── img/
+│   └── pokemon/             Sprites: NÚMERO.png (normal) e shiny/NÚMERO.png
 └── js/
-    ├── traducoes.js        Dicionários PT-BR + normalização de texto
-    ├── dados-filtro.js     Tabelas fixas do filtro (regiões, categorias, lendários)
-    ├── api.js              ÚNICA camada que fala com a PokéAPI
-    ├── favoritos.js        Persistência local (localStorage)
-    ├── ui.js               Pedaços de tela reutilizados (card, formatação)
-    ├── pagina-lista.js     Controlador da tela 1
-    ├── pagina-detalhes.js  Controlador da tela 2
-    └── pagina-favoritos.js Controlador da tela 3
+    ├── dados-pokemon.js     OS DADOS: Pokémon cadastrados + tabela de tipos
+    ├── pokedex.js           ÚNICA camada que lê os dados
+    ├── traducoes.js         Nomes dos tipos em PT-BR + normalização de texto
+    ├── dados-filtro.js      Tabelas fixas do filtro (regiões, categorias, lendários)
+    ├── favoritos.js         Persistência local (localStorage)
+    ├── comparacao.js        Seleção da comparação (sessionStorage)
+    ├── ui.js                Pedaços de tela reutilizados (card, formatação)
+    ├── pagina-lista.js      Controlador da tela 1
+    ├── pagina-detalhes.js   Controlador da tela 2
+    ├── pagina-favoritos.js  Controlador da tela 3
+    ├── pagina-comparacao.js Controlador da tela 4
+    └── pagina-sobre.js      Controlador da tela 5
 ```
 
-A regra de organização é simples: **nenhuma tela chama a rede diretamente.** Toda comunicação
-externa passa por [js/api.js](js/api.js). Se a PokéAPI mudar de endereço ou de formato amanhã,
-só esse arquivo precisa mudar.
+A regra de organização é simples: **nenhuma tela lê os dados diretamente.** Tudo passa por
+[js/pokedex.js](js/pokedex.js). Se a fonte dos dados mudar amanhã, só esse arquivo precisa mudar.
 
 ---
 
-## 3. O que é uma API?
+## 3. Os dados
 
-**API** = *Application Programming Interface* (Interface de Programação de Aplicações).
+### Os Pokémon cadastrados
 
-É um **contrato**: um jeito combinado de um programa pedir dados ou ações para outro programa,
-sem precisar saber como o outro funciona por dentro.
+Hoje a Pokédex tem **4 Pokémon**: os três iniciais de Kanto e o Pikachu.
 
-Analogia: um restaurante. Você (o front-end) não entra na cozinha. Você fala com o garçom pelo
-cardápio (a API), pede "prato 27", e recebe o prato pronto. Como a cozinha preparou, com qual
-fogão, com qual banco de dados — não é problema seu. O cardápio é o contrato.
-
-### API Web / REST
-
-A PokéAPI é uma **API REST sobre HTTP**. Isso significa que:
-
-- Cada informação tem um **endereço (URL)**, chamado de *endpoint*.
-  Ex.: `https://pokeapi.co/api/v2/pokemon/25` é o "endereço do Pikachu".
-- Você faz um **pedido (request)** com um **método HTTP**:
-  - `GET` — buscar dados (é o único que usamos aqui)
-  - `POST` — criar, `PUT`/`PATCH` — atualizar, `DELETE` — apagar
-- O servidor devolve uma **resposta (response)** com:
-  - um **status code** (número que diz o que aconteceu)
-  - um **corpo (body)**, quase sempre em **JSON**
-
-### Status codes que importam para nós
-
-| Faixa | Significado | Exemplo |
+| # | Pokémon | Tipos |
 |---|---|---|
-| `2xx` | Deu certo | `200 OK` |
-| `4xx` | Erro **de quem pediu** | `404 Not Found` — Pokémon não existe |
-| `5xx` | Erro **do servidor** | `500`, `503` — PokéAPI fora do ar |
+| 001 | Bulbasaur | Grama / Venenoso |
+| 004 | Charmander | Fogo |
+| 007 | Squirtle | Água |
+| 025 | Pikachu | Elétrico |
 
-### O que é JSON
-
-**JSON** (*JavaScript Object Notation*) é o formato de texto em que os dados trafegam.
-A resposta de `GET /pokemon/25` chega mais ou menos assim (bem resumida):
-
-```json
-{
-  "id": 25,
-  "name": "pikachu",
-  "types": [ { "type": { "name": "electric" } } ],
-  "abilities": [ { "ability": { "name": "static" } } ],
-  "stats": [ { "base_stat": 35, "stat": { "name": "hp" } } ],
-  "sprites": { "other": { "official-artwork": { "front_default": "https://..." } } }
-}
-```
-
-É **texto**. O `response.json()` converte esse texto em objeto JavaScript de verdade,
-que aí sim pode ser lido com `dados.name`, `dados.stats[0].base_stat` etc.
-
----
-
-## 4. Como funciona a integração no navegador
-
-### `fetch` + `async/await`
-
-Pedido de rede é **lento** (dezenas ou centenas de milissegundos). Se o JavaScript ficasse
-parado esperando, a página congelaria. Por isso a chamada é **assíncrona**: ela devolve na hora
-uma *Promise* ("promessa de que o valor chega depois"), e a página continua funcionando.
-
-O `async/await` é o açúcar sintático que deixa código assíncrono com cara de código normal:
-
-```js
-async function pedirJSON(url) {
-  const resposta = await fetch(url);   // espera aqui, sem travar a página
-  return resposta.json();              // converte o texto JSON em objeto
-}
-```
-
-- `async` marca a função como assíncrona (ela sempre devolve uma Promise).
-- `await` pausa **só aquela função** até a Promise resolver.
-
-### Tratamento de erro — os dois tipos
-
-Ponto que costuma confundir: **`fetch` só rejeita se o pedido nem saiu** (sem internet, DNS
-quebrado, servidor mudo). Se o servidor responde `404` ou `500`, o `fetch` considera **sucesso** —
-ele conseguiu falar com o servidor, a resposta é que foi ruim. Por isso são duas verificações:
-
-```js
-let resposta;
-try {
-  resposta = await fetch(url);
-} catch (erro) {
-  // 1) nem chegou a sair: falha de rede
-  throw new Error('Não foi possível falar com a PokéAPI. Verifique sua conexão.');
-}
-
-// 2) saiu e voltou, mas voltou ruim
-if (resposta.status === 404) throw new Error('Pokémon não encontrado.');
-if (!resposta.ok) throw new Error('A PokéAPI respondeu com erro ' + resposta.status);
-```
-
-Esse erro sobe até o controlador da tela, que mostra a mensagem e o botão "Tentar novamente"
-(**RF007**).
-
-### CORS
-
-Por segurança, o navegador só deixa uma página buscar dados de outro domínio se o servidor
-autorizar, via cabeçalho `Access-Control-Allow-Origin`. A PokéAPI é pública e libera para todo
-mundo, então funciona direto. É por isso, também, que abrir com `file://` não funciona: a origem
-`null` não é aceita.
-
-### Chave de API
-
-A PokéAPI **não exige chave nem cadastro** — por isso não há segredo nenhum neste projeto.
-Vale registrar a regra geral: **chave de API nunca vai em front-end**, porque todo o código-fonte
-é visível para o usuário. Quando uma API exige chave, o pedido tem que sair de um back-end seu.
-
-### Uso justo (fair use)
-
-A PokéAPI pede que os dados sejam cacheados e que não se faça carga desnecessária. Nosso cache
-(seção 6) atende a isso.
-
----
-
-## 5. Os endpoints usados
-
-Base: `https://pokeapi.co/api/v2`
-
-| # | Endpoint | Para quê | Requisito |
-|---|---|---|---|
-| 1 | `GET /pokemon?limit=20&offset=N` | Uma página da lista | RF001 |
-| 2 | `GET /pokemon/{id-ou-nome}` | Dados completos de um Pokémon | RF001, RF002, RF003 |
-| 3 | `GET /pokemon?limit=100000&offset=0` | Índice com todos os nomes, para busca parcial | RF002 |
-| 4 | `GET /pokemon-species/{id-ou-nome}` | Em qual cadeia de evolução o Pokémon está | Linha evolutiva |
-| 5 | `GET /evolution-chain/{id}` | A cadeia inteira (o endereço vem do endpoint 4) | Linha evolutiva |
-| 6 | `GET /type/{nome}` | Todo mundo de um tipo | Filtro |
-| 7 | `GET /generation/{n}` | Todo mundo de uma região | Filtro |
-
-### O detalhe importante: a lista vem "magra"
-
-O endpoint 1 devolve **apenas nome e URL** de cada Pokémon:
-
-```json
-{ "count": 1302, "results": [ { "name": "bulbasaur", "url": "https://.../pokemon/1/" } ] }
-```
-
-Não vem imagem nem tipo — e o RF001 exige os dois no card. Então, para montar uma página,
-são necessários **1 pedido da lista + 20 pedidos de detalhe**. Isso se chama **problema N+1**.
-
-A solução aqui é disparar os 20 **em paralelo**, não um esperando o outro:
-
-```js
-const itens = await Promise.all(
-  lista.results.map(entrada => obterPokemon(entrada.name))
-);
-```
-
-`Promise.all` dispara todos de uma vez e só resolve quando o último chega. Em série, 20 pedidos
-de ~100 ms levariam ~2 s; em paralelo, levam pouco mais que o mais lento deles. É o que sustenta
-o **RNF003** (resultado em até 2 s).
-
----
-
-## 6. Cache — pedir o mínimo possível
-
-Dois caches em [js/api.js](js/api.js):
-
-| Cache | O que guarda | Por quê |
-|---|---|---|
-| `cacheDetalhes` (`Map`) | Cada Pokémon já buscado, indexado por nome **e** por número | Voltar da tela de detalhes para a lista não refaz 20 pedidos |
-| `cacheIndice` | A lista completa de nomes | É uma resposta grande; buscar duas vezes seria desperdício |
-
-```js
-async function obterPokemon(idOuNome) {
-  const chave = normalizarTexto(idOuNome);
-  if (cacheDetalhes.has(chave)) return cacheDetalhes.get(chave);   // já tenho, não peço
-  const dados = await pedirJSON(BASE_URL + '/pokemon/' + chave);
-  const pokemon = paraModelo(dados);
-  cacheDetalhes.set(chave, pokemon);
-  cacheDetalhes.set(String(pokemon.id), pokemon);
-  return pokemon;
-}
-```
-
-O cache vive na memória da aba: recarregar a página o zera. Os **favoritos**, esses sim, são
-persistentes (seção 8).
-
----
-
-## 7. Normalização — traduzindo a API para a nossa aplicação
-
-A resposta da PokéAPI é enorme e aninhada (`stats[0].stat.name`, `types[1].type.name`...).
-Deixar isso vazar para dentro das telas é ruim: qualquer mudança na API quebraria tudo.
-
-Por isso existe `paraModelo()`, que converte o dado bruto num objeto simples **e já traduzido**:
+Cada um é um bloco no array `POKEMONS`, em [js/dados-pokemon.js](js/dados-pokemon.js):
 
 ```js
 {
   id: 25,
+  chave: 'pikachu',
   nome: 'Pikachu',
-  imagem: 'https://...png',
+  tipos: ['electric'],
+  habilidades: ['Estática', 'Para-raios'],
+  atributos: { hp: 35, ataque: 55, defesa: 40, ataqueEspecial: 50, defesaEspecial: 50, velocidade: 90 },
+  familia: 'pichu',
+  estagio: 2,
+  historia: 'Guarda eletricidade nas bochechas vermelhas...'
+}
+```
+
+O que aparece na tela (nome, habilidades, história) já está em português. Os tipos ficam pela
+chave oficial em inglês (`fire`, `water`...), porque é ela que o filtro e a tabela de tipos usam;
+[js/traducoes.js](js/traducoes.js) traduz na hora de mostrar (**RNF005**).
+
+### Como cadastrar mais um Pokémon
+
+1. Acrescente um bloco no `POKEMONS`.
+2. Coloque os sprites em `img/pokemon/NÚMERO.png` e `img/pokemon/shiny/NÚMERO.png`.
+
+Pronto: lista, busca, filtros, detalhes e comparação já enxergam o novo Pokémon.
+
+Para a **linha evolutiva** aparecer, os Pokémon da mesma cadeia precisam ter a mesma `familia` e
+o `estagio` certo. O campo opcional `requisito` diz como se chega naquele estágio:
+
+```js
+{ id: 2, chave: 'ivysaur', nome: 'Ivysaur', /* ... */ familia: 'bulbasaur', estagio: 2, requisito: 'Chegar ao nível 16' }
+```
+
+### Tabela de tipos
+
+Fraquezas, resistências e imunidades saem da tabela `EFETIVIDADE`, no mesmo arquivo. Cada linha é
+o tipo do golpe e só lista o que foge do normal (`2`, `0.5` ou `0`). Num Pokémon de dois tipos, os
+multiplicadores se multiplicam: Fogo contra Bulbasaur (Grama/Venenoso) dá `2 × 1 = 2x`, fraqueza.
+
+---
+
+## 4. A camada de dados — `pokedex.js`
+
+As telas só conhecem estas funções:
+
+| Função | Para quê | Requisito |
+|---|---|---|
+| `listarPagina(n)` | Uma página da lista, 20 por vez | RF001 |
+| `obterPokemon(idOuNome)` | Um Pokémon pelo número (`25`, `"025"`) ou pelo nome | RF002, RF003 |
+| `buscarPokemons(termo)` | Busca por número ou pedaço do nome | RF002 |
+| `obterVariosPokemons(numeros)` | Vários Pokémon de uma vez (página filtrada) | Filtro |
+| `filtrarPokemons(filtros)` | Números que passam nos filtros de tipo, região e categoria | Filtro |
+| `obterVantagensEFraquezas(pokemon)` | Fraquezas, resistências, imunidades e contra quem é super efetivo | Detalhes |
+| `obterLinhaEvolutiva(idOuNome)` | Os estágios da família do Pokémon | Linha evolutiva |
+| `obterHistoriaPokemon(idOuNome)` | O texto da Pokédex | Detalhes |
+
+Todas são `async`, mesmo lendo dados que já estão na memória. É de propósito: as telas usam
+`await` e não precisam saber de onde o dado vem.
+
+### O modelo que as telas recebem
+
+`paraModelo()` converte o registro de `dados-pokemon.js` no objeto que as telas usam:
+
+```js
+{
+  id: 25,
+  chave: 'pikachu',
+  nome: 'Pikachu',
+  imagem: 'img/pokemon/25.png',
+  imagemShiny: 'img/pokemon/shiny/25.png',
+  tiposIngles: ['electric'],
   tipos: ['Elétrico'],
   habilidades: ['Estática', 'Para-raios'],
   atributos: [ { nome: 'HP', valor: 35 }, ... ]
 }
 ```
 
-Esse é o **único formato** que as telas conhecem. Esse padrão tem nome: *Adapter* / *Anti-Corruption Layer*.
-
-### Tradução (RNF005)
-
-A PokéAPI tem nomes traduzidos em vários idiomas, mas **não em português**. Por isso a tradução
-é feita por dicionário local em [js/traducoes.js](js/traducoes.js):
-
-- os **18 tipos** e os **6 atributos** estão todos mapeados;
-- as **habilidades** são centenas — as mais comuns estão mapeadas, e o que não estiver cai num
-  *fallback* que ao menos formata o nome (`solar-power` → `Solar Power`).
+Esse é o **único formato** que as telas conhecem.
 
 ### Busca sem acento e sem maiúscula (RF002)
 
@@ -269,7 +161,7 @@ function normalizarTexto(texto) {
   return String(texto)
     .toLowerCase()
     .normalize('NFD')                  // separa a letra do acento: "é" -> "e" + "´"
-    .replace(/[\u0300-\u036f]/g, '')   // joga os acentos fora
+    .replace(/[̀-ͯ]/g, '')   // joga os acentos fora
     .trim();
 }
 ```
@@ -280,19 +172,18 @@ Assim `"Pokémon"`, `"pokemon"` e `"POKÉMON"` viram todos `"pokemon"` e casam e
 
 ```js
 if (/^\d+$/.test(alvo)) {
-  return [ await obterPokemon(alvo) ];        // só dígitos -> busca pelo número da Pokédex
+  return [await obterPokemon(alvo)];                      // só dígitos -> número da Pokédex
 }
-const indice = await obterIndice();           // senão -> filtra o índice de nomes localmente
-const achados = indice.filter(i => i.nomeNormalizado.includes(alvo)).slice(0, 20);
+return TODOS_OS_POKEMONS
+  .filter(p => normalizarTexto(p.nome).includes(alvo))    // senão -> pedaço do nome
+  .slice(0, TAMANHO_PAGINA);
 ```
 
-O filtro por nome é feito **no navegador**, sobre o índice já baixado. Vantagem: aceita busca
-parcial (`"char"` acha Charmander, Charmeleon, Charizard), coisa que a API não oferece.
-O `.slice(0, 20)` é um freio: sem ele, buscar `"a"` dispararia centenas de pedidos.
+A busca aceita nome parcial: `"char"` acha Charmander.
 
 ---
 
-## 8. Persistência dos favoritos (RF005 / RNF001)
+## 5. Persistência dos favoritos (RF005 / RNF001)
 
 Favoritos ficam no **`localStorage`** do navegador — armazenamento local, por domínio, sem
 tamanho fixo garantido (~5 MB na prática), que **sobrevive a fechar o navegador**. Não há login
@@ -306,7 +197,8 @@ JSON.parse(localStorage.getItem(CHAVE));              // texto  -> objeto
 ```
 
 Guardamos o **objeto inteiro** (imagem, tipos, atributos), não só o id — é o que a **HU03** pede.
-Consequência prática: a tela de favoritos **não faz nenhuma chamada de rede** e funciona offline.
+Consequência prática: a tela de favoritos nem carrega `pokedex.js`; os cards saem direto do que
+foi guardado.
 
 Toda leitura está dentro de `try/catch`, porque o `localStorage` pode falhar (modo privado,
 navegador bloqueando armazenamento, JSON corrompido). Na dúvida, devolve lista vazia — melhor
@@ -314,8 +206,8 @@ uma lista vazia do que uma tela quebrada.
 
 ### O outro armazenamento: `sessionStorage` e o botão Voltar
 
-O estado da lista (busca, filtros, página) vive na **URL** — `index.html?q=charizard`,
-`index.html?categoria=mitico&pagina=2`. A cada mudança, `sincronizarURL()` reescreve o endereço
+O estado da lista (busca, filtros, página) vive na **URL** — `index.html?q=charmander`,
+`index.html?tipo=fire&pagina=1`. A cada mudança, `sincronizarURL()` reescreve o endereço
 com `history.replaceState` e anota esse endereço no **`sessionStorage`**.
 
 O botão **Voltar** da tela de detalhes lê essa anotação e vai direto para lá. Não usamos apenas
@@ -328,16 +220,16 @@ que essa informação precisa ter.
 
 ---
 
-## 9. Estados de tela
+## 6. Estados de tela
 
 Cada tela tem estados mutuamente exclusivos, controlados pelo atributo `hidden`:
 
 | Estado | Quando |
 |---|---|
-| `carregando` | Pedido em andamento |
+| `carregando` | Montando a tela (com os dados locais, dura um instante) |
 | `pronto` | Dados na tela |
 | `vazio` | Deu certo, mas não veio nada (busca sem resultado / nenhum favorito) |
-| `erro` | Falha de rede ou status ruim — mostra mensagem + "Tentar novamente" (RF007) |
+| `erro` | Algo falhou — mostra mensagem + "Tentar novamente" (RF007) |
 
 O botão "Tentar novamente" guarda a **última ação** que falhou e a repete:
 
@@ -350,53 +242,43 @@ async function carregarPagina(pagina) {
 botaoTentar.addEventListener('click', () => { if (ultimaAcao) ultimaAcao(); });
 ```
 
-Detalhe de UX: um número que não existe (`999999`) volta `404`. Isso é "não encontrado", não é
-falha da API — então cai no estado `vazio`, não no `erro`.
+Detalhe de UX: buscar um número que não está cadastrado (`150`) lança "Pokémon não encontrado."
+Na busca, isso cai no estado `vazio`, não no `erro`.
 
 ---
 
-## 10. Rastreabilidade dos requisitos
+## 7. Rastreabilidade dos requisitos
 
 | ID | Onde está implementado |
 |---|---|
-| RF001 | `listarPagina()` em [js/api.js](js/api.js) + paginação em [js/pagina-lista.js](js/pagina-lista.js) |
+| RF001 | `listarPagina()` em [js/pokedex.js](js/pokedex.js) + paginação em [js/pagina-lista.js](js/pagina-lista.js) |
 | RF002 | `buscarPokemons()` + `normalizarTexto()` |
 | RF003 | `paraModelo()` + tabela de atributos em [js/pagina-detalhes.js](js/pagina-detalhes.js) |
 | RF004 | `alternarFavorito()` — botão em detalhes, estrelinha no canto do card e botão remover nos favoritos |
 | RF005 | `localStorage` em [js/favoritos.js](js/favoritos.js) |
 | RF006 | `#estado-vazio` em [favoritos.html](favoritos.html) |
-| RF007 | `pedirJSON()` + estado `erro` + botão "Tentar novamente" |
+| RF007 | Estado `erro` + botão "Tentar novamente" |
 | RNF001 | `localStorage`, sem login |
 | RNF002 | `meta viewport`, HTML fluido, sem largura fixa |
-| RNF003 | `Promise.all` + cache em memória |
-| RNF004 | PokéAPI como fonte única, isolada em [js/api.js](js/api.js) |
-| RNF005 | Dicionários em [js/traducoes.js](js/traducoes.js) |
-| RNF006 | Mensagem de erro de conexão em `pedirJSON()` |
+| RNF003 | Dados locais: nenhuma tela espera por rede |
+| RNF004 | **Não se aplica mais.** A PokéAPI foi removida; os dados vêm de [js/dados-pokemon.js](js/dados-pokemon.js) |
+| RNF005 | Tipos traduzidos em [js/traducoes.js](js/traducoes.js); o resto já está em português nos dados |
+| RNF006 | **Não se aplica mais.** O projeto não depende de conexão |
 
 ---
 
-## 11. Limitações conhecidas
+## 8. Limitações conhecidas
 
-- **Sprite de geração nova destoa.** O tema usa o sprite dos próprios jogos FireRed/LeafGreen,
-  que só existe até o #386. Do #387 em diante cai no sprite padrão da PokéAPI (a ordem de escolha
-  está em `escolherImagem()`, em [js/api.js](js/api.js)).
+- **Só 4 Pokémon cadastrados.** Os filtros de outras regiões, de lendários, míticos, Mega e
+  Gigantamax continuam na tela, mas hoje devolvem lista vazia.
+- **A linha evolutiva não mostra evoluções.** Nenhum dos 4 tem outro Pokémon da mesma família
+  cadastrado, então a seção avisa "Nenhuma evolução deste Pokémon está cadastrada." Basta
+  cadastrar Ivysaur, Charmeleon etc. (seção 3) para ela aparecer.
 - **As duas fontes vêm do Google Fonts.** Sem internet, o navegador troca pelas fontes de sistema
   e o layout continua funcionando, só perde o desenho pixelado.
-- **A lista de lendários e míticos está fixa no código.** A PokéAPI só informa
-  `is_legendary` dentro de `/pokemon-species/{id}`, um pedido POR Pokémon — montar a lista
-  inteira custaria mais de mil requisições a cada clique no filtro. Então os **números** ficam
-  em [js/dados-filtro.js](js/dados-filtro.js) e o dado de cada Pokémon (nome, sprite, tipo)
-  continua vindo todo da API. Se sair uma geração nova, é lá que se acrescenta.
-- **Mega e Gigantamax não combinam com região.** São formas alternativas, cadastradas com
-  número acima de 10000, e nenhuma delas aparece na lista de uma geração. A tela desmarca a
-  região sozinha quando você escolhe uma dessas categorias, e avisa o porquê.
-- **A linha evolutiva custa pedidos extras.** São duas requisições (espécie + cadeia) mais uma
-  por Pokémon da cadeia. Tudo cacheado em `cacheEvolucao`, mas a seção aparece alguns instantes
-  depois do resto da ficha.
-- **Nem todo Pokémon tem sprite shiny cadastrado.** Quando falta, o botão "Ver shiny" mantém o
-  desenho normal em vez de deixar o visor vazio.
-- **Tradução de habilidades é parcial** — a PokéAPI não fornece PT-BR, então o dicionário cobre as
-  mais comuns e o resto cai no *fallback*.
-- **Busca depende de baixar o índice completo** na primeira vez (uma resposta grande, cacheada
-  depois).
-- O cache é por aba: recarregar a página refaz os pedidos.
+- **Mega e Gigantamax não combinam com região.** São formas alternativas, fora da faixa de números
+  de uma geração. A tela desmarca a região sozinha quando você escolhe uma dessas categorias, e
+  avisa o porquê.
+- **Favoritos antigos continuam salvos.** Quem favoritou outros Pokémon quando o projeto ainda
+  usava a PokéAPI continua vendo esses cards (o objeto inteiro está no `localStorage`), mas o
+  detalhe deles mostra "Pokémon não encontrado."

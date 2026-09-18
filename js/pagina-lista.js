@@ -3,9 +3,9 @@
    Lista (RF001) + busca (RF002) + filtros.
 
    Tres modos, um de cada vez:
-     1. Pokedex normal  -> pagina por pagina, direto da API
+     1. Pokedex normal  -> pagina por pagina, direto de dados-pokemon.js
      2. Busca por nome  -> RF002
-     3. Filtro          -> a API devolve os NUMEROS que servem; a tela pagina
+     3. Filtro          -> a pokedex.js devolve os NUMEROS que servem; a tela pagina
                            em cima dessa lista, 20 por vez
 
    O estado mora na URL (?q=, ?tipo=, ?regiao=, ?categoria=, ?pagina=).
@@ -127,7 +127,7 @@ async function carregarPagina(pagina) {
     sincronizarURL();
     definirEstado('pronto');
   } catch (erro) {
-    // RF007 — mostra a mensagem que veio da api.js e oferece nova tentativa.
+    // RF007 — mostra a mensagem que veio da pokedex.js e oferece nova tentativa.
     definirEstado('erro', erro.message);
   }
 }

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Tela 5. Sobre o projeto.
-     Pagina estatica: nao chama PokeAPI nem localStorage de Pokemon.
+     Pagina estatica: nao le dados de Pokemon nem localStorage de Pokemon.
      O unico JS aqui e o que acende o contador da comparacao no topo. -->
 <html lang="pt-BR">
 <head>
@@ -26,7 +26,7 @@
     </h1>
     <nav>
       <a href="index.html" id="btn-voltar">&#9664; Pokédex</a>
-      <a href="favoritos.html">&#9733; Meus Favoritos</a>
+      <a href="favoritos.html"><span class="icone-estrela">★</span> Meus Favoritos</a>
       <a href="comparar.html" class="link-comparacao">Comparar (0/6)</a>
     </nav>
   </header>
@@ -107,9 +107,6 @@
 
         <div class="footer-section">
             <h3>Recursos</h3>
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">
-                PokéAPI
-            </a>
             <a href="https://github.com/grupo-optimus/Pokedex_Web_Pokemon_Browsing" target="_blank" rel="noopener noreferrer">
                 GitHub
             </a>
@@ -129,15 +126,10 @@
         <p>
             © 2026 Grupo Optimus · OptimusDex
         </p>
-
-        <p>
-            Dados fornecidos pela
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>
-        </p>
     </div>
   </footer>
 
-  <!-- Sem api.js: esta tela nao busca nada na rede.
+  <!-- Sem pokedex.js: esta tela nao mostra Pokemon.
        comparacao.js + ui.js so pra manter o contador do topo igual ao das outras. -->
   <script src="js/comparacao.js"></script>
   <script src="js/ui.js"></script>

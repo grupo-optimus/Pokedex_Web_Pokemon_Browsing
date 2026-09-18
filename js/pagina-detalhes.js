@@ -127,8 +127,7 @@ function atualizarBotaoComparar() {
 
 /* --------------------------------------------------------------------------
    HISTÓRIA
-   Primeiro pega a entrada original em inglês na PokéAPI. Depois passa somente
-   o texto para a função de tradução de traducoes.js.
+   A entrada da Pokédex já vem em português de dados-pokemon.js.
    -------------------------------------------------------------------------- */
 function estadoHistoria(estado) {
   mostrar(historiaCarregandoEl, estado === 'carregando');
@@ -141,14 +140,13 @@ async function carregarHistoria(id) {
   historiaEl.textContent = '';
 
   try {
-    const historiaIngles = await obterHistoriaPokemon(id);
-    const historiaPortugues = await traduzirHistoria(historiaIngles);
+    const historia = await obterHistoriaPokemon(id);
 
-    if (!historiaPortugues) {
+    if (!historia) {
       throw new Error('História vazia.');
     }
 
-    historiaEl.textContent = historiaPortugues;
+    historiaEl.textContent = historia;
     estadoHistoria('pronto');
   } catch (erro) {
     estadoHistoria('erro');
@@ -217,7 +215,7 @@ function desenharPokemon(pokemon) {
    O elo do Pokemon que esta aberto agora fica marcado.
    -------------------------------------------------------------------------- */
 function identificarFormaEspecial(pokemon) {
-  const nomeApi = String(pokemon.nomeApi || '').toLowerCase();
+  const chave = String(pokemon.chave || '').toLowerCase();
 
   const regras = [
     { padrao: /-mega-x$/, rotulo: 'MEGA X' },
@@ -237,7 +235,7 @@ function identificarFormaEspecial(pokemon) {
 
   // Sem regra batendo, quem chamou decide o que fazer. Antes esta linha
   // devolvia 'FORMA' e carimbava a etiqueta vermelha ate no Bulbasaur.
-  const encontrada = regras.find(regra => regra.padrao.test(nomeApi));
+  const encontrada = regras.find(regra => regra.padrao.test(chave));
   return encontrada ? encontrada.rotulo : null;
 }
 
@@ -321,7 +319,7 @@ function desenharEvolucao(linha) {
 
     pokemons.forEach(function (pokemon) {
       // O primeiro estagio e o ponto de partida: ninguem evolui para ele.
-      const requisito = indice === 0 ? '' : (linha.requisitos[pokemon.nomeEspecie] || '');
+      const requisito = indice === 0 ? '' : (linha.requisitos[pokemon.chave] || '');
       formas.appendChild(criarElo(pokemon, { requisito: requisito }));
     });
 
@@ -341,7 +339,7 @@ function desenharEvolucao(linha) {
   mostrar(blocoVariacoesEl, linha.variacoes.length > 0);
 }
 
-/* A cadeia vem DEPOIS do Pokemon, em pedido separado.
+/* A cadeia e desenhada DEPOIS do resto da ficha.
    Se falhar, so essa secao avisa: o resto da ficha continua na tela. */
 async function carregarEvolucao(id) {
   estadoEvolucao('carregando');
@@ -372,7 +370,7 @@ async function carregarDetalhes() {
     desenharPokemon(pokemonAtual);
     definirEstado('pronto');
 
-    // A história é independente da ficha principal. Ela carrega e traduz
+    // A história é independente da ficha principal. Ela carrega
     // depois, sem impedir que o restante da página apareça.
     carregarHistoria(pokemonAtual.id);
 

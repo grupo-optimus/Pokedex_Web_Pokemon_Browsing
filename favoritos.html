@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Tela 3. Pokemon guardados (RF006).
-     Aqui NAO chama PokeAPI: tudo ja esta salvo no localStorage (RF005/RNF001). -->
+     Aqui NAO le js/dados-pokemon.js: tudo ja esta salvo no localStorage (RF005/RNF001). -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -91,9 +91,6 @@
 
         <div class="footer-section">
             <h3>Recursos</h3>
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">
-                PokéAPI
-            </a>
             <a href="https://github.com/grupo-optimus/Pokedex_Web_Pokemon_Browsing" target="_blank" rel="noopener noreferrer">
                 GitHub
             </a>
@@ -113,15 +110,10 @@
         <p>
             © 2026 Grupo Optimus · OptimusDex
         </p>
-
-        <p>
-            Dados fornecidos pela
-            <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>
-        </p>
     </div>
   </footer>
 
-  <!-- Aqui nao precisa do api.js, mas precisa do tradutor (normalizarTexto). -->
+  <!-- Aqui nao precisa do pokedex.js, mas precisa do tradutor (normalizarTexto). -->
   <script src="js/traducoes.js"></script>
   <script src="js/favoritos.js"></script>
   <script src="js/comparacao.js"></script>

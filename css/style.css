@@ -287,6 +287,17 @@ header nav a:active {
   }
 }
 
+@media (max-width: 800px) {
+  .marca { 
+    justify-content: center;
+  }
+
+  /* Os botoes seguem a logo: no celular ficam no meio, nao na direita. */
+  header nav {
+    justify-content: center;
+  }
+}
+
 #contador {
   font-family: var(--fonte-pixel);
   font-size: .6rem;
@@ -1461,7 +1472,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 800px) {
   body {
     font-size: 16px;
   }
@@ -1476,7 +1487,7 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 
   header h1 {
     margin-right: 0;
-    width: calc(100% - 46px);
+    width: calc(100%);
   }
 
   header nav,
@@ -1488,6 +1499,12 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   header nav a,
   header > a {
     justify-content: center;
+  }
+
+  /* A regra base prende o botao em 190px (flex: 0 0 190px), e o flex-basis
+     ganha do width. Aqui ele passa a ocupar a linha inteira. */
+  header nav a {
+    flex: 1 1 100%;
   }
 
   #form-busca,

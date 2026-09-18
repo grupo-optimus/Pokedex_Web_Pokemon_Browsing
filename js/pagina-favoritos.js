@@ -1,7 +1,7 @@
 /* ==========================================================================
    Controlador da tela 3 (favoritos.html). RF006 + RF004.
-   Esta tela NAO fala com a PokeAPI: tudo ja esta salvo no localStorage.
-   Por isso funciona ate sem internet.
+   Esta tela nao le dados-pokemon.js: tudo ja esta salvo no localStorage.
+   Os cards saem direto do que foi guardado.
    ========================================================================== */
 
 const listaEl    = document.getElementById('lista-favoritos');
