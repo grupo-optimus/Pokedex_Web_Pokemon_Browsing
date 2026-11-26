@@ -196,10 +196,12 @@ img {
    Marca, navegação e contador
    ========================================================================== */
 
+
 header {
   position: sticky;
   top: 0;
   z-index: 1000;
+  isolation: isolate;
 
   display: flex;
   align-items: center;
@@ -210,8 +212,73 @@ header {
   color: var(--texto);
   padding: var(--espaco-md) max(var(--espaco-md), calc((100vw - 1180px) / 2));
   margin-bottom: var(--espaco-lg);
+
   border-bottom: 4px solid var(--moldura-tinta);
+
+  /* Linha vermelha do cabeçalho */
   box-shadow: inset 0 -6px 0 -2px var(--chassi);
+}
+
+/* Aura vermelha abaixo do cabeçalho */
+header::after {
+  content: "";
+  position: absolute;
+
+  top: 100%;
+  left: 0;
+
+  width: 100%;
+  height: 120px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(212, 0, 0, 0.45) 0%,
+    rgba(212, 0, 0, 0.20) 35%,
+    rgba(212, 0, 0, 0.07) 65%,
+    transparent 100%
+  );
+
+  filter: blur(25px);
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Mantém os elementos do cabeçalho acima do efeito */
+header > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+body::after {
+  content: "";
+  position: absolute;
+
+  top: 100%;
+  left: 0;
+  margin-top: 180px;;
+
+  width: 100%;
+  height: 400px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 2, 2, 0.801) 80%,
+    rgba(0, 68, 255, 0.719) 50%,
+    rgba(107, 115, 230, 0.979) 95%,
+    transparent 100%
+  );
+
+  filter: blur(250px);
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .marca,
@@ -738,6 +805,7 @@ button:disabled {
    Lista de Pokémon e favoritos
    ========================================================================== */
 
+
 #lista-pokemons,
 #lista-favoritos {
   list-style: none;
@@ -758,6 +826,10 @@ button:disabled {
   text-align: center;
   position: relative;
   transition: var(--transicao);
+  transition:
+  transform 1s ease,
+  box-shadow 1s ease,
+  border-color 1s ease;
 }
 
 #lista-pokemons > li > article::after,
@@ -783,7 +855,16 @@ button:disabled {
 
 #lista-pokemons > li > article:hover,
 #lista-favoritos > li > article:hover {
+  transform: translateY(-5px) scale(1.04);
   border-color: var(--realce);
+
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 0 3px var(--moldura-tinta),
+    0 12px 28px rgb(0, 0, 0),
+    0 0 18px rgba(212, 0, 0, 0.507);
+
+  z-index: 2;
 }
 
 #lista-pokemons > li > article:hover::after,
@@ -800,6 +881,113 @@ button:disabled {
   width: 100%;
 }
 
+
+
+/* =========================================================
+   GLOW DINÂMICO — COR DO PRIMEIRO TIPO DO POKÉMON
+   ========================================================= */
+
+#lista-pokemons > li > article {
+  --glow-tipo: var(--moldura-luz-2);
+}
+
+/* Normal */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Normal"]:first-child) {
+  --glow-tipo: #b9b98e;
+}
+
+/* Lutador */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Lutador"]:first-child) {
+  --glow-tipo: #e0483f;
+}
+
+/* Voador */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Voador"]:first-child) {
+  --glow-tipo: #b7a3f7;
+}
+
+/* Venenoso */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Venenoso"]:first-child) {
+  --glow-tipo: #bf5cbd;
+}
+
+/* Terrestre */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Terrestre"]:first-child) {
+  --glow-tipo: #e6c777;
+}
+
+/* Pedra */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Pedra"]:first-child) {
+  --glow-tipo: #c5b04a;
+}
+
+/* Inseto */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Inseto"]:first-child) {
+  --glow-tipo: #b9cc2c;
+}
+
+/* Fantasma */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Fantasma"]:first-child) {
+  --glow-tipo: #8b6bb0;
+}
+
+/* Aço */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Aço"]:first-child) {
+  --glow-tipo: #c3c3dc;
+}
+
+/* Fogo */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Fogo"]:first-child) {
+  --glow-tipo: #f79241;
+}
+
+/* Água */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Água"]:first-child) {
+  --glow-tipo: #74a0f5;
+}
+
+/* Grama */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Grama"]:first-child) {
+  --glow-tipo: #86d156;
+}
+
+/* Elétrico */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Elétrico"]:first-child) {
+  --glow-tipo: #ffdc3c;
+}
+
+/* Psíquico */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Psíquico"]:first-child) {
+  --glow-tipo: #fd6a92;
+}
+
+/* Gelo */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Gelo"]:first-child) {
+  --glow-tipo: #a7e6e3;
+}
+
+/* Dragão */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Dragão"]:first-child) {
+  --glow-tipo: #8b5efd;
+}
+
+/* Sombrio */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Sombrio"]:first-child) {
+  --glow-tipo: #9b7f66;
+}
+
+/* Fada */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Fada"]:first-child) {
+  --glow-tipo: #eb9cc0;
+}
+
+/* Estelar — caso utilizado pelo projeto */
+#lista-pokemons > li > article:has(.tipos [data-tipo="Estelar"]:first-child) {
+  --glow-tipo: #5fc9b8;
+}
+
+
+
 #lista-pokemons article img,
 #lista-favoritos article img {
   width: 146px;
@@ -811,11 +999,24 @@ button:disabled {
   border-radius: var(--r-sm);
   box-shadow: inset 0 0 0 2px var(--moldura-tinta);
   transition: var(--transicao);
+  transition:
+    box-shadow .3s ease,
+    border-color .3s ease;
 }
 
 #lista-pokemons article:hover img,
 #lista-favoritos article:hover img {
   border-color: var(--realce);
+  border-color: var(--glow-tipo);
+
+  box-shadow:
+    inset 0 0 0 2px var(--moldura-tinta),
+    0 0 10px var(--glow-tipo),
+    0 0 22px color-mix(
+      in srgb,
+      var(--glow-tipo) 70%,
+      transparent
+    );
 }
 
 #lista-pokemons h3,
@@ -989,6 +1190,31 @@ button:disabled {
   padding: .35rem .8rem;
   border: 2px solid var(--moldura-luz-2);
   border-radius: 4px;
+}
+
+.peso-medio-conteudo,
+.altura-media-conteudo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-xs);
+  padding: var(--espaco-sm);
+  background: var(--tela);
+  border: 2px solid var(--moldura-luz-2);
+  border-radius: var(--r-sm);
+  box-shadow: inset 0 0 0 2px var(--moldura-tinta);
+  text-align: center;
+}
+
+#poke-peso-medio,
+#poke-altura-media {
+  font-family: var(--fonte-pixel);
+  font-size: .9rem;
+  line-height: 1.6;
+  color: var(--texto);
+  text-shadow: 2px 2px 0 var(--moldura-tinta);
 }
 
 #conteudo section h2::before {
@@ -1986,13 +2212,33 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   color: var(--texto-tinta);
 }
 
+/* Botão "▲ Topo" criado pelo JS (ui.js). Fixo no canto inferior direito. */
+.botao-topo {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
+  font-family: var(--fonte-pixel);
+  font-size: .55rem;
+}
+
+.botao-topo[hidden] {
+  display: none;
+}
+
 
 /* ==========================================================================
    22. FOOTER
    Créditos e links
    ========================================================================== */
 
+
+
 .site-footer {
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+
   margin-top: var(--espaco-xl);
   background: var(--tela);
   color: var(--texto-suave);
@@ -2000,6 +2246,55 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   box-shadow: inset 0 6px 0 -2px var(--chassi);
   font-family: var(--fonte-texto);
 }
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+    to top,
+    rgba(255, 0, 0, 0.3) 30%,
+    rgba(255, 0, 0, 0.15) 35%,
+    rgba(255, 0, 0, 0.05) 75%,
+    transparent 100%
+  );
+
+  filter: blur(25px);
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+.site-footer::after {
+  content: "";
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+    to top,
+    rgba(95, 0, 0, 0.342) 30%,
+    rgba(255, 0, 0, 0.15) 35%,
+    rgba(255, 0, 0, 0.05) 75%,
+    transparent 100%
+  );
+
+  filter: blur(25px);
+
+  pointer-events: none;
+  z-index: -1;
+}
+
 
 .footer-container {
   max-width: 1180px;

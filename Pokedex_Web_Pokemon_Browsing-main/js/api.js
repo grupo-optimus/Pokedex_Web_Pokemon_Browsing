@@ -78,6 +78,12 @@ function paraModelo(dadosBrutos) {
     nomeEspecie: dadosBrutos.species && dadosBrutos.species.name ? dadosBrutos.species.name : '',
     nome: arrumarTexto(dadosBrutos.name),
 
+    // A PokéAPI informa o peso em hectogramas. O modelo guarda em kg.
+    pesoKg: Number.isFinite(dadosBrutos.weight) ? dadosBrutos.weight / 10 : null,
+
+    // A PokéAPI informa a altura em decímetros. O modelo guarda em metros.
+    alturaMetros: Number.isFinite(dadosBrutos.height) ? dadosBrutos.height / 10 : null,
+
     imagem: escolherImagem(dadosBrutos.sprites, false),
     imagemShiny: escolherImagem(dadosBrutos.sprites, true),
 
