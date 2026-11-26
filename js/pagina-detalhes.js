@@ -14,6 +14,8 @@ const nomeEl         = document.getElementById('poke-nome');
 const numeroEl       = document.getElementById('poke-numero');
 const tiposEl        = document.getElementById('poke-tipos');
 const habilidadesEl  = document.getElementById('poke-habilidades');
+const pesoMedioEl    = document.getElementById('poke-peso-medio');
+const alturaMediaEl  = document.getElementById('poke-altura-media');
 const atributosEl    = document.getElementById('poke-atributos');
 const botaoFavorito  = document.getElementById('btn-favorito');
 const botaoShiny     = document.getElementById('btn-shiny');
@@ -175,6 +177,26 @@ function desenharPokemon(pokemon) {
   // Habilidades.
   habilidadesEl.replaceChildren();
   pokemon.habilidades.forEach(h => habilidadesEl.appendChild(elemento('li', h)));
+
+  // Peso médio: o modelo já normaliza o valor da PokéAPI para quilogramas.
+  if (pesoMedioEl) {
+    pesoMedioEl.textContent = Number.isFinite(pokemon.pesoKg)
+      ? new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        }).format(pokemon.pesoKg) + ' kg'
+      : 'Não informado';
+  }
+
+  // Altura média: o modelo já normaliza o valor da PokéAPI para metros.
+  if (alturaMediaEl) {
+    alturaMediaEl.textContent = Number.isFinite(pokemon.alturaMetros)
+      ? new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        }).format(pokemon.alturaMetros) + ' m'
+      : 'Não informado';
+  }
 
   // Os seis atributos, cada um com numero e barra.
   atributosEl.replaceChildren();
