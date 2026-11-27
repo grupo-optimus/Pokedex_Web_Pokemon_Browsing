@@ -71,6 +71,24 @@
           <p id="poke-historia" hidden></p>
         </section>
 
+        <!-- Movimentos que o Pokémon pode aprender, com detalhes sob demanda. -->
+        <section id="secao-movimentos" class="card-movimentos" aria-labelledby="titulo-movimentos">
+          <h2 id="titulo-movimentos">Ataques e movimentos</h2>
+          <p class="movimentos-descricao">
+            Consulte os movimentos que este Pokémon aprende. O nível pode variar conforme a versão do jogo. Quando não há aprendizagem por nível, indicamos o método disponível, como MT, Tutor ou Ovo.
+          </p>
+
+          <label class="movimentos-label" for="busca-movimentos">Buscar movimento</label>
+          <input id="busca-movimentos" type="search" placeholder="Digite o nome ou tipo…" autocomplete="off" disabled>
+
+          <p id="movimentos-estado" class="movimentos-estado" role="status" aria-live="polite">
+            Carregando movimentos…
+          </p>
+          <ul id="lista-movimentos" class="lista-movimentos" hidden></ul>
+          <p id="movimentos-vazio" class="movimentos-vazio" hidden>Nenhum movimento corresponde à busca.</p>
+          <button type="button" id="btn-tentar-movimentos" hidden>Tentar carregar novamente</button>
+        </section>
+
       </div>
 
       <hr>
@@ -232,6 +250,43 @@
         </p>
     </div>
   </footer>
+
+
+  <!-- Janela central com os detalhes do movimento selecionado. -->
+  <div id="modal-movimento" class="modal-movimento" hidden aria-hidden="true">
+    <section class="modal-movimento-conteudo" role="dialog" aria-modal="true" aria-labelledby="movimento-modal-titulo">
+      <div class="modal-movimento-cabecalho">
+        <div>
+          <p class="modal-movimento-sobretitulo">DETALHES DO MOVIMENTO</p>
+          <h2 id="movimento-modal-titulo">Movimento</h2>
+        </div>
+        <button type="button" id="btn-fechar-movimento" class="modal-movimento-fechar" aria-label="Fechar detalhes">×</button>
+      </div>
+
+      <div id="movimento-modal-carregando" class="movimento-modal-carregando" hidden>Preparando descrição…</div>
+
+      <div class="movimento-modal-dados">
+        <div class="movimento-modal-metricas">
+          <div><span>Tipo</span><strong id="movimento-modal-tipo">—</strong></div>
+          <div><span>Poder</span><strong id="movimento-modal-poder">—</strong></div>
+          <div><span>Precisão</span><strong id="movimento-modal-precisao">—</strong></div>
+          <div><span>PP</span><strong id="movimento-modal-pp">—</strong></div>
+          <div><span>Categoria</span><strong id="movimento-modal-categoria">—</strong></div>
+          <div><span>Aprendizagem</span><strong id="movimento-modal-aprendizagem">—</strong></div>
+        </div>
+
+        <section class="movimento-modal-secao">
+          <h3>Efeito na batalha</h3>
+          <p id="movimento-modal-efeito">Informação não disponível.</p>
+        </section>
+
+        <section class="movimento-modal-secao">
+          <h3>Como o movimento acontece</h3>
+          <p id="movimento-modal-descricao">Descrição não disponível.</p>
+        </section>
+      </div>
+    </section>
+  </div>
 
   <script src="js/traducoes.js"></script>
   <script src="js/api.js"></script>

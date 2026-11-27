@@ -23,6 +23,23 @@ const botaoComparar  = document.getElementById('btn-comparar');
 const historiaEl     = document.getElementById('poke-historia');
 const historiaCarregandoEl = document.getElementById('historia-carregando');
 const historiaErroEl  = document.getElementById('historia-erro');
+const buscaMovimentosEl = document.getElementById('busca-movimentos');
+const listaMovimentosEl = document.getElementById('lista-movimentos');
+const estadoMovimentosEl = document.getElementById('movimentos-estado');
+const movimentosVazioEl = document.getElementById('movimentos-vazio');
+const botaoTentarMovimentos = document.getElementById('btn-tentar-movimentos');
+const modalMovimentoEl = document.getElementById('modal-movimento');
+const botaoFecharMovimento = document.getElementById('btn-fechar-movimento');
+const modalTituloMovimentoEl = document.getElementById('movimento-modal-titulo');
+const modalCarregandoMovimentoEl = document.getElementById('movimento-modal-carregando');
+const modalTipoMovimentoEl = document.getElementById('movimento-modal-tipo');
+const modalPoderMovimentoEl = document.getElementById('movimento-modal-poder');
+const modalPrecisaoMovimentoEl = document.getElementById('movimento-modal-precisao');
+const modalPPMovimentoEl = document.getElementById('movimento-modal-pp');
+const modalCategoriaMovimentoEl = document.getElementById('movimento-modal-categoria');
+const modalAprendizagemMovimentoEl = document.getElementById('movimento-modal-aprendizagem');
+const modalEfeitoMovimentoEl = document.getElementById('movimento-modal-efeito');
+const modalDescricaoMovimentoEl = document.getElementById('movimento-modal-descricao');
 const superEficazEl  = document.getElementById('poke-super-eficaz');
 const vantagensEl    = document.getElementById('poke-vantagens');
 const fraquezasEl    = document.getElementById('poke-fraquezas');
@@ -37,6 +54,11 @@ const blocoVariacoesEl = document.getElementById('bloco-variacoes');
 const listaVariacoesEl = document.getElementById('lista-variacoes');
 
 let pokemonAtual = null;
+let movimentosPokemon = [];
+let movimentosExibidos = [];
+let focoAnteriorMovimento = null;
+let tokenModalMovimento = 0;
+const cacheTraducaoMovimento = new Map();
 
 /* Ligado = mostra a cor rara (shiny) em todo sprite da tela. */
 let modoShiny = false;
@@ -155,6 +177,194 @@ async function carregarHistoria(id) {
   } catch (erro) {
     estadoHistoria('erro');
   }
+}
+
+/* --------------------------------------------------------------------------
+   MOVIMENTOS
+   A lista fica logo abaixo da história. Cada item abre uma janela central.
+   -------------------------------------------------------------------------- */
+function textoAprendizagemMovimento(movimento) {
+  if (Number.isFinite(movimento.nivelAprendizagem)) {
+    return 'Nível ' + movimento.nivelAprendizagem;
+  }
+  return movimento.metodoAprendizagemTexto || 'Não informado';
+}
+
+function desenharListaMovimentos(lista) {
+  movimentosExibidos = lista;
+  listaMovimentosEl.replaceChildren();
+
+  lista.forEach(function (movimento, indice) {
+    const item = elemento('li');
+    const botao = elemento('button');
+    botao.type = 'button';
+    botao.className = 'movimento-linha';
+    botao.dataset.indice = String(indice);
+    botao.setAttribute('aria-label', movimento.nome + ', tipo ' + movimento.tipo +
+      ', poder ' + (movimento.poder === null ? 'não definido' : movimento.poder) +
+      ', aprendizagem: ' + textoAprendizagemMovimento(movimento) + '. Ver detalhes.');
+
+    const nome = elemento('span', movimento.nome);
+    nome.className = 'movimento-nome';
+
+    const metadados = elemento('span');
+    metadados.className = 'movimento-metadados';
+
+    const tipo = elemento('span', movimento.tipo || 'Desconhecido');
+    tipo.className = 'tipo movimento-tipo';
+    tipo.dataset.tipo = movimento.tipo || 'Desconhecido';
+
+    const poder = elemento('span', 'Poder ' + (movimento.poder === null ? '—' : movimento.poder));
+    poder.className = 'movimento-poder';
+
+    const nivel = elemento('span', textoAprendizagemMovimento(movimento));
+    nivel.className = 'movimento-nivel';
+
+    metadados.append(tipo, poder, nivel);
+    botao.append(nome, metadados);
+    item.appendChild(botao);
+    listaMovimentosEl.appendChild(item);
+  });
+
+  mostrar(listaMovimentosEl, lista.length > 0);
+  mostrar(movimentosVazioEl, lista.length === 0);
+}
+
+function filtrarMovimentos() {
+  const termo = normalizarTexto(buscaMovimentosEl.value);
+  const filtrados = movimentosPokemon.filter(function (movimento) {
+    return normalizarTexto(movimento.nome).includes(termo) ||
+      normalizarTexto(movimento.tipo).includes(termo);
+  });
+
+  const detalhesIndisponiveis = movimentosPokemon.filter(item => item.indisponivel).length;
+  const avisoDetalhes = detalhesIndisponiveis > 0
+    ? ' ' + detalhesIndisponiveis + ' movimento(s) sem detalhes completos.'
+    : '';
+
+  estadoMovimentosEl.textContent = (termo
+    ? filtrados.length + ' de ' + movimentosPokemon.length + ' movimentos encontrados.'
+    : movimentosPokemon.length + ' movimentos encontrados. Selecione um para ver os detalhes.') + avisoDetalhes;
+
+  movimentosVazioEl.textContent = termo
+    ? 'Nenhum movimento corresponde à busca.'
+    : 'Este Pokémon não possui movimentos listados na PokéAPI.';
+
+  desenharListaMovimentos(filtrados);
+}
+
+async function carregarMovimentos(id) {
+  buscaMovimentosEl.disabled = true;
+  buscaMovimentosEl.value = '';
+  mostrar(listaMovimentosEl, false);
+  mostrar(movimentosVazioEl, false);
+  mostrar(botaoTentarMovimentos, false);
+  estadoMovimentosEl.textContent = 'Carregando movimentos e consultando os detalhes na PokéAPI…';
+
+  try {
+    movimentosPokemon = await obterMovimentosPokemon(id);
+
+    if (movimentosPokemon.length === 0) {
+      estadoMovimentosEl.textContent = 'Nenhum movimento foi listado para este Pokémon.';
+      movimentosVazioEl.textContent = 'A PokéAPI não retornou movimentos para este Pokémon.';
+      mostrar(movimentosVazioEl, true);
+      return;
+    }
+
+    buscaMovimentosEl.disabled = false;
+    filtrarMovimentos();
+  } catch (erro) {
+    estadoMovimentosEl.textContent = 'Não foi possível carregar os movimentos deste Pokémon.';
+    mostrar(botaoTentarMovimentos, true);
+  }
+}
+
+function valorModalMovimento(elementoAlvo, valor) {
+  elementoAlvo.textContent = valor === null || valor === undefined || valor === '' ? '—' : String(valor);
+}
+
+async function traduzirTextoMovimento(texto, idioma) {
+  const original = String(texto || '').trim();
+  if (!original) return '';
+  if (idioma === 'pt' || idioma === 'pt-BR' || idioma === 'pt-br') return original;
+  if (idioma !== 'en') return original + ' (idioma: ' + idioma + ')';
+
+  const chave = idioma + ':' + original;
+  if (cacheTraducaoMovimento.has(chave)) return cacheTraducaoMovimento.get(chave);
+
+  try {
+    const traduzido = await traduzirHistoria(original);
+    cacheTraducaoMovimento.set(chave, traduzido);
+    return traduzido;
+  } catch (erro) {
+    const originalIdentificado = original + ' (texto original em inglês; tradução indisponível)';
+    cacheTraducaoMovimento.set(chave, originalIdentificado);
+    return originalIdentificado;
+  }
+}
+
+async function carregarTextosModalMovimento(movimento, token) {
+  const efeito = movimento.efeito || movimento.efeitoCurto || '';
+  const descricao = movimento.descricao || '';
+
+  modalCarregandoMovimentoEl.hidden = false;
+  modalEfeitoMovimentoEl.textContent = efeito ? 'Traduzindo descrição…' : 'A PokéAPI não disponibiliza um efeito textual para este movimento.';
+  modalDescricaoMovimentoEl.textContent = descricao ? 'Traduzindo descrição…' :
+    'A PokéAPI não disponibiliza uma descrição narrativa específica da execução deste movimento.';
+
+  const [efeitoPt, descricaoPt] = await Promise.all([
+    efeito ? traduzirTextoMovimento(efeito, movimento.efeitoIdioma) : Promise.resolve(''),
+    descricao ? traduzirTextoMovimento(descricao, movimento.descricaoIdioma) : Promise.resolve('')
+  ]);
+
+  // Se outra janela foi aberta durante a tradução, nao sobrescreve a selecao atual.
+  if (token !== tokenModalMovimento || modalMovimentoEl.hidden) return;
+
+  modalEfeitoMovimentoEl.textContent = efeitoPt ||
+    'A PokéAPI não disponibiliza um efeito textual para este movimento.';
+  modalDescricaoMovimentoEl.textContent = descricaoPt ||
+    'A PokéAPI não disponibiliza uma descrição narrativa específica da execução deste movimento.';
+  modalCarregandoMovimentoEl.hidden = true;
+}
+
+function abrirModalMovimento(movimento, botaoOrigem) {
+  focoAnteriorMovimento = botaoOrigem || document.activeElement;
+  tokenModalMovimento += 1;
+  const token = tokenModalMovimento;
+
+  modalTituloMovimentoEl.textContent = movimento.nome;
+  valorModalMovimento(modalTipoMovimentoEl, movimento.tipo);
+  modalTipoMovimentoEl.dataset.tipo = movimento.tipo || '';
+  valorModalMovimento(modalPoderMovimentoEl,
+    movimento.poder === null ? '—' : movimento.poder);
+  valorModalMovimento(modalPrecisaoMovimentoEl,
+    movimento.precisao === null ? '—' : movimento.precisao + '%');
+  valorModalMovimento(modalPPMovimentoEl, movimento.pp);
+  valorModalMovimento(modalCategoriaMovimentoEl, movimento.categoria);
+  valorModalMovimento(modalAprendizagemMovimentoEl, textoAprendizagemMovimento(movimento));
+
+  modalCarregandoMovimentoEl.hidden = false;
+  modalEfeitoMovimentoEl.textContent = 'Carregando…';
+  modalDescricaoMovimentoEl.textContent = 'Carregando…';
+  modalMovimentoEl.hidden = false;
+  modalMovimentoEl.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-movimento-aberto');
+  botaoFecharMovimento.focus();
+
+  carregarTextosModalMovimento(movimento, token);
+}
+
+function fecharModalMovimento() {
+  if (modalMovimentoEl.hidden) return;
+  modalMovimentoEl.hidden = true;
+  modalMovimentoEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-movimento-aberto');
+  tokenModalMovimento += 1;
+
+  if (focoAnteriorMovimento && typeof focoAnteriorMovimento.focus === 'function') {
+    focoAnteriorMovimento.focus();
+  }
+  focoAnteriorMovimento = null;
 }
 
 function desenharPokemon(pokemon) {
@@ -397,6 +607,7 @@ async function carregarDetalhes() {
     // A história é independente da ficha principal. Ela carrega e traduz
     // depois, sem impedir que o restante da página apareça.
     carregarHistoria(pokemonAtual.id);
+    carregarMovimentos(pokemonAtual.id);
 
     // Vantagens/fraquezas sao carregadas depois da ficha principal para
     // nao bloquear o conteudo essencial do Pokemon.
@@ -500,5 +711,38 @@ botaoShiny.addEventListener('click', function () {
 });
 
 botaoTentar.addEventListener('click', carregarDetalhes);
+buscaMovimentosEl.addEventListener('input', filtrarMovimentos);
+botaoTentarMovimentos.addEventListener('click', function () {
+  if (pokemonAtual) carregarMovimentos(pokemonAtual.id);
+});
+
+listaMovimentosEl.addEventListener('click', function (evento) {
+  const botao = evento.target.closest('button[data-indice]');
+  if (!botao) return;
+
+  const indice = Number(botao.dataset.indice);
+  const movimento = movimentosExibidos[indice];
+  if (movimento) abrirModalMovimento(movimento, botao);
+});
+
+botaoFecharMovimento.addEventListener('click', fecharModalMovimento);
+modalMovimentoEl.addEventListener('click', function (evento) {
+  if (evento.target === modalMovimentoEl) fecharModalMovimento();
+});
+
+document.addEventListener('keydown', function (evento) {
+  if (modalMovimentoEl.hidden) return;
+
+  if (evento.key === 'Escape') {
+    fecharModalMovimento();
+    return;
+  }
+
+  // Ha apenas um controle focavel na janela; mantem o foco dentro dela.
+  if (evento.key === 'Tab') {
+    evento.preventDefault();
+    botaoFecharMovimento.focus();
+  }
+});
 
 carregarDetalhes();
