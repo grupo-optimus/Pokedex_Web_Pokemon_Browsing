@@ -327,3 +327,5 @@ if (termoAtual) {
 } else {
   carregarPagina(paginaAtual);
 }
+
+criarBotaoVoltarAoTopo();
