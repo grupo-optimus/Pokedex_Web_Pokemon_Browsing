@@ -254,6 +254,16 @@
 
   <!-- Janela central com os detalhes do movimento selecionado. -->
   <div id="modal-movimento" class="modal-movimento" hidden aria-hidden="true">
+    <!-- A Pokébola é apenas visual; o diálogo continua acessível durante a animação. -->
+    <div class="pokebola-animacao" aria-hidden="true">
+      <div class="pokebola-visual">
+        <span class="pokebola-metade pokebola-superior"></span>
+        <span class="pokebola-metade pokebola-inferior"></span>
+        <span class="pokebola-faixa"></span>
+        <span class="pokebola-botao"><span></span></span>
+      </div>
+    </div>
+
     <section class="modal-movimento-conteudo" role="dialog" aria-modal="true" aria-labelledby="movimento-modal-titulo">
       <div class="modal-movimento-cabecalho">
         <div>

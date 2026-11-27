@@ -1575,6 +1575,8 @@ button:disabled {
 }
 
 .modal-movimento-conteudo {
+  position: relative;
+  z-index: 3;
   width: min(100%, 720px);
   max-height: min(88vh, 850px);
   overflow-y: auto;
@@ -1586,6 +1588,163 @@ button:disabled {
     inset 0 0 0 3px var(--moldura-tinta),
     8px 8px 0 rgba(0, 0, 0, .45);
   scrollbar-color: var(--moldura-luz-2) var(--tela);
+}
+
+/* A Pokébola cai no centro, abre e libera espaço para o card surgir. */
+.pokebola-animacao {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pokebola-visual {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  transform-origin: center;
+  animation:
+    pokebola-queda .72s cubic-bezier(.2, .82, .28, 1.18) both,
+    pokebola-desaparecer .2s steps(3, end) 1.12s forwards;
+}
+
+.pokebola-metade {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 52%;
+  border: 4px solid var(--moldura-tinta);
+}
+
+.pokebola-superior {
+  top: 0;
+  border-bottom: 0;
+  border-radius: 52px 52px 0 0;
+  background: var(--fire);
+  transform-origin: center bottom;
+  animation: pokebola-abre-superior .4s ease-in .7s forwards;
+}
+
+.pokebola-inferior {
+  bottom: 0;
+  border-top: 0;
+  border-radius: 0 0 52px 52px;
+  background: var(--realce);
+  transform-origin: center top;
+  animation: pokebola-abre-inferior .4s ease-in .7s forwards;
+}
+
+.pokebola-faixa {
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 5px);
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: var(--moldura-tinta);
+  transform-origin: center;
+  animation: pokebola-faixa-sair .2s ease-in .7s forwards;
+}
+
+.pokebola-botao {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border: 4px solid var(--moldura-tinta);
+  border-radius: 50%;
+  background: var(--realce);
+  transform: translate(-50%, -50%);
+  animation: pokebola-botao-sair .2s ease-in .7s forwards;
+}
+
+.pokebola-botao span {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--moldura-tinta);
+  border-radius: 50%;
+  background: var(--moldura-luz);
+}
+
+/* O card cresce a partir do ponto em que a Pokébola se abre. */
+.modal-movimento.animando .modal-movimento-conteudo {
+  opacity: 0;
+  animation: movimento-card-surgir .52s cubic-bezier(.2, .8, .2, 1.12) .94s both;
+}
+
+/* As informações são reveladas em sequência, sempre do topo para baixo. */
+.modal-movimento.animando .modal-movimento-cabecalho,
+.modal-movimento.animando .movimento-modal-carregando,
+.modal-movimento.animando .movimento-modal-metricas > div,
+.modal-movimento.animando .movimento-modal-secao {
+  opacity: 0;
+  animation: movimento-informacao-revelar .32s ease-out both;
+}
+
+.modal-movimento.animando .modal-movimento-cabecalho {
+  animation-delay: 1.4s;
+}
+
+.modal-movimento.animando .movimento-modal-carregando {
+  animation-delay: 1.48s;
+}
+
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(1) { animation-delay: 1.5s; }
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(2) { animation-delay: 1.58s; }
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(3) { animation-delay: 1.66s; }
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(4) { animation-delay: 1.74s; }
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(5) { animation-delay: 1.82s; }
+.modal-movimento.animando .movimento-modal-metricas > div:nth-child(6) { animation-delay: 1.9s; }
+.modal-movimento.animando .movimento-modal-secao:first-of-type { animation-delay: 2.02s; }
+.modal-movimento.animando .movimento-modal-secao:last-of-type { animation-delay: 2.16s; }
+
+@keyframes pokebola-queda {
+  0% {
+    opacity: 0;
+    transform: translateY(-70vh) rotate(-22deg) scale(.86);
+  }
+  12% { opacity: 1; }
+  72% { transform: translateY(7px) rotate(5deg) scale(1.03); }
+  86% { transform: translateY(-5px) rotate(-2deg) scale(.99); }
+  100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+}
+
+@keyframes pokebola-abre-superior {
+  to { opacity: 0; transform: translateY(-54px) rotate(-12deg); }
+}
+
+@keyframes pokebola-abre-inferior {
+  to { opacity: 0; transform: translateY(54px) rotate(12deg); }
+}
+
+@keyframes pokebola-faixa-sair {
+  to { opacity: 0; transform: scaleX(.2); }
+}
+
+@keyframes pokebola-botao-sair {
+  to { opacity: 0; transform: translate(-50%, -50%) scale(.25); }
+}
+
+@keyframes pokebola-desaparecer {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes movimento-card-surgir {
+  0% { opacity: 0; transform: scale(.12) translateY(18px); }
+  68% { opacity: 1; transform: scale(1.025) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes movimento-informacao-revelar {
+  from { opacity: 0; transform: translateY(-9px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-movimento-cabecalho {
@@ -2716,5 +2875,17 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .modal-movimento.animando .pokebola-animacao {
+    display: none;
+  }
+
+  .modal-movimento.animando .modal-movimento-conteudo,
+  .modal-movimento.animando .modal-movimento-cabecalho,
+  .modal-movimento.animando .movimento-modal-carregando,
+  .modal-movimento.animando .movimento-modal-metricas > div,
+  .modal-movimento.animando .movimento-modal-secao {
+    animation-delay: 0s !important;
   }
 }

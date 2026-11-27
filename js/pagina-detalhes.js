@@ -346,8 +346,12 @@ function abrirModalMovimento(movimento, botaoOrigem) {
   modalCarregandoMovimentoEl.hidden = false;
   modalEfeitoMovimentoEl.textContent = 'Carregando…';
   modalDescricaoMovimentoEl.textContent = 'Carregando…';
+  modalMovimentoEl.classList.remove('animando');
   modalMovimentoEl.hidden = false;
   modalMovimentoEl.setAttribute('aria-hidden', 'false');
+  // Reinicia as animações a cada abertura, inclusive quando outro ataque é selecionado.
+  void modalMovimentoEl.offsetWidth;
+  modalMovimentoEl.classList.add('animando');
   document.body.classList.add('modal-movimento-aberto');
   botaoFecharMovimento.focus();
 
@@ -356,6 +360,7 @@ function abrirModalMovimento(movimento, botaoOrigem) {
 
 function fecharModalMovimento() {
   if (modalMovimentoEl.hidden) return;
+  modalMovimentoEl.classList.remove('animando');
   modalMovimentoEl.hidden = true;
   modalMovimentoEl.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('modal-movimento-aberto');
