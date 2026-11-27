@@ -440,7 +440,6 @@ async function obterMovimentosPokemon(idOuNome) {
   });
 }
 
-
 /* --------------------------------------------------------------------------
    Pega uma PAGINA de Pokemon (RF001).
    Endpoint: GET /pokemon?limit=20&offset=0

@@ -264,3 +264,27 @@ function ligarLimparBusca() {
 
 ligarBotaoVoltar();
 ligarLimparBusca();
+
+/* --------------------------------------------------------------------------
+   O BOTAO "VOLTAR AO TOPO".
+   Nasce no JS, so aparece depois de rolar a pagina um pouco e leva ao topo.
+   -------------------------------------------------------------------------- */
+function criarBotaoVoltarAoTopo() {
+  const botao = elemento('button', '▲ Topo');
+  botao.type = 'button';
+  botao.className = 'botao-topo';
+  botao.title = 'Voltar ao topo';
+  botao.setAttribute('aria-label', 'Voltar ao topo');
+  botao.hidden = true;
+
+  botao.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('scroll', function () {
+    botao.hidden = window.scrollY < 400;
+  }, { passive: true });
+
+  document.body.appendChild(botao);
+  return botao;
+}

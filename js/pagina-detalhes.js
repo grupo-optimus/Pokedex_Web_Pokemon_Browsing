@@ -179,6 +179,7 @@ async function carregarHistoria(id) {
   }
 }
 
+
 /* --------------------------------------------------------------------------
    MOVIMENTOS
    A lista fica logo abaixo da história. Cada item abre uma janela central.
