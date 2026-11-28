@@ -60,6 +60,9 @@
   --espaco-xl: 3rem;
 
   --transicao: all .12s steps(3, end);
+
+  --barra: 62px;
+  --gaveta: min(80vw, 300px);
 }
 
 
@@ -89,6 +92,10 @@ hr {
    04. BASE
    Corpo, títulos, links, imagens e títulos de página
    ========================================================================== */
+
+html {
+  scroll-padding-top: 100px;
+}
 
 body {
   font-family: var(--fonte-texto);
@@ -158,12 +165,22 @@ img {
   margin-bottom: var(--espaco-md);
 }
 
+/* Com wrap: com a fonte do navegador maior, o contador desce para baixo do
+   título em vez de empurrar a página para o lado. */
 .cabecalho-pagina-favoritos {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--espaco-md);
   margin-bottom: var(--espaco-md);
+}
+
+/* Base 0: a quebra olha só a palavra mais longa do título, e não ele inteiro
+   numa linha. Assim em 360px o título ainda divide a linha com o contador
+   (em duas linhas, como antes), e o contador só desce quando nem isso cabe. */
+.cabecalho-pagina-favoritos > .titulo-pagina {
+  flex: 1 1 0;
 }
 
 
@@ -331,15 +348,13 @@ header nav {
 }
 
 header nav a {
-  width: 190px;
-  min-width: 190px;
   height: 48px;
   padding: 0 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--espaco-xs);
-  flex: 0 0 190px;
+  flex: none;
 
   background: var(--painel);
   color: var(--texto);
@@ -365,6 +380,27 @@ header nav a:hover {
 header nav a:active {
   background: var(--realce);
   color: var(--texto-tinta);
+}
+
+.btn-menu,
+.menu-fundo {
+  display: none;
+}
+
+/* A nav carrega o atributo popover para virar sidebar em tela estreita.
+   Em tela larga ela e a fileira normal: aqui se desfaz o que o navegador
+   aplica a todo popover (caixa fixa centralizada, com borda e fundo). */
+header nav[popover] {
+  position: relative;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  background: none;
+  color: inherit;
 }
 
 #contador {
@@ -566,7 +602,6 @@ button::before {
   transition: var(--transicao);
 }
 
-button:hover:not(:disabled)::before,
 button:focus-visible:not(:disabled)::before {
   opacity: 1;
 }
@@ -847,24 +882,6 @@ button:disabled {
   transition: var(--transicao);
 }
 
-#lista-pokemons > li > article:hover,
-#lista-favoritos > li > article:hover {
-  transform: translateY(-5px) scale(1.04);
-  border-color: var(--realce);
-
-  box-shadow:
-    inset 0 0 0 2px var(--moldura-tinta),
-    0 0 0 3px var(--moldura-tinta),
-    0 12px 28px rgb(0, 0, 0),
-    0 0 18px rgba(212, 0, 0, 0.507);
-
-}
-
-#lista-pokemons > li > article:hover::after,
-#lista-favoritos > li > article:hover::after {
-  opacity: 1;
-}
-
 #lista-pokemons article a,
 #lista-favoritos article a {
   display: flex;
@@ -998,20 +1015,6 @@ button:disabled {
     border-color .3s ease;
 }
 
-#lista-pokemons article:hover img,
-#lista-favoritos article:hover img {
-  border-color: var(--realce);
-  border-color: var(--glow-tipo);
-
-  box-shadow:
-    inset 0 0 0 2px var(--moldura-tinta),
-    0 0 10px var(--glow-tipo),
-    0 0 22px color-mix(
-      in srgb,
-      var(--glow-tipo) 70%,
-      transparent
-    );
-}
 
 #lista-pokemons h3,
 #lista-favoritos h3 {
@@ -1109,7 +1112,9 @@ button:disabled {
 #conteudo {
   padding: var(--espaco-lg);
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, ...): uma trilha 1fr não encolhe abaixo do min-content, e a
+     tabela de atributos empurrava a coluna inteira para fora da tela. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espaco-md) var(--espaco-lg);
   align-content: start;
 }
@@ -1325,7 +1330,8 @@ button:disabled {
 }
 
 /* A fileira de cima e uma linha so: estagio, seta, estagio, seta...
-   Sem quebra. Se a cadeia nao couber na largura, ela rola de lado. */
+   Entre 641 e 859px nao quebra: se a cadeia nao couber, rola de lado. A
+   partir de 860px ela quebra linha, e ate 640px vira coluna (secao 24). */
 #linha-evolucao {
   list-style: none;
   display: flex;
@@ -1524,8 +1530,10 @@ button:disabled {
      o proprio conteudo, entao com um teto fixo o auto-fit e a largura do
      degrau ficam um esperando o outro e a grade colapsa em uma coluna so —
      as oito Eeveelutions viravam uma fila unica. Quem centraliza a fileira
-     e o justify-content la do #linha-evolucao, nao esta grade. */
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+     e o justify-content la do #linha-evolucao, nao esta grade.
+     O min(118px, 100%) so age quando o degrau e mais estreito que 118px:
+     a trilha deixa de ficar mais larga que a propria grade. */
+  grid-template-columns: repeat(auto-fit, minmax(min(118px, 100%), 1fr));
   align-items: start;
   justify-content: stretch;
   gap: var(--espaco-xs);
@@ -2288,7 +2296,12 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 .tabela-comparacao thead th img {
   display: block;
   width: 96px;
-  height: 96px;
+  /* Nunca maior que a célula: em coluna estreita a imagem encolhe em vez de
+     vazar. A altura acompanha a largura; o aspect-ratio mantém a caixa quadrada
+     mesmo sem imagem (escolherImagem pode devolver src vazio). */
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   object-fit: contain;
   margin: 0 auto .35rem;
   background: var(--tela);
@@ -2301,6 +2314,8 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   font-family: var(--fonte-pixel);
   font-size: .52rem;
   line-height: 1.5;
+  /* Nome sem espaço maior que a coluna (Crabominable) quebra dentro da célula. */
+  overflow-wrap: anywhere;
 }
 
 .tabela-comparacao thead th.comparacao-pokemon-melhor {
@@ -2848,6 +2863,47 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
    Todas as media queries, da maior para a menor tela
    ========================================================================== */
 
+/* Hover so em tela com mouse: no toque o estado hover fica preso depois
+   do toque e o card continua erguido. */
+@media (hover: hover) {
+  button:hover:not(:disabled)::before {
+    opacity: 1;
+  }
+
+  #lista-pokemons > li > article:hover,
+  #lista-favoritos > li > article:hover {
+    transform: translateY(-5px) scale(1.04);
+    border-color: var(--realce);
+
+    box-shadow:
+      inset 0 0 0 2px var(--moldura-tinta),
+      0 0 0 3px var(--moldura-tinta),
+      0 12px 28px rgb(0, 0, 0),
+      0 0 18px rgba(212, 0, 0, 0.507);
+
+  }
+
+  #lista-pokemons > li > article:hover::after,
+  #lista-favoritos > li > article:hover::after {
+    opacity: 1;
+  }
+
+  #lista-pokemons article:hover img,
+  #lista-favoritos article:hover img {
+    border-color: var(--realce);
+    border-color: var(--glow-tipo);
+
+    box-shadow:
+      inset 0 0 0 2px var(--moldura-tinta),
+      0 0 10px var(--glow-tipo),
+      0 0 22px color-mix(
+        in srgb,
+        var(--glow-tipo) 70%,
+        transparent
+      );
+  }
+}
+
 /* Telas a partir de 860px */
 @media (min-width: 860px) {
   /* Detalhes */
@@ -2871,6 +2927,28 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   #conteudo > .ficha > section:last-child {
     grid-column: 1 / -1;
   }
+
+  /* Evolução: ao lado do visor de 300px a seção fica estreita (uns 370px
+     em 860). Espremer os degraus partia "Charman/der" e deixava a moldura
+     do sprite fina como uma fresta. Agora nenhum degrau fica abaixo de um
+     card de 118px, e o que não couber desce para a linha de baixo. */
+  #linha-evolucao {
+    flex-wrap: wrap;
+  }
+
+  /* Base 0 com min-width: auto: a quebra de linha olha só o mínimo de cada
+     degrau (um card), e não a largura do texto do requisito nem das oito
+     formas do Eevee, que mandariam um degrau sozinho para baixo à toa.
+     Depois cada um cresce no espaço que sobra, até o próprio conteúdo. */
+  .estagio {
+    flex: 1 1 0;
+    min-width: auto;
+    max-width: max-content;
+  }
+
+  .formas {
+    min-width: 118px;
+  }
 }
 
 /* Telas até 859px */
@@ -2881,14 +2959,305 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     flex-direction: column;
     gap: var(--espaco-md);
   }
+
+  /* Na coluna, o align-self: start da base encolhia cada bloco até o próprio
+     conteúdo: caixas de larguras diferentes e a tabela usando meio painel. */
+  #conteudo > .ficha > section {
+    align-self: stretch;
+  }
+
+  /* Comparação. Aqui e não em 800px: a tabela de 720px só cabe a partir de
+     ~830px. Com layout auto e 100% (da regra base), ela ocupa o painel e só
+     rola de lado quando as colunas mínimas (82px) não cabem; a coluna de
+     atributos fica presa à esquerda. */
+  .tabela-comparacao table {
+    table-layout: auto;
+    min-width: 0;
+  }
+
+  /* O foco do teclado rolando a tabela para trás deixaria o botão × escondido
+     sob a coluna presa de 110px: a rolagem para antes dela. */
+  .tabela-comparacao-scroll {
+    scroll-padding-left: 110px;
+  }
+
+  /* 110px = "Velocidade" em .6rem (96px) + padding + a borda de 4px do tbody th.
+     Com duas colunas de 82px, 2 Pokémon cabem nos 274px da área em 360px. */
+  .tabela-comparacao thead th:first-child,
+  .tabela-comparacao tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: normal;
+  }
+
+  /* Com a fonte do navegador em 125%, "Velocidade" passa dos 110px: quebra
+     dentro da célula em vez de pintar por cima da coluna ao lado. */
+  .tabela-comparacao tbody th {
+    overflow-wrap: anywhere;
+  }
+
+  /* Célula presa precisa de fundo opaco, senão as colunas roladas aparecem por baixo. */
+  .tabela-comparacao thead th:first-child {
+    background: var(--painel);
+  }
+
+  /* Em 82px o botão × (36px, preso no canto) não cabe ao lado da imagem: o
+     padding de cima desce o conteúdo para baixo dele. */
+  .tabela-comparacao thead th:not(:first-child) {
+    min-width: 82px;
+    padding: calc(.35rem + 40px) 2px .5rem;
+  }
+
+  /* Anula o width: 55% genérico de "tbody td:last-child" (tabela de atributos
+     dos detalhes): no layout auto ele dava quase toda a sobra à última coluna. */
+  .tabela-comparacao tbody td:last-child {
+    width: auto;
+  }
+
+  .tabela-comparacao thead th img {
+    width: 64px;
+  }
+
+  /* O nome não conta na largura da coluna: todas têm o mesmo conteúdo
+     intrínseco e a sobra se divide por igual. */
+  .tabela-comparacao thead th strong {
+    contain: inline-size;
+  }
+
+  /* Botão × de 36px em toda a faixa da tabela estreita: o padding de cima do
+     cabeçalho conta com ele. O min-height: 0 anula o "button" de 44px do bloco
+     de 800px (a classe vence o seletor de elemento). */
+  .comparacao-remover {
+    width: 36px;
+    height: 36px;
+    min-height: 0;
+  }
 }
 
 /* Telas até 800px */
 @media (max-width: 800px) {
-  /* Header */
-  header nav {
+  /* Header. Caminho sem popover: a nav desce para a segunda linha,
+     centralizada. O [popover] no seletor vence o width: auto da secao 06. */
+  header nav[popover] {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
+  }
+
+  /* Sem popover o cabeçalho tem duas ou três linhas: preso, cobriria um
+     terço da tela. Ele rola com a página; só a barra fina do
+     @supports abaixo fica presa. */
+  header {
+    position: relative;
+  }
+
+  /* A aura vermelha (body::before) é fixa no topo da tela e conta com um
+     cabeçalho preso em cima dela. Sem popover ela rola junto com ele. */
+  body::before {
+    position: absolute;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--barra) + 8px);
+  }
+
+  @supports selector(:popover-open) {
+    header {
+      position: sticky;
+      flex-wrap: nowrap;
+      height: var(--barra);
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* O degradê da aura conta com o cabeçalho de 92px do desktop. Ela sobe
+       a diferença, e a barra esconde o mesmo trecho que ele esconderia. */
+    body::before {
+      position: fixed;
+      top: calc(var(--barra) - 92px);
+    }
+
+    .btn-menu {
+      --icone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23eef2f9' d='M0 1h7v1H0zM0 3h7v1H0zM0 5h7v1H0z'/%3E%3C/svg%3E");
+      display: inline-flex;
+      flex: none;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      background: var(--painel) var(--icone) center / 21px 21px no-repeat;
+      image-rendering: pixelated;
+    }
+
+    .btn-menu::before,
+    .menu-fundo::before {
+      content: none;
+    }
+
+    /* Mesma forca do button:active global, senao o icone some no toque. */
+    .btn-menu:active:not(:disabled) {
+      background: var(--painel-alto) var(--icone) center / 21px 21px no-repeat;
+    }
+
+    header:has(nav:popover-open) .btn-menu {
+      --icone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23eef2f9' d='M0 0h1v1H0zM1 0h1v1H1zM5 0h1v1H5zM6 0h1v1H6zM0 1h1v1H0zM1 1h1v1H1zM2 1h1v1H2zM4 1h1v1H4zM5 1h1v1H5zM6 1h1v1H6zM1 2h1v1H1zM2 2h1v1H2zM3 2h1v1H3zM4 2h1v1H4zM5 2h1v1H5zM2 3h1v1H2zM3 3h1v1H3zM4 3h1v1H4zM1 4h1v1H1zM2 4h1v1H2zM3 4h1v1H3zM4 4h1v1H4zM5 4h1v1H5zM0 5h1v1H0zM1 5h1v1H1zM2 5h1v1H2zM4 5h1v1H4zM5 5h1v1H5zM6 5h1v1H6zM0 6h1v1H0zM1 6h1v1H1zM5 6h1v1H5zM6 6h1v1H6z'/%3E%3C/svg%3E");
+    }
+
+    header nav[popover]:not(:popover-open) {
+      display: none;
+    }
+
+    /* A nav aberta ocupa a tela abaixo da barra. O painel e a area escura
+       sao um gradiente de corte seco: nao ha elemento extra para o painel. */
+    header nav[popover]:popover-open {
+      position: fixed;
+      inset: var(--barra) 0 0 0;
+      width: auto;
+      height: auto;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      align-items: stretch;
+      gap: var(--espaco-sm);
+      padding: var(--espaco-md);
+      padding-right: calc(100% - var(--gaveta) + var(--espaco-md));
+      background: linear-gradient(to right,
+        var(--tela) 0, var(--tela) var(--gaveta), rgba(6, 10, 20, .72) var(--gaveta));
+      overflow-y: auto;
+      /* Desliza da esquerda ao abrir, em degraus como o resto do tema. Sem
+         @starting-style o menu so aparece; fechar continua instantaneo. */
+      translate: 0 0;
+      transition: translate .18s steps(4, end);
+    }
+
+    @starting-style {
+      header nav[popover]:popover-open {
+        translate: -100% 0;
+      }
+    }
+
+    /* Altura minima e nao fixa: com a fonte do navegador maior o rotulo
+       quebra linha dentro do botao em vez de vazar da moldura. */
+    header nav[popover] a {
+      width: 100%;
+      height: auto;
+      min-height: 48px;
+      justify-content: flex-start;
+      white-space: normal;
+    }
+
+    /* O ::backdrop de popover nao recebe toque (pointer-events: none no
+       navegador). Este botao cobre a area escura para o toque fora do painel
+       fechar o menu em vez de abrir o card que esta embaixo. */
+    .menu-fundo {
+      display: block;
+      position: absolute;
+      inset: 0 0 0 var(--gaveta);
+      width: auto;
+      height: auto;
+      min-height: 0;
+      padding: 0;
+      background: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .menu-fundo:active:not(:disabled) {
+      background: none;
+    }
+
+    /* O overflow da nav corta o anel de foco por fora: ele vai para dentro. */
+    .menu-fundo:focus-visible {
+      outline-offset: -6px;
+    }
+
+    html:has(nav:popover-open) {
+      overflow: hidden;
+    }
+  }
+
+  /* Toque: alvo minimo de 44px. As excecoes abaixo (estrela, X da busca,
+     chip) ganham do "button" desta regra porque o seletor de classe e mais
+     especifico que o de elemento, seja qual for a ordem. */
+  button,
+  header nav a,
+  .marca,
+  .sobre-atalhos a,
+  #estado-vazio a,
+  .botao-comparacao-link {
+    min-height: 44px;
+  }
+
+  /* Lista e favoritos: a faixa de 48px no topo do cartão guarda a estrela de
+     40px e a pokébola decorativa acima da imagem. Sem ela, entre 725 e 800px
+     (3 colunas) a estrela cobria o canto da moldura do sprite. */
+  #lista-pokemons > li > article,
+  #lista-favoritos > li > article {
+    padding-top: 48px;
+  }
+
+  .estrela-favorito {
+    top: 4px;
+    right: 4px;
+    min-height: 0;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* So a area de toque cresce; o icone do X continua com 14px. */
+  .btn-limpar-busca {
+    min-height: 0;
+    width: 40px;
+    height: 40px;
+    right: 2px;
+  }
+
+  .chip {
+    min-height: 36px;
+  }
+
+  /* O X da janela do ataque tem 42px; com o min-height de 44px ficava 42x44. */
+  .modal-movimento-fechar {
+    width: 44px;
+  }
+
+  /* Fonte pixel: abaixo de .6rem as letras do pixel font perdem a leitura. */
+  .tipo,
+  .chip,
+  .dex-numero,
+  .evo .dex-numero,
+  .evo .dex-nome,
+  .forma-especial-badge,
+  header nav a,
+  #btn-shiny,
+  .botao-comparar,
+  #lista-favoritos article > button,
+  .botao-topo,
+  .comparacao-numero,
+  .comparacao-melhor-badge,
+  .tabela-comparacao thead th strong,
+  thead th,
+  tbody th,
+  .botao-comparacao-link,
+  .sobre-atalhos a,
+  .movimentos-label,
+  .movimento-metadados .movimento-tipo,
+  .modal-movimento-sobretitulo,
+  .movimento-modal-secao h3 {
+    font-size: .6rem;
+  }
+
+  /* Com a fonte maior, "Ataque Especial" não cabe na coluna de atributos
+     (dos detalhes e da comparação, que até 859px tem 110px): deixa quebrar
+     linha em vez de alargar a tabela. */
+  tbody th {
+    white-space: normal;
   }
 
   /* Footer */
@@ -2919,63 +3288,117 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     font-size: .8rem;
   }
 
-  /* Header */
-  header {
-    gap: var(--espaco-sm);
+  /* Lista e favoritos: 2 colunas. A faixa de 48px do topo vem do bloco de
+     800px; aqui só os lados e o pé do cartão ficam mais enxutos. */
+  #lista-pokemons,
+  #lista-favoritos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espaco-md) var(--espaco-sm);
   }
 
-  header h1 {
-    margin-right: 0;
-    width: calc(100% - 46px);
+  #lista-pokemons > li > article,
+  #lista-favoritos > li > article {
+    padding-inline: var(--espaco-xs);
+    padding-bottom: var(--espaco-xs);
   }
 
-  header nav,
-  header nav a,
-  header > a {
+  /* No cartão estreito "✓ Comparando" não cabia com o padding lateral cheio
+     e o ✓ caía sobre o A. Com padding curto cabe numa linha a partir de 360px;
+     em 320px quebra em duas, e a entrelinha folgada afasta o ✓ da palavra
+     para ele não ler como acento. */
+  #lista-pokemons article > .botao-comparar,
+  #lista-favoritos article > .botao-comparar {
+    padding-inline: .25rem;
+    line-height: 1.7;
+  }
+
+  /* Entrelinha real: com line-height normal o rótulo quebrado em 2-3 linhas fica colado. */
+  #lista-favoritos article button {
+    line-height: 1.4;
+  }
+
+  #lista-pokemons article img,
+  #lista-favoritos article img {
     width: 100%;
+    max-width: 146px;
+    height: auto;
+    aspect-ratio: 1;
   }
 
-  header nav a,
-  header > a {
-    justify-content: center;
+  /* Nomes longos quebram dentro do cartão estreito. Sem o espaçamento herdado
+     do h3 (.5px por letra) um nome de 10 letras cabe em 112px (320px de tela).
+     O balance equilibra as linhas de nomes com espaço; uma palavra única que
+     não cabe é partida pelo overflow-wrap onde acabar a linha
+     ("Crabominab/le" em 320px). */
+  #lista-pokemons h3,
+  #lista-favoritos h3 {
+    letter-spacing: 0;
+  }
+
+  #lista-pokemons .dex-nome,
+  #lista-favoritos .dex-nome {
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   /* Busca */
-  #form-busca,
-  #form-busca-fav {
-    flex-direction: column;
-    align-items: stretch;
+  /* Sem flex-direction: column: num flex com wrap a largura da linha é a do
+     item mais largo (o campo, 270px intrínsecos) e o formulário vazava em 320px. */
+  .campo-busca,
+  input[type="search"] {
+    min-width: 0;
   }
 
-  #form-busca button[type="submit"],
-  #form-busca-fav button[type="submit"] {
-    width: 100%;
+  .campo-busca {
+    flex: 1 1 100%;
+  }
+
+  #form-busca > button,
+  #form-busca-fav > button {
+    flex: 1 1 0;
   }
 
   /* Paginação */
   #paginacao {
-    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: wrap;
     width: 100%;
   }
 
-  #paginacao button,
   #info-pagina {
+    order: -1;
     width: 100%;
+    text-align: center;
+  }
+
+  #paginacao button {
+    flex: 1 1 0;
+    width: auto;
+    padding-inline: var(--espaco-xs);
+    white-space: nowrap;
   }
 
   /* Detalhes */
   #conteudo {
-    padding: var(--espaco-md);
+    padding: var(--espaco-sm);
   }
 
   /* Atributos */
+  /* Célula mais enxuta para a tabela caber inteira no painel em 320px: o
+     mínimo dela é "Velocidade", "Valor" e "Barra" na fonte pixel mais o
+     padding lateral das três células. Com .45rem a tabela ainda passava 17px
+     da largura do painel. */
+  th, td {
+    padding: .4rem .25rem;
+  }
+
   tbody td:last-child {
     width: 40%;
   }
 
   /* Filtros */
-  .filtros-acoes {
-    flex-direction: column;
+  .filtros-acoes > button {
+    flex: 1 1 0;
   }
 
   .chip {
@@ -2999,10 +3422,6 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
     border-color: var(--realce) transparent transparent transparent;
   }
 
-  #lista-variacoes {
-    justify-content: center;
-  }
-
   /* Comparação */
   .cabecalho-comparacao {
     align-items: stretch;
@@ -3019,15 +3438,46 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 
   /* Detalhes e evolução: organização dos blocos */
+  /* Grade de até 2 colunas: cada bloco ocupa a linha toda, menos Peso e
+     Altura médios, que são curtos e ficam lado a lado em vez de gastar
+     altura. Só ficam lado a lado se cada um tiver 150px; abaixo disso a
+     grade tem 1 coluna e eles empilham. A coluna mínima nunca é menor que
+     metade da linha (descontada metade do gap), então nunca há 3 colunas. */
+  #conteudo > .ficha {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,
+      minmax(max(min(150px, 100%), calc(50% - var(--espaco-md) / 2)), 1fr));
+  }
+
   #conteudo > .ficha > section {
-    min-height: 140px;
+    grid-column: 1 / -1;
     height: auto;
     align-self: stretch;
     padding: var(--espaco-sm);
   }
 
+  /* O segundo seletor repete o da seção 13 para vencer o min-height de 145px.
+     O grid-column fica fora daqui: com essa especificidade ele venceria o
+     grid-column: auto de Peso e Altura logo abaixo. */
+  #conteudo > .ficha > section,
   #conteudo > .ficha > section:not(#secao-evolucao):not(:last-child) {
-    min-height: 135px;
+    min-height: 0;
+  }
+
+  #conteudo > .ficha > #secao-peso-medio,
+  #conteudo > .ficha > #secao-altura-media {
+    grid-column: auto;
+  }
+
+  /* Valor e unidade numa linha só dentro da caixa ("90,5 kg", "460,0 kg"). */
+  #poke-peso-medio,
+  #poke-altura-media {
+    font-size: .75rem;
+  }
+
+  .peso-medio-conteudo,
+  .altura-media-conteudo {
+    padding: var(--espaco-xs);
   }
 
   #conteudo > .ficha > #secao-evolucao,
@@ -3052,11 +3502,27 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
   }
 
   .formas {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(110px, 100%), 1fr));
   }
 
+  /* 7.125rem (114px) é o menor card em que "GIGANTAMAX" (106px com o
+     padding enxuto abaixo) e "Charizard" cabem numa linha só: 2 colunas em
+     360px, 1 em 320px e 2 em 430px. Com 96px entravam 3 colunas em 430 e as
+     palavras partiam no meio ("GIGANTAM/AX", "Charizar/d"). Em rem para
+     crescer junto com a fonte quando o usuário aumenta a do navegador. */
   #lista-variacoes {
-    grid-template-columns: repeat(auto-fit, minmax(110px, 132px));
+    grid-template-columns: repeat(auto-fit, minmax(min(7.125rem, 100%), 1fr));
+    justify-content: center;
+    padding: var(--espaco-xs);
+  }
+
+  #lista-variacoes .evo {
+    padding-inline: .25rem;
+  }
+
+  #lista-variacoes .forma-especial-badge {
+    padding-inline: .15rem;
+    overflow-wrap: normal;
   }
 
   .evo img {
@@ -3089,14 +3555,14 @@ progress[data-nivel="baixo"]::-moz-progress-bar {
 
 /* Telas até 500px */
 @media (max-width: 500px) {
-  /* Footer */
+  /* Footer: as 2 colunas e a marca na linha toda vêm do bloco de 800px. */
   .footer-container {
-    grid-template-columns: 1fr;
     padding: 36px 24px 28px;
   }
 
-  .footer-brand {
-    grid-column: auto;
+  /* Terceira secao sozinha na ultima linha: ocupa a largura toda */
+  .footer-section:last-child {
+    grid-column: 1 / -1;
   }
 
   .footer-bottom {

@@ -288,3 +288,20 @@ function criarBotaoVoltarAoTopo() {
   document.body.appendChild(botao);
   return botao;
 }
+
+/* --------------------------------------------------------------------------
+   O MENU LATERAL DEPOIS DE VOLTAR PELO HISTORICO.
+   Abrir e fechar o menu e servico do HTML (popover), sem JS. Sobra um caso:
+   quem toca num link do menu e depois volta (Voltar ou Avancar do navegador,
+   ou o botao Pokedex do menu quando ele usa history.back()) recebe a pagina
+   do jeito que ela saiu da tela, com o menu aberto por cima. O navegador
+   avisa dessa volta pelo pageshow com persisted; aqui o menu fecha.
+   -------------------------------------------------------------------------- */
+window.addEventListener('pageshow', function (evento) {
+  const menu = document.getElementById('menu');
+  // So fecha se estiver aberto: o Chrome 114 da erro ao fechar popover ja fechado.
+  // O teste do hidePopover vem antes: navegador sem popover nao entende o seletor.
+  if (evento.persisted && menu && menu.hidePopover && menu.matches(':popover-open')) {
+    menu.hidePopover();
+  }
+});
