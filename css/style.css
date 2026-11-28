@@ -214,51 +214,49 @@ header {
   margin-bottom: var(--espaco-lg);
 
   border-bottom: 4px solid var(--moldura-tinta);
-
-  /* Linha vermelha do cabeçalho */
   box-shadow: inset 0 -6px 0 -2px var(--chassi);
 }
 
-/* Aura vermelha abaixo do cabeçalho */
-header::after {
+body::before {
   content: "";
-  position: absolute;
-
-  top: 100%;
+  position: fixed;
+  top: 0;
   left: 0;
-
   width: 100%;
-  height: 120px;
+  height: 220px;
 
+  /* O cabeçalho (~84px) cobre o começo; a aura aparece a partir dele */
   background: linear-gradient(
     to bottom,
-    rgba(212, 0, 0, 0.45) 0%,
-    rgba(212, 0, 0, 0.20) 35%,
-    rgba(212, 0, 0, 0.07) 65%,
+    transparent 0,
+    transparent 70px,
+    rgba(212, 0, 0, 0.45) 84px,
+    rgba(212, 0, 0, 0.20) 120px,
+    rgba(212, 0, 0, 0.07) 170px,
     transparent 100%
   );
 
   filter: blur(25px);
-
   pointer-events: none;
-  z-index: 0;
+  
 }
 
-/* Mantém os elementos do cabeçalho acima do efeito */
-header > * {
+body > section {
   position: relative;
   z-index: 1;
 }
 
+main {
+  position: relative; /* continua sendo a âncora do top: 40% do ::after */
+}
 
-body::after {
+main::after {
   content: "";
   position: absolute;
 
-  top: 100%;
+  top: 40%;
   left: 0;
-  margin-top: 180px;;
-
+  
   width: 100%;
   height: 400px;
 
@@ -273,12 +271,7 @@ body::after {
   filter: blur(250px);
 
   pointer-events: none;
-  z-index: 0;
-}
-
-body > * {
-  position: relative;
-  z-index: 1;
+  z-index: -1;
 }
 
 .marca,
@@ -404,6 +397,7 @@ body > section {
   flex-wrap: wrap;
   gap: var(--espaco-sm);
   align-items: center;
+  z-index: 2;
 }
 
 #form-busca label,
@@ -864,7 +858,6 @@ button:disabled {
     0 12px 28px rgb(0, 0, 0),
     0 0 18px rgba(212, 0, 0, 0.507);
 
-  z-index: 2;
 }
 
 #lista-pokemons > li > article:hover::after,
@@ -887,102 +880,103 @@ button:disabled {
    GLOW DINÂMICO — COR DO PRIMEIRO TIPO DO POKÉMON
    ========================================================= */
 
-#lista-pokemons > li > article {
+#lista-pokemons, #lista-favoritos> li > article {
   --glow-tipo: var(--moldura-luz-2);
 }
 
+
 /* Normal */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Normal"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Normal"]:first-child) {
   --glow-tipo: #b9b98e;
 }
 
 /* Lutador */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Lutador"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Lutador"]:first-child) {
   --glow-tipo: #e0483f;
 }
 
 /* Voador */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Voador"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Voador"]:first-child) {
   --glow-tipo: #b7a3f7;
 }
 
 /* Venenoso */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Venenoso"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Venenoso"]:first-child) {
   --glow-tipo: #bf5cbd;
 }
 
 /* Terrestre */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Terrestre"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Terrestre"]:first-child) {
   --glow-tipo: #e6c777;
 }
 
 /* Pedra */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Pedra"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Pedra"]:first-child) {
   --glow-tipo: #c5b04a;
 }
 
 /* Inseto */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Inseto"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Inseto"]:first-child) {
   --glow-tipo: #b9cc2c;
 }
 
 /* Fantasma */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Fantasma"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Fantasma"]:first-child) {
   --glow-tipo: #8b6bb0;
 }
 
 /* Aço */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Aço"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Aço"]:first-child) {
   --glow-tipo: #c3c3dc;
 }
 
 /* Fogo */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Fogo"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Fogo"]:first-child) {
   --glow-tipo: #f79241;
 }
 
 /* Água */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Água"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Água"]:first-child) {
   --glow-tipo: #74a0f5;
 }
 
 /* Grama */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Grama"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Grama"]:first-child) {
   --glow-tipo: #86d156;
 }
 
 /* Elétrico */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Elétrico"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Elétrico"]:first-child) {
   --glow-tipo: #ffdc3c;
 }
 
 /* Psíquico */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Psíquico"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Psíquico"]:first-child) {
   --glow-tipo: #fd6a92;
 }
 
 /* Gelo */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Gelo"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Gelo"]:first-child) {
   --glow-tipo: #a7e6e3;
 }
 
 /* Dragão */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Dragão"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Dragão"]:first-child) {
   --glow-tipo: #8b5efd;
 }
 
 /* Sombrio */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Sombrio"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Sombrio"]:first-child) {
   --glow-tipo: #9b7f66;
 }
 
 /* Fada */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Fada"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Fada"]:first-child) {
   --glow-tipo: #eb9cc0;
 }
 
 /* Estelar — caso utilizado pelo projeto */
-#lista-pokemons > li > article:has(.tipos [data-tipo="Estelar"]:first-child) {
+:is(#lista-pokemons, #lista-favoritos) > li > article:has(.tipos [data-tipo="Estelar"]:first-child) {
   --glow-tipo: #5fc9b8;
 }
 
