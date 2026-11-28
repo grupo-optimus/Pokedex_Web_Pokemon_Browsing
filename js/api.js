@@ -17,6 +17,8 @@ const cacheEvolucao = new Map(); // Linha evolutiva ja montada, por especie
 const cacheHistoria = new Map(); // História em inglês da espécie
 const cacheFormasEspeciais = new Map(); // Mega/Gigantamax por especie-base
 const cacheRelacoesTipo = new Map(); // Relacoes ofensivas/defensivas por tipo
+const cacheListaMovimentos = new Map(); // Lista enxuta de movimentos por Pokémon
+const cacheDetalhesMovimento = new Map(); // Dados completos de cada movimento
 let cacheIndice = null; // Lista com o nome de TODOS os Pokemon
 
 /* --------------------------------------------------------------------------
@@ -246,9 +248,196 @@ async function obterPokemon(idOuNome) {
   const dados = await pedirJSON(BASE_URL + '/pokemon/' + chave);
   const pokemon = paraModelo(dados);
 
+  // A lista de movimentos fica fora do modelo principal para nao aumentar
+  // desnecessariamente os dados salvos em favoritos e comparacoes.
+  cacheListaMovimentos.set(String(pokemon.id), (dados.moves || []).map(function (item) {
+    return {
+      nome: item.move.name,
+      url: item.move.url,
+      detalhesAprendizagem: item.version_group_details || []
+    };
+  }));
+
   cacheDetalhes.set(chave, pokemon);
   cacheDetalhes.set(String(pokemon.id), pokemon); // Guarda tambem pelo numero
   return pokemon;
+}
+
+/* --------------------------------------------------------------------------
+   MOVIMENTOS DO POKÉMON
+   /pokemon/{id} informa quais movimentos ele aprende e como os aprende.
+   /move/{id} completa tipo, poder, efeitos e textos descritivos.
+   Os detalhes sao carregados em pequenos lotes e ficam em cache na memoria.
+   -------------------------------------------------------------------------- */
+function limparTextoMovimento(texto) {
+  return String(texto || '')
+    .replace(/[\n\f\r]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function traduzirMetodoAprendizagem(nome) {
+  const metodos = {
+    'level-up': 'Por nível',
+    machine: 'MT/MO',
+    tutor: 'Tutor',
+    egg: 'Ovo',
+    'stadium-surfing-pikachu': 'Evento',
+    'light-ball-egg': 'Ovo (item)',
+    'form-change': 'Mudança de forma',
+    'pokemon-evolve': 'Ao evoluir',
+    'specific-move': 'Movimento específico'
+  };
+
+  return metodos[nome] || arrumarTexto(nome || 'Desconhecido');
+}
+
+function detalheDeAprendizagemMaisRecente(detalhes) {
+  if (!Array.isArray(detalhes) || detalhes.length === 0) return null;
+
+  // Quando existe um registro por nível, ele é mais útil nesta lista do que
+  // uma ocorrência posterior do mesmo movimento via MT ou Tutor.
+  const aprendizagemPorNivel = detalhes.slice().reverse().find(function (detalhe) {
+    return detalhe.move_learn_method && detalhe.move_learn_method.name === 'level-up';
+  });
+
+  return aprendizagemPorNivel || detalhes[detalhes.length - 1];
+}
+
+function traduzirCategoriaMovimento(nome) {
+  const categorias = {
+    physical: 'Físico',
+    special: 'Especial',
+    status: 'Status'
+  };
+  return categorias[nome] || arrumarTexto(nome || 'Desconhecida');
+}
+
+function paraModeloMovimento(dados, aprendizagem) {
+  const nomesPortugues = (dados.names || []).find(function (item) {
+    return item.language && item.language.name === 'pt';
+  });
+  const nomesIngles = (dados.names || []).find(function (item) {
+    return item.language && item.language.name === 'en';
+  });
+
+  const efeitos = dados.effect_entries || [];
+  const efeitoPortugues = efeitos.find(item => item.language && item.language.name === 'pt');
+  const efeitoIngles = efeitos.find(item => item.language && item.language.name === 'en');
+  const efeitoEscolhido = efeitoPortugues || efeitoIngles || null;
+
+  const descricoes = dados.flavor_text_entries || [];
+  const descricaoPortugues = descricoes.filter(item => item.language && item.language.name === 'pt');
+  const descricaoIngles = descricoes.filter(item => item.language && item.language.name === 'en');
+  const descricaoEscolhida = descricaoPortugues.length
+    ? descricaoPortugues[descricaoPortugues.length - 1]
+    : (descricaoIngles.length ? descricaoIngles[descricaoIngles.length - 1] : null);
+
+  let efeito = efeitoEscolhido ? efeitoEscolhido.effect : '';
+  let efeitoCurto = efeitoEscolhido ? efeitoEscolhido.short_effect : '';
+  const chance = dados.effect_chance;
+
+  if (chance !== null && chance !== undefined) {
+    efeito = String(efeito).replace(/\$effect_chance/g, String(chance));
+    efeitoCurto = String(efeitoCurto).replace(/\$effect_chance/g, String(chance));
+  }
+
+  const nome = (nomesPortugues && nomesPortugues.name) ||
+    (nomesIngles && nomesIngles.name) || arrumarTexto(dados.name);
+  const metodo = aprendizagem && aprendizagem.move_learn_method
+    ? aprendizagem.move_learn_method.name
+    : 'unknown';
+
+  return {
+    nomeApi: dados.name,
+    nome: nome,
+    tipo: traduzirTipo(dados.type ? dados.type.name : 'unknown'),
+    poder: Number.isFinite(dados.power) ? dados.power : null,
+    precisao: Number.isFinite(dados.accuracy) ? dados.accuracy : null,
+    pp: Number.isFinite(dados.pp) ? dados.pp : null,
+    categoria: dados.damage_class ? traduzirCategoriaMovimento(dados.damage_class.name) : 'Desconhecida',
+    metodoAprendizagem: metodo,
+    metodoAprendizagemTexto: traduzirMetodoAprendizagem(metodo),
+    nivelAprendizagem: aprendizagem && metodo === 'level-up'
+      ? aprendizagem.level_learned_at
+      : null,
+    efeito: limparTextoMovimento(efeito),
+    efeitoIdioma: efeitoEscolhido && efeitoEscolhido.language ? efeitoEscolhido.language.name : 'en',
+    efeitoCurto: limparTextoMovimento(efeitoCurto),
+    descricao: descricaoEscolhida ? limparTextoMovimento(descricaoEscolhida.flavor_text) : '',
+    descricaoIdioma: descricaoEscolhida && descricaoEscolhida.language
+      ? descricaoEscolhida.language.name
+      : 'en',
+    chanceEfeito: chance,
+    alvo: dados.target ? arrumarTexto(dados.target.name) : '',
+    prioridade: Number.isFinite(dados.priority) ? dados.priority : 0
+  };
+}
+
+async function obterDetalheMovimento(movimento) {
+  if (cacheDetalhesMovimento.has(movimento.url)) {
+    return cacheDetalhesMovimento.get(movimento.url);
+  }
+
+  const dados = await pedirJSON(movimento.url);
+  const aprendizagem = detalheDeAprendizagemMaisRecente(movimento.detalhesAprendizagem);
+  const modelo = paraModeloMovimento(dados, aprendizagem);
+  cacheDetalhesMovimento.set(movimento.url, modelo);
+  return modelo;
+}
+
+async function obterMovimentosPokemon(idOuNome) {
+  const pokemon = await obterPokemon(idOuNome);
+  const movimentos = cacheListaMovimentos.get(String(pokemon.id)) || [];
+
+  // Limita a concorrencia: alguns Pokémon possuem centenas de movimentos.
+  // Cada trabalhador busca um detalhe por vez, sem disparar tudo de uma vez.
+  const resultados = new Array(movimentos.length);
+  let proximo = 0;
+
+  async function trabalhador() {
+    while (true) {
+      const indice = proximo++;
+      if (indice >= movimentos.length) return;
+
+      const movimento = movimentos[indice];
+      try {
+        resultados[indice] = await obterDetalheMovimento(movimento);
+      } catch (erro) {
+        // Uma falha isolada nao impede a lista de mostrar os demais golpes.
+        const aprendizagem = detalheDeAprendizagemMaisRecente(movimento.detalhesAprendizagem);
+        const metodo = aprendizagem && aprendizagem.move_learn_method
+          ? aprendizagem.move_learn_method.name
+          : 'unknown';
+
+        resultados[indice] = {
+          nomeApi: movimento.nome,
+          nome: arrumarTexto(movimento.nome),
+          tipo: 'Desconhecido',
+          poder: null,
+          precisao: null,
+          pp: null,
+          categoria: 'Desconhecida',
+          metodoAprendizagem: metodo,
+          metodoAprendizagemTexto: traduzirMetodoAprendizagem(metodo),
+          nivelAprendizagem: aprendizagem && metodo === 'level-up'
+            ? aprendizagem.level_learned_at
+            : null,
+          indisponivel: true
+        };
+      }
+    }
+  }
+
+  const quantidadeTrabalhadores = Math.min(8, movimentos.length);
+  await Promise.all(Array.from({ length: quantidadeTrabalhadores }, () => trabalhador()));
+
+  return resultados.filter(Boolean).sort(function (a, b) {
+    const nivelA = Number.isFinite(a.nivelAprendizagem) ? a.nivelAprendizagem : Number.MAX_SAFE_INTEGER;
+    const nivelB = Number.isFinite(b.nivelAprendizagem) ? b.nivelAprendizagem : Number.MAX_SAFE_INTEGER;
+    if (nivelA !== nivelB) return nivelA - nivelB;
+    return a.nome.localeCompare(b.nome, 'pt-BR');
+  });
 }
 
 /* --------------------------------------------------------------------------
