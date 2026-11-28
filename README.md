@@ -380,8 +380,9 @@ falha da API — então cai no estado `vazio`, não no `erro`.
 - **Sprite de geração nova destoa.** O tema usa o sprite dos próprios jogos FireRed/LeafGreen,
   que só existe até o #386. Do #387 em diante cai no sprite padrão da PokéAPI (a ordem de escolha
   está em `escolherImagem()`, em [js/api.js](js/api.js)).
-- **As duas fontes vêm do Google Fonts.** Sem internet, o navegador troca pelas fontes de sistema
-  e o layout continua funcionando, só perde o desenho pixelado.
+- **As três fontes vêm do Google Fonts** (a terceira, Tektur, desenha só os números). Sem
+  internet, o navegador troca pelas fontes de sistema e o layout continua funcionando, só perde
+  o desenho pixelado.
 - **A lista de lendários e míticos está fixa no código.** A PokéAPI só informa
   `is_legendary` dentro de `/pokemon-species/{id}`, um pedido POR Pokémon — montar a lista
   inteira custaria mais de mil requisições a cada clique no filtro. Então os **números** ficam

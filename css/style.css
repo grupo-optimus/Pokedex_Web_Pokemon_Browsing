@@ -5,6 +5,60 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400..700&display=swap');
 
+/* --------------------------------------------------------------------------
+   DÍGITOS
+
+   Os números saem em outra fonte, a Tektur, porque as duas fontes do projeto
+   falham justamente neles:
+   - a Press Start 2P é desenhada numa grade de 8px e só fica nítida em 8, 16
+     ou 24px. Nos tamanhos daqui (7 a 14px) o miolo do 6 e do 8 some: "#006"
+     vira "#00G" e "78" vira "7&";
+   - na Pixelify Sans o 5 lê como S, o 7 como 1 e o 2 como 8, em qualquer
+     tamanho.
+   A Tektur não é fonte de grade, então não tem tamanho ruim, e o desenho
+   quadrado dela, de visor, conversa com as duas.
+
+   O unicode-range faz cada fonte abaixo valer só para os caracteres listados.
+   Como elas vêm primeiro em --fonte-pixel e --fonte-texto, todo número do
+   site troca de fonte sem mexer em HTML nem JS, e as letras seguem iguais.
+
+   O size-adjust iguala a altura do dígito à da fonte vizinha: o dígito da
+   Tektur tem .7em de altura, o da Press Start 2P 1em e o da Pixelify Sans
+   .635em. Na fonte pixel o dígito novo fica mais estreito que o antigo (no
+   máximo .95em contra 1em) e na de texto praticamente igual, então o layout
+   não precisou de ajuste nenhum.
+
+   O font-weight em faixa diz que este arquivo (peso 500) atende qualquer peso
+   pedido. Sem isso o navegador engrossaria o dígito por conta própria dentro
+   de <strong> e fecharia o miolo dele de novo.
+
+   O @supports é só um filtro: todo navegador que entende font-format()
+   (Chrome 108, Firefox 106, Safari 17) também entende size-adjust. Sem
+   size-adjust o dígito sairia fora de tamanho; navegador antigo pula o bloco
+   e mantém os números como eram.
+   -------------------------------------------------------------------------- */
+@supports font-format(woff2) {
+  /* ponytail: URL versionada do Google Fonts. Se sair do ar, os números
+     voltam para a fonte antiga; aí vale hospedar o .woff2 dentro do projeto. */
+  @font-face {
+    font-family: 'Digitos Pixel';
+    src: url('https://fonts.gstatic.com/s/tektur/v6/XoHN2YHtS7q969kXCjzlV0aSkS_o8OacmTe0TYlYFot8TrwcVbtJacI.woff2') format('woff2');
+    unicode-range: U+23, U+2C, U+2E, U+30-39; /* # , . e 0 a 9 */
+    font-weight: 100 900;
+    size-adjust: 143%;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Digitos Texto';
+    src: url('https://fonts.gstatic.com/s/tektur/v6/XoHN2YHtS7q969kXCjzlV0aSkS_o8OacmTe0TYlYFot8TrwcVbtJacI.woff2') format('woff2');
+    unicode-range: U+30-39; /* 0 a 9 */
+    font-weight: 100 900;
+    size-adjust: 90%;
+    font-display: swap;
+  }
+}
+
 
 /* ==========================================================================
    02. VARIÁVEIS
@@ -12,8 +66,8 @@
    ========================================================================== */
 
 :root {
-  --fonte-pixel: 'Press Start 2P', 'Courier New', monospace;
-  --fonte-texto: 'Pixelify Sans', 'Trebuchet MS', Verdana, sans-serif;
+  --fonte-pixel: 'Digitos Pixel', 'Press Start 2P', 'Courier New', monospace;
+  --fonte-texto: 'Digitos Texto', 'Pixelify Sans', 'Trebuchet MS', Verdana, sans-serif;
 
   --fundo: #16203a;
   --painel: #2a3a5c;          
